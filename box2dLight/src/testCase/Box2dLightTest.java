@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -39,8 +40,9 @@ public class Box2dLightTest implements ApplicationListener,
 	 * boxes
 	 **/
 	private static final int RAYS_PER_BALL = 32;
-	private static final int BALLSNUM = 20;
+	private static final int BALLSNUM = 16;
 	
+	private static final float LIGHT_DISTANCE = 16f;
 	private static final float radius = 1f;
 	private SpriteBatch batch;
 	private BitmapFont font;
@@ -50,7 +52,7 @@ public class Box2dLightTest implements ApplicationListener,
 	private World world;
 
 	/** our boxes **/
-	private ArrayList<Body> balls = new ArrayList<Body>(20);
+	private ArrayList<Body> balls = new ArrayList<Body>(BALLSNUM);
 
 	/** our ground box **/
 	Body groundBody;
@@ -66,6 +68,7 @@ public class Box2dLightTest implements ApplicationListener,
 
 	/** BOX2D LIGHT STUFF END */
 
+	Matrix4 normalProjection = new Matrix4();
 	@Override
 	public void create() {
 		camera = new OrthographicCamera(48, 32);
@@ -84,6 +87,8 @@ public class Box2dLightTest implements ApplicationListener,
 		// register ourselfs as an InputProcessor
 		Gdx.input.setInputProcessor(this);
 
+		normalProjection.setToOrtho2D(0, 0, Gdx.graphics.getWidth(),
+				Gdx.graphics.getHeight());
 	}
 
 	@Override
@@ -93,6 +98,8 @@ public class Box2dLightTest implements ApplicationListener,
 		
 		
 		Gdx.graphics.getGL10().glClear(GL10.GL_COLOR_BUFFER_BIT);
+		
+		
 		batch.getProjectionMatrix().set(camera.combined);
 		batch.begin();
 
@@ -113,8 +120,7 @@ public class Box2dLightTest implements ApplicationListener,
 		/** BOX2D LIGHT STUFF END */
 
 		/** FONT */
-		batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(),
-				Gdx.graphics.getHeight());
+		batch.setProjectionMatrix(normalProjection);
 		batch.begin();
 		font.draw(batch, Integer.toString(Gdx.graphics.getFramesPerSecond()),
 				0, 20);
@@ -171,7 +177,7 @@ public class Box2dLightTest implements ApplicationListener,
 					0.5f + 0.5f * MathUtils.random());
 
 			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL, false, false,
-					c, 15, 0, 0);
+					c, LIGHT_DISTANCE, 0, 0);
 			light.body = boxBody;
 
 			/** BOX2D LIGHT STUFF END */
