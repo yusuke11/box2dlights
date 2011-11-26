@@ -156,6 +156,9 @@ public class RayHandler {
 	}
 
 	public void renderLights() {
+		if (camera != null) {
+			camera.apply(gl);
+		}
 		gl.glEnable(GL10.GL_BLEND);
 		gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE);
 
@@ -241,7 +244,7 @@ public class RayHandler {
 
 	public void removeAll() {
 
-		for (int i = lightList.size-1; i >= 0; i--) {
+		for (int i = lightList.size - 1; i >= 0; i--) {
 			lightList.items[i].remove();
 		}
 		lightList.clear();
