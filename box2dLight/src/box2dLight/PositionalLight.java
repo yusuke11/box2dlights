@@ -67,8 +67,8 @@ public abstract class PositionalLight extends Light {
 			seg[size++] = m_x[i];
 			seg[size++] = m_y[i];
 			final float s = 1f - m_f[i];
-			seg[size++] = Color.toFloatBits(color.r * s,
-					color.g * s, color.b * s, a * s);
+			seg[size++] = Color.toFloatBits(r * s,
+					g * s, b * s, a * s);
 		}
 		lightMesh.setVertices(seg, 0, size);
 
@@ -83,8 +83,8 @@ public abstract class PositionalLight extends Light {
 			seg[size++] = m_x[i];
 			seg[size++] = m_y[i];
 			final float s = 1f - m_f[i];
-			seg[size++] = Color.toFloatBits(color.r * s,
-					color.g * s, color.b * s, a * s);
+			seg[size++] = Color.toFloatBits(r * s,
+					g * s, b * s, a * s);
 			seg[size++] = m_x[i]
 					+ softShadowLenght * cos[i];
 			seg[size++] = m_y[i]
