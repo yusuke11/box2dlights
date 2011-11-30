@@ -67,7 +67,7 @@ public class ConeLight extends PositionalLight {
 
 	@Override
 	public void update() {
-		if (!active && staticLight)
+		if (!active || staticLight)
 			return;
 
 		Vector2 vec = null;
