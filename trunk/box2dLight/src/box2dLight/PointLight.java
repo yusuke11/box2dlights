@@ -17,7 +17,7 @@ public class PointLight extends PositionalLight {
 
 	@Override
 	public void update() {
-		if (!active && staticLight)
+		if (!active || staticLight)
 			return;
 
 		if (body != null) {
