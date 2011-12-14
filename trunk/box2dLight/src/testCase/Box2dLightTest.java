@@ -12,6 +12,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
@@ -40,9 +41,9 @@ public class Box2dLightTest implements ApplicationListener,
 	 * boxes
 	 **/
 	private static final int RAYS_PER_BALL = 32;
-	private static final int BALLSNUM = 16;
-	
-	private static final float LIGHT_DISTANCE = 16f;
+	private static final int BALLSNUM = 20;
+
+	private static final float LIGHT_DISTANCE = 20f;
 	private static final float radius = 1f;
 	private SpriteBatch batch;
 	private BitmapFont font;
@@ -69,6 +70,7 @@ public class Box2dLightTest implements ApplicationListener,
 	/** BOX2D LIGHT STUFF END */
 
 	Matrix4 normalProjection = new Matrix4();
+
 	@Override
 	public void create() {
 		camera = new OrthographicCamera(48, 32);
@@ -89,17 +91,21 @@ public class Box2dLightTest implements ApplicationListener,
 
 		normalProjection.setToOrtho2D(0, 0, Gdx.graphics.getWidth(),
 				Gdx.graphics.getHeight());
+
 	}
 
 	@Override
 	public void render() {
-		//should use fixed step
+		camera.update();
+		// should use fixed step
 		world.step(Gdx.graphics.getDeltaTime(), 8, 3);
-		
-		
-		Gdx.graphics.getGL10().glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
-		
+
+		if (Gdx.graphics.isGL20Available()) {
+			Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+		} else {
+			Gdx.graphics.getGL10().glClear(GL10.GL_COLOR_BUFFER_BIT);
+		}
+
 		batch.getProjectionMatrix().set(camera.combined);
 		batch.begin();
 
@@ -133,7 +139,7 @@ public class Box2dLightTest implements ApplicationListener,
 		world = new World(new Vector2(0, -10), true);
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		rayHandler = new RayHandler(world, camera,RAYS_PER_BALL);
+		rayHandler = new RayHandler(world, camera, RAYS_PER_BALL);
 		/** BOX2D LIGHT STUFF END */
 
 		ChainShape chainShape = new ChainShape();
@@ -176,7 +182,8 @@ public class Box2dLightTest implements ApplicationListener,
 					MathUtils.random(),
 					0.5f + 0.5f * MathUtils.random());
 
-			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL, false, false,
+			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL, false,
+					false,
 					c, LIGHT_DISTANCE, 0, 0);
 			light.body = boxBody;
 
