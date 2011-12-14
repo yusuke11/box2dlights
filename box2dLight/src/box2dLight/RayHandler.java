@@ -8,10 +8,12 @@ package box2dLight;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
@@ -22,11 +24,14 @@ public class RayHandler {
 
 	final int MIN_RAYS = 3;
 	int MAX_RAYS;
-	private GL10 gl;
+	private GL20 gl20;
+	private GL10 gl10;
 	public Mesh box;
 	public World world;
 	boolean culling = false;
 	public OrthographicCamera camera;
+	public ShaderProgram shader;
+	boolean isGL20 = false;
 	/**
 	 * This option need frame buffer with alpha channel You also need create box
 	 * mesh by hand
@@ -102,7 +107,7 @@ public class RayHandler {
 		this.world = world;
 		MAX_RAYS = maxRayCount;
 		this.camera = camera;
-		gl = Gdx.graphics.getGL10();
+
 		m_segments = new float[maxRayCount * 6];
 		m_x = new float[maxRayCount];
 		m_y = new float[maxRayCount];
@@ -111,6 +116,15 @@ public class RayHandler {
 				"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4,
 				"quad_colors"));
 		setShadowBox();
+
+		if (Gdx.graphics.isGL20Available()) {
+			createShader();
+		}
+		if (isGL20)
+			gl20 = Gdx.graphics.getGL20();
+		else
+			gl10 = Gdx.graphics.getGL10();
+
 	}
 
 	/**
@@ -157,17 +171,33 @@ public class RayHandler {
 
 	public void renderLights() {
 		if (camera != null) {
-			camera.apply(gl);
+			if (isGL20) {
+				shader.begin();
+				shader.setUniformMatrix("u_projectionViewMatrix",
+						camera.combined);
+			} else {
+				camera.apply(gl10);
+			}
 		}
-		gl.glEnable(GL10.GL_BLEND);
-		gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE);
+		if (isGL20) {
+			gl20.glEnable(GL20.GL_BLEND);
+			gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL10.GL_ONE);
+		} else {
+			gl10.glEnable(GL10.GL_BLEND);
+			gl10.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE);
+		}
 
 		final Light[] list = lightList.items;
 		for (int i = 0, size = lightList.size; i < size; i++) {
 			list[i].render();
 		}
-
-		gl.glDisable(GL10.GL_BLEND);
+		if (isGL20){
+			gl20.glDisable(GL20.GL_BLEND);
+			shader.end();
+			
+		}else{
+			gl10.glDisable(GL10.GL_BLEND);
+		}
 	}
 
 	/**
@@ -176,22 +206,22 @@ public class RayHandler {
 	 */
 	private void renderShadows() {
 
-		gl.glEnable(GL10.GL_BLEND);
-		// rendering shadow box over screen
-		gl.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
-		box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
-
-		gl.glDisable(GL10.GL_BLEND);
+		// gl.glEnable(GL10.GL_BLEND);
+		// // rendering shadow box over screen
+		// gl.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
+		// box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
+		//
+		// gl.glDisable(GL10.GL_BLEND);
 
 	}
 
 	private void alphaChannelClear() {
 		// clearing the alpha channel
-		gl.glClearColor(0f, 0f, 0f, ambientLight);
-		gl.glColorMask(false, false, false, true);
-		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		gl.glColorMask(true, true, true, true);
-		gl.glClearColor(0f, 0f, 0f, 1f);
+		// gl.glClearColor(0f, 0f, 0f, ambientLight);
+		// gl.glColorMask(false, false, false, true);
+		// gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		// gl.glColorMask(true, true, true, true);
+		// gl.glClearColor(0f, 0f, 0f, 1f);
 
 	}
 
@@ -248,6 +278,35 @@ public class RayHandler {
 			lightList.items[i].remove();
 		}
 		lightList.clear();
+	}
+
+	private void createShader() {
+		String vertexShader = "attribute vec4 vertex_positions;\n" //
+				+ "attribute vec4 quad_colors;\n" //
+				+ "uniform mat4 u_projectionViewMatrix;\n" //
+				+ "varying vec4 v_color;\n" //
+				+ "void main()\n" //
+				+ "{\n" //
+				+ "   v_color = quad_colors;\n" //
+				+ "   gl_Position =  u_projectionViewMatrix * vertex_positions;\n" //
+				+ "}\n";
+
+		String fragmentShader = "#ifdef GL_ES\n" //
+				+ "precision mediump float;\n" //
+				+ "#endif\n" //
+				+ "varying vec4 v_color;\n" //
+				+ "void main()\n"//
+				+ "{\n" //
+				+ "  gl_FragColor = v_color;\n" //
+				+ "}";
+
+		shader = new ShaderProgram(vertexShader, fragmentShader);
+		if (shader.isCompiled() == false)
+			Gdx.app.log("ERROR", shader.getLog());
+		else {
+			isGL20 = true;
+		}
+
 	}
 
 }
