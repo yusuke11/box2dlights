@@ -140,14 +140,8 @@ public class RayHandler {
 	 */
 	public final void updateAndRender() {
 		updateRays();
-		
-		if (shadows) {
-			alphaChannelClear();
-		}
 		renderLights();
-		if (shadows) {
-			renderShadows();
-		}
+
 	}
 
 	// Rays
@@ -173,9 +167,17 @@ public class RayHandler {
 		}
 		if (isGL20) {
 			gl20.glEnable(GL20.GL_BLEND);
-			gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL10.GL_ONE);
 		} else {
 			gl10.glEnable(GL10.GL_BLEND);
+		}
+
+		if (shadows) {
+			alphaChannelClear();
+		}
+
+		if (isGL20) {
+			gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL10.GL_ONE);
+		} else {
 			gl10.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE);
 		}
 
@@ -183,10 +185,14 @@ public class RayHandler {
 		for (int i = 0, size = lightList.size; i < size; i++) {
 			list[i].render();
 		}
+
+		if (shadows) {
+			renderShadows();
+		}
+
 		if (isGL20) {
 			gl20.glDisable(GL20.GL_BLEND);
 			shader.end();
-
 		} else {
 			gl10.glDisable(GL10.GL_BLEND);
 		}
@@ -199,18 +205,13 @@ public class RayHandler {
 	private void renderShadows() {
 
 		if (isGL20) {
-			gl20.glEnable(GL20.GL_BLEND);
 			// rendering shadow box over screen
 			gl20.glBlendFunc(GL20.GL_ONE, GL20.GL_DST_ALPHA);
-			box.render(shader,GL20.GL_TRIANGLE_FAN, 0, 4);
-			gl20.glDisable(GL20.GL_BLEND);
+			box.render(shader, GL20.GL_TRIANGLE_FAN, 0, 4);
 		} else {
-			gl10.glEnable(GL10.GL_BLEND);
 			// rendering shadow box over screen
 			gl10.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
 			box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
-
-			gl10.glDisable(GL10.GL_BLEND);
 		}
 	}
 
