@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
@@ -31,13 +32,13 @@ public class RayHandler {
 	boolean culling = false;
 	public OrthographicCamera camera;
 	public ShaderProgram shader;
-	boolean isGL20 = false;
+	final boolean isGL20;
 	/**
 	 * This option need frame buffer with alpha channel You also need create box
 	 * mesh by hand
 	 */
 	public static boolean shadows = false;
-	public float ambientLight = 0.2f;
+	public float ambientLight = 0.0f;
 	final public Array<Light> lightList = new Array<Light>(
 			false, 16,
 			Light.class);
@@ -117,9 +118,13 @@ public class RayHandler {
 				"quad_colors"));
 		setShadowBox();
 
-		if (Gdx.graphics.isGL20Available()) {
-			createShader();
+		boolean gl20works = Gdx.graphics.isGL20Available();
+		if (gl20works) {
+			gl20works = createShader();
 		}
+
+		isGL20 = gl20works;
+
 		if (isGL20)
 			gl20 = Gdx.graphics.getGL20();
 		else
@@ -135,10 +140,13 @@ public class RayHandler {
 	 */
 	public final void updateAndRender() {
 		updateRays();
+		
 		if (shadows) {
-			renderLightsAndShadows();
-		} else {
-			renderLights();
+			alphaChannelClear();
+		}
+		renderLights();
+		if (shadows) {
+			renderShadows();
 		}
 	}
 
@@ -151,22 +159,6 @@ public class RayHandler {
 			lightList.items[j].update();
 		}
 
-	}
-
-	/**
-	 * REMEMBER CALL updateRays(World world) BEFORE render. Don't call this
-	 * inside of any begin/end statements. Call this method after you have
-	 * rendered background but before UI Box2d bodies can be rendered before or
-	 * after depending how you want x-ray light interact with bodies
-	 */
-	public void renderLightsAndShadows() {
-		if (shadows) {
-			alphaChannelClear();
-		}
-		renderLights();
-		if (shadows) {
-			renderShadows();
-		}
 	}
 
 	public void renderLights() {
@@ -191,11 +183,11 @@ public class RayHandler {
 		for (int i = 0, size = lightList.size; i < size; i++) {
 			list[i].render();
 		}
-		if (isGL20){
+		if (isGL20) {
 			gl20.glDisable(GL20.GL_BLEND);
 			shader.end();
-			
-		}else{
+
+		} else {
 			gl10.glDisable(GL10.GL_BLEND);
 		}
 	}
@@ -206,23 +198,38 @@ public class RayHandler {
 	 */
 	private void renderShadows() {
 
-		// gl.glEnable(GL10.GL_BLEND);
-		// // rendering shadow box over screen
-		// gl.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
-		// box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
-		//
-		// gl.glDisable(GL10.GL_BLEND);
+		if (isGL20) {
+			gl20.glEnable(GL20.GL_BLEND);
+			// rendering shadow box over screen
+			gl20.glBlendFunc(GL20.GL_ONE, GL20.GL_DST_ALPHA);
+			box.render(shader,GL20.GL_TRIANGLE_FAN, 0, 4);
+			gl20.glDisable(GL20.GL_BLEND);
+		} else {
+			gl10.glEnable(GL10.GL_BLEND);
+			// rendering shadow box over screen
+			gl10.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
+			box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
 
+			gl10.glDisable(GL10.GL_BLEND);
+		}
 	}
 
 	private void alphaChannelClear() {
 		// clearing the alpha channel
-		// gl.glClearColor(0f, 0f, 0f, ambientLight);
-		// gl.glColorMask(false, false, false, true);
-		// gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		// gl.glColorMask(true, true, true, true);
-		// gl.glClearColor(0f, 0f, 0f, 1f);
 
+		if (isGL20) {
+			gl20.glClearColor(0f, 0f, 0f, ambientLight);
+			gl20.glColorMask(false, false, false, true);
+			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+			gl20.glColorMask(true, true, true, true);
+			gl20.glClearColor(0f, 0f, 0f, 1f);
+		} else {
+			gl10.glClearColor(0f, 0f, 0f, ambientLight);
+			gl10.glColorMask(false, false, false, true);
+			gl10.glClear(GL10.GL_COLOR_BUFFER_BIT);
+			gl10.glColorMask(true, true, true, true);
+			gl10.glClearColor(0f, 0f, 0f, 1f);
+		}
 	}
 
 	public void dispose() {
@@ -243,12 +250,43 @@ public class RayHandler {
 		@Override
 		public float reportRayFixture(Fixture fixture, Vector2 point,
 				Vector2 normal, float fraction) {
+
+			if ((filterA != null) && !contactFilter(fixture))
+				return -1;
+
 			m_x[m_index] = point.x;
 			m_y[m_index] = point.y;
 			m_f[m_index] = fraction;
 			return fraction;
 		}
 	};
+
+	/** light filter **/
+	private Filter filterA = null;
+
+	public void setContactFilter(Filter filter) {
+		filterA = filter;
+	}
+
+	public void setContactFilter(short categoryBits, short groupIndex,
+			short maskBits) {
+		filterA = new Filter();
+		filterA.categoryBits = categoryBits;
+		filterA.groupIndex = groupIndex;
+		filterA.maskBits = maskBits;
+	}
+
+	boolean contactFilter(Fixture fixtureB) {
+		Filter filterB = fixtureB.getFilterData();
+
+		if (filterA.groupIndex == filterB.groupIndex
+					&& filterA.groupIndex != 0)
+			return filterA.groupIndex > 0;
+
+		return (filterA.maskBits & filterB.categoryBits) != 0
+					&& (filterA.categoryBits & filterB.maskBits) != 0;
+
+	}
 
 	private void setShadowBox() {
 		int i = 0;
@@ -280,7 +318,7 @@ public class RayHandler {
 		lightList.clear();
 	}
 
-	private void createShader() {
+	private boolean createShader() {
 		String vertexShader = "attribute vec4 vertex_positions;\n" //
 				+ "attribute vec4 quad_colors;\n" //
 				+ "uniform mat4 u_projectionViewMatrix;\n" //
@@ -301,12 +339,12 @@ public class RayHandler {
 				+ "}";
 
 		shader = new ShaderProgram(vertexShader, fragmentShader);
-		if (shader.isCompiled() == false)
+		if (shader.isCompiled() == false) {
 			Gdx.app.log("ERROR", shader.getLog());
-		else {
-			isGL20 = true;
+			return false;
 		}
 
+		return true;
 	}
 
 }
