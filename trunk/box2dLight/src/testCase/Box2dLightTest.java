@@ -2,6 +2,7 @@ package testCase;
 
 import java.util.ArrayList;
 
+import box2dLight.ConeLight;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -41,7 +42,7 @@ public class Box2dLightTest implements ApplicationListener,
 	 * boxes
 	 **/
 	private static final int RAYS_PER_BALL = 32;
-	private static final int BALLSNUM = 20;
+	private static final int BALLSNUM = 1;
 
 	private static final float LIGHT_DISTANCE = 20f;
 	private static final float radius = 1f;
@@ -164,7 +165,6 @@ public class Box2dLightTest implements ApplicationListener,
 		def.friction = 0.01f;
 		def.shape = ballShape;
 		def.density = 1f;
-
 		BodyDef boxBodyDef = new BodyDef();
 		boxBodyDef.type = BodyType.DynamicBody;
 
@@ -182,9 +182,9 @@ public class Box2dLightTest implements ApplicationListener,
 					MathUtils.random(),
 					0.5f + 0.5f * MathUtils.random());
 
-			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL, false,
+			ConeLight light = new ConeLight(rayHandler, RAYS_PER_BALL, false,
 					false,
-					c, LIGHT_DISTANCE, 0, 0);
+					c, LIGHT_DISTANCE, 0, 10, 0, 45);
 			light.body = boxBody;
 
 			/** BOX2D LIGHT STUFF END */

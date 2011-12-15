@@ -17,7 +17,7 @@ public class DesktopLauncher {
 		config.useGL20 = false;
 
 		config.fullscreen = false;
-		new LwjglApplication(new Box2dLightTest(), config);
+		new LwjglApplication(new SimpleTest(), config);
 	}
 
 }
