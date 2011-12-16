@@ -223,13 +223,13 @@ public class RayHandler {
 			gl20.glColorMask(false, false, false, true);
 			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			gl20.glColorMask(true, true, true, true);
-			gl20.glClearColor(0f, 0f, 0f, 1f);
+			gl20.glClearColor(0f, 0f, 0f, 0f);
 		} else {
 			gl10.glClearColor(0f, 0f, 0f, ambientLight);
 			gl10.glColorMask(false, false, false, true);
 			gl10.glClear(GL10.GL_COLOR_BUFFER_BIT);
 			gl10.glColorMask(true, true, true, true);
-			gl10.glClearColor(0f, 0f, 0f, 1f);
+			gl10.glClearColor(0f, 0f, 0f, 0f);
 		}
 	}
 
