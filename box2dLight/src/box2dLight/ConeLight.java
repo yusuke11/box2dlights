@@ -70,10 +70,15 @@ public class ConeLight extends PositionalLight {
 		if (!active || staticLight)
 			return;
 
-		Vector2 vec = null;
+		float angle = 0;
 		if (body != null) {
-			vec = body.getPosition();
-			start.set(vec);
+			Vector2 vec = body.getPosition();
+			angle += body.getAngle() * MathUtils.radiansToDegrees;
+			final float cos = MathUtils.cosDeg(angle);
+			final float sin = MathUtils.sinDeg(angle);
+			final float dX = bodyOffsetX * cos - bodyOffsetY * sin;
+			final float dY = bodyOffsetX * sin + bodyOffsetY * cos;
+			start.set(vec.x + dX, vec.y + dY);
 		}
 
 		if (rayHandler.culling)
@@ -81,8 +86,10 @@ public class ConeLight extends PositionalLight {
 				return;
 
 		if (body != null) {
-			this.setPosAndDirection(vec.x, vec.y, body.getAngle()
-					* MathUtils.radiansToDegrees);
+			this.setPosAndDirection(start.x, start.y,
+					direction + angle);
+			direction -=angle;
+			
 		}
 
 		for (int i = 0; i < rayNum; i++) {

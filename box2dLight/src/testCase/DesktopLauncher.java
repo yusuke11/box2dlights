@@ -12,12 +12,12 @@ public class DesktopLauncher {
 		config.height = 480;
 		config.samples = 8;
 		config.depth = 0;
-		config.vSyncEnabled = false;
+		config.vSyncEnabled = true;
 		config.useCPUSynch = false;
 		config.useGL20 = false;
 
 		config.fullscreen = false;
-		new LwjglApplication(new SimpleTest(), config);
+		new LwjglApplication(new Box2dLightTest(), config);
 	}
 
 }
