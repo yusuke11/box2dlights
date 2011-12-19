@@ -21,8 +21,13 @@ public class PointLight extends PositionalLight {
 			return;
 
 		if (body != null) {
-			Vector2 vec = body.getPosition();
-			setPos(vec.x, vec.y);
+			final Vector2 vec = body.getPosition();
+			float angle = body.getAngle();
+			final float cos = MathUtils.cos(angle);
+			final float sin = MathUtils.sin(angle);
+			final float dX = bodyOffsetX * cos - bodyOffsetY * sin;
+			final float dY = bodyOffsetX * sin + bodyOffsetY * cos;
+			setPos(vec.x + dX, vec.y + dY);
 		}
 
 		if (rayHandler.culling)

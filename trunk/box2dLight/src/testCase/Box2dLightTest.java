@@ -42,7 +42,7 @@ public class Box2dLightTest implements ApplicationListener,
 	 * boxes
 	 **/
 	private static final int RAYS_PER_BALL = 32;
-	private static final int BALLSNUM = 1;
+	private static final int BALLSNUM = 16;
 
 	private static final float LIGHT_DISTANCE = 20f;
 	private static final float radius = 1f;
@@ -186,6 +186,7 @@ public class Box2dLightTest implements ApplicationListener,
 					false,
 					c, LIGHT_DISTANCE, 0, 10, 0, 45);
 			light.body = boxBody;
+			light.bodyOffsetX = 1f;
 
 			/** BOX2D LIGHT STUFF END */
 		}
