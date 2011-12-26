@@ -152,7 +152,7 @@ public abstract class PositionalLight extends Light {
 	public void render() {
 		if (active && !culled) {
 
-			if (rayHandler.isGL20) {
+			if (RayHandler.isGL20) {
 				lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN,
 						0,
 						vertexNum);

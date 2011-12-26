@@ -31,10 +31,10 @@ public class RayHandler {
 
 	public static boolean shadows = true;
 	public static boolean blur = true;
-	public static final int blurNum = 1;
+	public static final int blurNum = 4;
 	public static float ambientLight = 0f;
 
-	final int MIN_RAYS = 3;
+	final static int MIN_RAYS = 3;
 	int MAX_RAYS;
 	private GL20 gl20;
 	public Mesh box;
