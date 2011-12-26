@@ -12,7 +12,7 @@ public class DesktopLauncher {
 		config.height = 480;
 		config.samples = 0;
 		config.depth = 0;
-		config.vSyncEnabled = true;
+		config.vSyncEnabled = false;
 		config.useCPUSynch = false;
 		config.useGL20 = true;
 

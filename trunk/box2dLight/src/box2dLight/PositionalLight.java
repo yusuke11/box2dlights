@@ -48,7 +48,9 @@ public abstract class PositionalLight extends Light {
 	boolean testCull() {
 		return (culled = !rayHandler.intersect(start.x, start.y, distance));
 	}
+
 	static final float zero = Color.toFloatBits(0f, 0f, 0f, 0f);
+
 	@Override
 	void updateLightMesh() {
 
@@ -83,7 +85,7 @@ public abstract class PositionalLight extends Light {
 			if (!soft || xray)
 				return;
 
-			size = 0;			
+			size = 0;
 
 			for (int i = 0; i < arraySize; i++) {
 				seg[size++] = m_x[i];
@@ -92,9 +94,9 @@ public abstract class PositionalLight extends Light {
 				seg[size++] = Color.toFloatBits(r * s,
 						g * s, b * s, a * s);
 				seg[size++] = 0f;
-				seg[size++] = m_x[i]				                  
+				seg[size++] = m_x[i]
 						+ softShadowLenght * cos[i];
-				
+
 				seg[size++] = m_y[i]
 						+ softShadowLenght * sin[i];
 				seg[size++] = zero;
