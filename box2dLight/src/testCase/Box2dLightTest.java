@@ -40,8 +40,8 @@ public class Box2dLightTest implements ApplicationListener,
 	 * a spritebatch and a font for text rendering and a Texture to draw our
 	 * boxes
 	 **/
-	private static final int RAYS_PER_BALL = 256;
-	private static final int BALLSNUM = 12;
+	private static final int RAYS_PER_BALL = 96;
+	private static final int BALLSNUM = 8;
 
 	private static final float LIGHT_DISTANCE = 20f;
 	private static final float radius = 1f;
@@ -196,7 +196,7 @@ public class Box2dLightTest implements ApplicationListener,
 
 			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL, false,
 					false,
-					c, LIGHT_DISTANCE, 0, 10);
+					c, LIGHT_DISTANCE, 0, 0);
 			light.body = boxBody;
 			light.bodyOffsetX = 0f;
 
