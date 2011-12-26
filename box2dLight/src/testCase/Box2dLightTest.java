@@ -2,7 +2,6 @@ package testCase;
 
 import java.util.ArrayList;
 
-import box2dLight.ConeLight;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -41,14 +40,15 @@ public class Box2dLightTest implements ApplicationListener,
 	 * a spritebatch and a font for text rendering and a Texture to draw our
 	 * boxes
 	 **/
-	private static final int RAYS_PER_BALL = 32;
-	private static final int BALLSNUM = 16;
+	private static final int RAYS_PER_BALL = 128;
+	private static final int BALLSNUM = 12;
 
 	private static final float LIGHT_DISTANCE = 20f;
 	private static final float radius = 1f;
 	private SpriteBatch batch;
 	private BitmapFont font;
 	private TextureRegion textureRegion;
+	private Texture bg; 
 
 	/** our box2D world **/
 	private World world;
@@ -84,6 +84,9 @@ public class Box2dLightTest implements ApplicationListener,
 		font.setColor(Color.RED);
 		textureRegion = new TextureRegion(new Texture(
 				Gdx.files.internal("data/marble.png")));
+		
+		bg = new Texture(
+				Gdx.files.internal("data/bg.png"));
 
 		// next we create out physics world.
 		createPhysicsWorld();
@@ -108,9 +111,15 @@ public class Box2dLightTest implements ApplicationListener,
 		}
 
 		batch.getProjectionMatrix().set(camera.combined);
-		batch.begin();
-
-		for (int i = 0; i < BALLSNUM; i++) {
+		
+		batch.disableBlending();
+		batch.begin();;
+		batch.draw(bg, -24,0,48,32);
+		
+		batch.enableBlending();
+		
+		for (int i = 0; i < BALLSNUM; i++) {			
+			
 			final Body ball = balls.get(i);
 			final Vector2 position = ball.getPosition();
 			final float angle = MathUtils.radiansToDegrees * ball.getAngle();
@@ -180,13 +189,13 @@ public class Box2dLightTest implements ApplicationListener,
 			/** BOX2D LIGHT STUFF BEGIN */
 			Color c = new Color(MathUtils.random(), MathUtils.random(),
 					MathUtils.random(),
-					0.5f + 0.5f * MathUtils.random());
+					1);
 
-			ConeLight light = new ConeLight(rayHandler, RAYS_PER_BALL, false,
+			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL, false,
 					false,
-					c, LIGHT_DISTANCE, 0, 10, 0, 45);
+					c, LIGHT_DISTANCE, 0, 10);
 			light.body = boxBody;
-			light.bodyOffsetX = 1f;
+			light.bodyOffsetX = 0f;
 
 			/** BOX2D LIGHT STUFF END */
 		}
@@ -273,12 +282,11 @@ public class Box2dLightTest implements ApplicationListener,
 
 	@Override
 	public boolean keyDown(int keycode) {
-
-		for (Body box : balls)
-			world.destroyBody(box);
-		balls.clear();
-		rayHandler.removeAll();
-		createBoxes();
+//		for (Body box : balls)
+//			world.destroyBody(box);
+//		balls.clear();
+//		rayHandler.removeAll();
+//		createBoxes();
 		return false;
 	}
 

@@ -10,11 +10,11 @@ public class DesktopLauncher {
 		config.title = "physic particle test";
 		config.width = 800;
 		config.height = 480;
-		config.samples = 8;
+		config.samples = 0;
 		config.depth = 0;
 		config.vSyncEnabled = true;
 		config.useCPUSynch = false;
-		config.useGL20 = false;
+		config.useGL20 = true;
 
 		config.fullscreen = false;
 		new LwjglApplication(new Box2dLightTest(), config);

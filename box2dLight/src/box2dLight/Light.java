@@ -21,7 +21,7 @@ public abstract class Light {
 	Color color;
 	Mesh lightMesh;
 	Mesh softShadowMesh;
-	public float softShadowLenght = 3f;
+	public float softShadowLenght = 5f;
 
 	Light(RayHandler rayHandler, int rays, boolean isStatic,
 			boolean isXray, Color color, float directionDegree, float distance) {
