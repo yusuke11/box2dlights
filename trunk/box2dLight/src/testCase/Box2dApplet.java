@@ -6,6 +6,6 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplet;
 @SuppressWarnings("serial")
 public class Box2dApplet extends LwjglApplet {
 	public Box2dApplet() {
-		super(new Box2dLightTest(), false);
+		super(new Box2dLightTest(), true);
 	}
 }
