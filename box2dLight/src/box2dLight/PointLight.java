@@ -11,6 +11,7 @@ public class PointLight extends PositionalLight {
 			float x, float y) {
 		super(rayHandler, rays, isStatic, isXray, color, distance, x, y, 0f);
 		setEndPoints();
+		setPos(start.x, start.y);
 	}
 
 	private final Vector2 tmpEnd = new Vector2();
@@ -37,8 +38,9 @@ public class PointLight extends PositionalLight {
 		for (int i = 0; i < rayNum; i++) {
 			rayHandler.m_index = i;
 			rayHandler.m_f[i] = 1f;
-			tmpEnd.set(end[i]).add(start);
+			tmpEnd.x = end[i].x + start.x;
 			rayHandler.m_x[i] = tmpEnd.x;
+			tmpEnd.y = end[i].y + start.y;
 			rayHandler.m_y[i] = tmpEnd.y;
 			if (!xray) {
 				rayHandler.world.rayCast(rayHandler.ray, start, tmpEnd);
@@ -71,7 +73,7 @@ public class PointLight extends PositionalLight {
 	@Override
 	public void setDirection(float directionDegree) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }
