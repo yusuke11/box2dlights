@@ -26,8 +26,8 @@ import com.badlogic.gdx.utils.Array;
 
 public class RayHandler {
 
-	public static int FBO_W = 400;
-	public static int FBO_H = 240;
+	public static int FBO_W = 200;
+	public static int FBO_H = 120;
 
 	public static boolean shadows = true;
 	public static boolean blur = true;
@@ -154,7 +154,7 @@ public class RayHandler {
 	}
 
 	// Rays
-	public final void updateRays() {
+	public final void updateRays() {		
 		updateCameraCorners();
 
 		final int size = lightList.size;
