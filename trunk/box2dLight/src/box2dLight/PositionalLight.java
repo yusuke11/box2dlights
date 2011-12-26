@@ -15,6 +15,17 @@ public abstract class PositionalLight extends Light {
 	public Body body;
 	public float bodyOffsetX;
 	public float bodyOffsetY;
+
+	/**
+	 * attach positional light to automatically follow body. Position is fixed
+	 * to given offset
+	 */
+	public void attachToBody(Body body, float offsetX, float offSetY) {
+		this.body = body;
+		bodyOffsetX = offsetX;
+		bodyOffsetY = offSetY;
+	}
+
 	final float sin[];
 	final float cos[];
 
@@ -82,8 +93,6 @@ public abstract class PositionalLight extends Light {
 		updateLightMesh();
 	}
 
-	static final float zero = Color.toFloatBits(0f, 0f, 0f, 0f);
-
 	@Override
 	public void render() {
 		if (active && !culled) {
@@ -106,6 +115,7 @@ public abstract class PositionalLight extends Light {
 		}
 	}
 
+	@Override
 	public void setPos(float x, float y) {
 		start.x = x;
 		start.y = y;

@@ -2,6 +2,7 @@ package box2dLight;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.physics.box2d.Body;
 
 public abstract class Light {
 
@@ -18,10 +19,11 @@ public abstract class Light {
 	int vertexNum;
 	float distance;
 	float direction;
-	Color color;
+	Color color = new Color();
 	Mesh lightMesh;
 	Mesh softShadowMesh;
 	public float softShadowLenght = 5f;
+	float colorF;
 
 	Light(RayHandler rayHandler, int rays, boolean isStatic,
 			boolean isXray, Color color, float directionDegree, float distance) {
@@ -31,8 +33,21 @@ public abstract class Light {
 		this.staticLight = isStatic;
 		this.xray = isXray;
 		this.direction = directionDegree;
-		this.color = color;
 		setDistance(distance);
+		setColor(color);
+	}
+
+	/** rgb set the color and alpha set intesity
+	 * NOTE: you can use colorless light too(EG 0,0,0,1)
+	 * */
+	public void setColor(Color newColor) {
+		this.color.set(newColor);
+		colorF = color.toIntBits();
+	}
+
+	public void setColor(float r, float g, float b, float a) {
+		this.color.set(r, g, b, a);
+		colorF = color.toIntBits();
 	}
 
 	public void setDistance(float dist) {
@@ -54,18 +69,33 @@ public abstract class Light {
 
 	}
 
-	public abstract void update();
+	abstract void update();
 
-	public abstract void render();
+	abstract void render();
 
-	abstract void updateLightMesh();
-	
 	public abstract void setDirection(float directionDegree);
-	
+
 	public void remove() {
 		rayHandler.lightList.removeValue(this, true);
 		lightMesh.dispose();
-		softShadowMesh.dispose();		
+		softShadowMesh.dispose();
 	}
+
+	/**
+	 * attach positional light to automatically follow body. Position is fixed
+	 * to given offset
+	 * 
+	 * NOTE: does absolute nothing if directional light
+	 */
+	public abstract void attachToBody(Body body, float offsetX, float offSetY);
+
+	/**
+	 * set light starting position
+	 * 
+	 * NOTE: does absolute nothing if directional light
+	 */
+	public abstract void setPos(float x, float y);
+
+	abstract void updateLightMesh();
 
 }

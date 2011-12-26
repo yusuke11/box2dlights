@@ -48,7 +48,7 @@ public class Box2dLightTest implements ApplicationListener,
 	private SpriteBatch batch;
 	private BitmapFont font;
 	private TextureRegion textureRegion;
-	private Texture bg; 
+	private Texture bg;
 
 	/** our box2D world **/
 	private World world;
@@ -84,7 +84,7 @@ public class Box2dLightTest implements ApplicationListener,
 		font.setColor(Color.RED);
 		textureRegion = new TextureRegion(new Texture(
 				Gdx.files.internal("data/marble.png")));
-		
+
 		bg = new Texture(
 				Gdx.files.internal("data/bg.png"));
 
@@ -100,7 +100,7 @@ public class Box2dLightTest implements ApplicationListener,
 
 	@Override
 	public void render() {
-	
+
 		camera.update();
 		// should use fixed step
 		world.step(Gdx.graphics.getDeltaTime(), 8, 3);
@@ -112,15 +112,16 @@ public class Box2dLightTest implements ApplicationListener,
 		}
 
 		batch.getProjectionMatrix().set(camera.combined);
-		
+
 		batch.disableBlending();
-		batch.begin();;
-		batch.draw(bg, -24,0,48,32);
-		
+		batch.begin();
+		;
+		batch.draw(bg, -24, 0, 48, 32);
+
 		batch.enableBlending();
-		
-		for (int i = 0; i < BALLSNUM; i++) {			
-			
+
+		for (int i = 0; i < BALLSNUM; i++) {
+
 			final Body ball = balls.get(i);
 			final Vector2 position = ball.getPosition();
 			final float angle = MathUtils.radiansToDegrees * ball.getAngle();
@@ -139,10 +140,11 @@ public class Box2dLightTest implements ApplicationListener,
 		/** FONT */
 		batch.setProjectionMatrix(normalProjection);
 		batch.begin();
-		
-		font.draw(batch, Integer.toString(Gdx.graphics.getFramesPerSecond())+"      - GL es 2.0:" + Gdx.graphics.isGL20Available(),
+
+		font.draw(batch, Integer.toString(Gdx.graphics.getFramesPerSecond())
+				+ "      - GL es 2.0:" + Gdx.graphics.isGL20Available(),
 				0, 20);
-		
+
 		batch.end();
 
 	}
@@ -285,11 +287,7 @@ public class Box2dLightTest implements ApplicationListener,
 
 	@Override
 	public boolean keyDown(int keycode) {
-//		for (Body box : balls)
-//			world.destroyBody(box);
-//		balls.clear();
-//		rayHandler.removeAll();
-//		createBoxes();
+
 		return false;
 	}
 
@@ -300,6 +298,7 @@ public class Box2dLightTest implements ApplicationListener,
 
 	@Override
 	public boolean keyUp(int keycode) {
+
 		return false;
 	}
 

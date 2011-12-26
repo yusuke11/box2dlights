@@ -31,7 +31,7 @@ public class RayHandler {
 
 	public static boolean shadows = true;
 	public static boolean blur = true;
-	public static final int blurNum = 1;
+	public static int blurNum = 2;
 	public static float ambientLight = 0.0f;
 
 	final static int MIN_RAYS = 3;
