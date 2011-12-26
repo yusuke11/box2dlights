@@ -68,4 +68,10 @@ public class PointLight extends PositionalLight {
 		}
 	}
 
+	@Override
+	public void setDirection(float directionDegree) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

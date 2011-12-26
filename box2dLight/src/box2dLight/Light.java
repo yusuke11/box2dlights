@@ -60,6 +60,8 @@ public abstract class Light {
 
 	abstract void updateLightMesh();
 	
+	public abstract void setDirection(float directionDegree);
+	
 	public void remove() {
 		rayHandler.lightList.removeValue(this, true);
 		lightMesh.dispose();
