@@ -7,14 +7,14 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 
 public class DirectionalLight extends Light {
 
 	float sin;
 	float cos;
 	final Vector2 start[];
-	final Vector2 end[];
-	float colorF;
+	final Vector2 end[];	
 
 	public DirectionalLight(RayHandler rayHandler, int rays, boolean isStatic,
 				boolean isXray, Color color, float directionDegree,
@@ -23,7 +23,6 @@ public class DirectionalLight extends Light {
 		super(rayHandler, rays, isStatic, isXray, color, directionDegree,
 					distance);
 
-		colorF = super.color.toFloatBits();
 		vertexNum = (vertexNum - 1) * 2;
 
 		start = new Vector2[rayNum];
@@ -142,7 +141,8 @@ public class DirectionalLight extends Light {
 		if (active) {
 
 			if (RayHandler.isGL20) {
-				lightMesh.render(rayHandler.lightShader, GL10.GL_TRIANGLE_FAN, 0,
+				lightMesh.render(rayHandler.lightShader, GL10.GL_TRIANGLE_FAN,
+						0,
 						vertexNum);
 				if (soft && !xray) {
 					softShadowMesh.render(rayHandler.lightShader,
@@ -156,6 +156,14 @@ public class DirectionalLight extends Light {
 				}
 			}
 		}
+	}
+
+	@Override
+	final public void attachToBody(Body body, float offsetX, float offSetY) {
+	}
+
+	@Override
+	public void setPos(float x, float y) {
 	}
 
 }

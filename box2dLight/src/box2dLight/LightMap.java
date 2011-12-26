@@ -156,6 +156,13 @@ class LightMap {
 		verts[V4] = 1f;
 	}
 
+	void dispose() {
+		lightMapMesh.dispose();
+		frameBuffer.dispose();
+		pingPongBuffer.dispose();
+
+	}
+
 	private float[] verts = new float[VERT_SIZE];
 	static public final int VERT_SIZE = 16;
 	static public final int X1 = 0;
