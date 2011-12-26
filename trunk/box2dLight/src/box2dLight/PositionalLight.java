@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 
@@ -26,7 +27,7 @@ public abstract class PositionalLight extends Light {
 
 		super(rayHandler, rays, isStatic, isXray, color, directionDegree,
 				distance);
-		start.set(x, y);
+		setPos(x, y);
 		sin = new float[rays];
 		cos = new float[rays];
 		end = new Vector2[rays];
@@ -45,11 +46,76 @@ public abstract class PositionalLight extends Light {
 		rayHandler.lightList.add(this);
 	}
 
-	boolean testCull() {
-		return (culled = !rayHandler.intersect(start.x, start.y, distance));
+	private final Vector2 tmpEnd = new Vector2();
+
+	@Override
+	public void update() {
+		if (!active || staticLight)
+			return;
+
+		if (body != null) {
+			final Vector2 vec = body.getPosition();
+			float angle = body.getAngle();
+			final float cos = MathUtils.cos(angle);
+			final float sin = MathUtils.sin(angle);
+			final float dX = bodyOffsetX * cos - bodyOffsetY * sin;
+			final float dY = bodyOffsetX * sin + bodyOffsetY * cos;
+			start.x = vec.x + dX;
+			start.y = vec.y + dY;
+		}
+
+		if (rayHandler.culling)
+			if ((culled = !rayHandler.intersect(start.x, start.y, distance)))
+				return;
+
+		for (int i = 0; i < rayNum; i++) {
+			rayHandler.m_index = i;
+			rayHandler.m_f[i] = 1f;
+			tmpEnd.x = end[i].x + start.x;
+			rayHandler.m_x[i] = tmpEnd.x;
+			tmpEnd.y = end[i].y + start.y;
+			rayHandler.m_y[i] = tmpEnd.y;
+			if (!xray) {
+				rayHandler.world.rayCast(rayHandler.ray, start, tmpEnd);
+			}
+		}
+		updateLightMesh();
 	}
 
 	static final float zero = Color.toFloatBits(0f, 0f, 0f, 0f);
+
+	@Override
+	public void render() {
+		if (active && !culled) {
+
+			if (RayHandler.isGL20) {
+				lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN,
+						0,
+						vertexNum);
+				if (soft && !xray) {
+					softShadowMesh.render(rayHandler.lightShader,
+							GL20.GL_TRIANGLE_STRIP, 0, (vertexNum - 1) * 2);
+				}
+			} else {
+				lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);
+				if (soft && !xray) {
+					softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0,
+							(vertexNum - 1) * 2);
+				}
+			}
+		}
+	}
+
+	public void setPos(float x, float y) {
+		start.x = x;
+		start.y = y;
+
+		if (staticLight) {
+			staticLight = false;
+			update();
+			staticLight = true;
+		}
+	}
 
 	@Override
 	void updateLightMesh() {
@@ -149,28 +215,4 @@ public abstract class PositionalLight extends Light {
 			softShadowMesh.setVertices(seg, 0, size);
 		}
 	}
-
-	@Override
-	public void render() {
-		if (active && !culled) {
-
-			if (RayHandler.isGL20) {
-				lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN,
-						0,
-						vertexNum);
-				if (soft && !xray) {
-					softShadowMesh.render(rayHandler.lightShader,
-							GL20.GL_TRIANGLE_STRIP, 0, (vertexNum - 1) * 2);
-				}
-			} else {
-				lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);
-				if (soft && !xray) {
-					softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0,
-							(vertexNum - 1) * 2);
-				}
-			}
-		}
-	}
-
-	abstract public void setPos(float x, float y);
 }
