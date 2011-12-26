@@ -37,7 +37,7 @@ public abstract class Light {
 
 	public void setDistance(float dist) {
 		if (dist <= 0) {
-			dist = 0.001f;
+			dist = 0.01f;
 		}
 		this.distance = dist;
 	}
@@ -46,8 +46,8 @@ public abstract class Light {
 		if (rays > rayHandler.MAX_RAYS) {
 			rays = rayHandler.MAX_RAYS;
 		}
-		if (rays < rayHandler.MIN_RAYS) {
-			rays = rayHandler.MIN_RAYS;
+		if (rays < RayHandler.MIN_RAYS) {
+			rays = RayHandler.MIN_RAYS;
 		}
 		rayNum = rays;
 		vertexNum = rays + 1;
