@@ -5,7 +5,10 @@ package box2dLight;
  *
  */
 
+import shaders.LightShader;
+
 import com.badlogic.gdx.Gdx;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
@@ -23,22 +26,25 @@ import com.badlogic.gdx.utils.Array;
 
 public class RayHandler {
 
+	public static int FBO_W = 400;
+	public static int FBO_H = 240;
+
+	public static boolean shadows = true;
+	public static boolean blur = true;
+	public static final int blurNum = 1;
+	public static float ambientLight = 0f;
+
 	final int MIN_RAYS = 3;
 	int MAX_RAYS;
 	private GL20 gl20;
-	private GL10 gl10;
 	public Mesh box;
 	public World world;
 	boolean culling = false;
 	public OrthographicCamera camera;
-	public ShaderProgram shader;
-	final boolean isGL20;
-	/**
-	 * This option need frame buffer with alpha channel You also need create box
-	 * mesh by hand
-	 */
-	public static boolean shadows = false;
-	public float ambientLight = 0.0f;
+	public ShaderProgram lightShader;
+
+	static boolean isGL20;
+
 	final public Array<Light> lightList = new Array<Light>(
 			false, 16,
 			Light.class);
@@ -63,8 +69,7 @@ public class RayHandler {
 	}
 
 	void updateCameraCorners() {
-		if (camera != null)
-			updateCameraCorners(camera.zoom, camera.viewportWidth,
+		updateCameraCorners(camera.zoom, camera.viewportWidth,
 					camera.viewportHeight);
 	}
 
@@ -90,6 +95,8 @@ public class RayHandler {
 	public float x2;
 	public float y1;
 	public float y2;
+	private GL10 gl10;
+	private LightMap lightMap;
 
 	static final int defaultMaximum = 1023;
 
@@ -108,27 +115,29 @@ public class RayHandler {
 		this.world = world;
 		MAX_RAYS = maxRayCount;
 		this.camera = camera;
-
-		m_segments = new float[maxRayCount * 6];
+		updateCameraCorners();
+		m_segments = new float[maxRayCount * 8];
 		m_x = new float[maxRayCount];
 		m_y = new float[maxRayCount];
 		m_f = new float[maxRayCount];
-		box = new Mesh(true, 12, 0, new VertexAttribute(Usage.Position, 2,
-				"vertex_positions"), new VertexAttribute(Usage.ColorPacked, 4,
-				"quad_colors"));
-		setShadowBox();
 
-		boolean gl20works = Gdx.graphics.isGL20Available();
-		if (gl20works) {
-			gl20works = createShader();
+		isGL20 = Gdx.graphics.isGL20Available();
+		if (isGL20) {
+
+			lightMap = new LightMap(x1, x2, y1, y2);
+			lightShader = LightShader.createLightShader();
 		}
-
-		isGL20 = gl20works;
 
 		if (isGL20)
 			gl20 = Gdx.graphics.getGL20();
-		else
+		else {
 			gl10 = Gdx.graphics.getGL10();
+			box = new Mesh(true, 12, 0, new VertexAttribute(Usage.Position, 2,
+			"vertex_positions"), new VertexAttribute(Usage.ColorPacked,
+			4,"quad_colors"));
+			setShadowBox();
+
+		}
 
 	}
 
@@ -156,81 +165,68 @@ public class RayHandler {
 	}
 
 	public void renderLights() {
-		if (camera != null) {
-			if (isGL20) {
-				shader.begin();
-				shader.setUniformMatrix("u_projectionViewMatrix",
-						camera.combined);
-			} else {
-				camera.apply(gl10);
-			}
-		}
+		Gdx.gl.glDepthMask(false);
+
 		if (isGL20) {
-			gl20.glEnable(GL20.GL_BLEND);
+			renderWithShaders();
 		} else {
+			camera.apply(gl10);
 			gl10.glEnable(GL10.GL_BLEND);
-		}
 
-		if (shadows) {
-			alphaChannelClear();
-		}
+			if (shadows) {
+				alphaChannelClear();
+			}
 
-		if (isGL20) {
-			gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL10.GL_ONE);
-		} else {
 			gl10.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE);
-		}
 
-		final Light[] list = lightList.items;
-		for (int i = 0, size = lightList.size; i < size; i++) {
-			list[i].render();
-		}
+			final Light[] list = lightList.items;
+			for (int i = 0, size = lightList.size; i < size; i++) {
+				list[i].render();
+			}
 
-		if (shadows) {
-			renderShadows();
-		}
+			if (shadows) {
+				gl10.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
+				box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
+				gl10.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_COLOR);
+			}
 
-		if (isGL20) {
-			gl20.glDisable(GL20.GL_BLEND);
-			shader.end();
-		} else {
 			gl10.glDisable(GL10.GL_BLEND);
 		}
 	}
 
-	/**
-	 * call alphaChannelClear() before light rendering and after lights call
-	 * this. Use renderLightAndShadows() for simplicity
-	 */
-	private void renderShadows() {
+	void renderWithShaders() {
+		lightMap.setLightMapPos(x1, x2, y1, y2);
 
-		if (isGL20) {
-			// rendering shadow box over screen
-			gl20.glBlendFunc(GL20.GL_ONE, GL20.GL_DST_ALPHA);
-			box.render(shader, GL20.GL_TRIANGLE_FAN, 0, 4);
-		} else {
-			// rendering shadow box over screen
-			gl10.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
-			box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
+		lightShader.begin();
+		{
+			lightShader.setUniformMatrix("u_projTrans",
+					camera.combined);
+
+			lightMap.frameBuffer.begin();
+
+			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+			gl20.glEnable(GL20.GL_BLEND);
+			gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+
+			final Light[] list = lightList.items;
+			for (int i = 0, size = lightList.size; i < size; i++) {
+				list[i].render();
+			}
+			lightMap.frameBuffer.end();
 		}
+		lightShader.end();
+
+		lightMap.render(camera);
 	}
 
 	private void alphaChannelClear() {
-		// clearing the alpha channel
+		gl10.glClearColor(0f, 0f, 0f, ambientLight);
+		gl10.glColorMask(false, false, false, true);
+		gl10.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		gl10.glColorMask(true, true, true, true);
+		gl10.glClearColor(0f, 0f, 0f, 0f);
 
-		if (isGL20) {
-			gl20.glClearColor(0f, 0f, 0f, ambientLight);
-			gl20.glColorMask(false, false, false, true);
-			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
-			gl20.glColorMask(true, true, true, true);
-			gl20.glClearColor(0f, 0f, 0f, 0f);
-		} else {
-			gl10.glClearColor(0f, 0f, 0f, ambientLight);
-			gl10.glColorMask(false, false, false, true);
-			gl10.glClear(GL10.GL_COLOR_BUFFER_BIT);
-			gl10.glColorMask(true, true, true, true);
-			gl10.glClearColor(0f, 0f, 0f, 0f);
-		}
 	}
 
 	public void dispose() {
@@ -289,11 +285,18 @@ public class RayHandler {
 
 	}
 
+	public void removeAll() {
+
+		for (int i = lightList.size - 1; i >= 0; i--) {
+			lightList.items[i].remove();
+		}
+		lightList.clear();
+	}
+
 	private void setShadowBox() {
 		int i = 0;
 		// This need some work, maybe camera matrix would needed
-		float c = Color
-				.toFloatBits(0, 0, 0, 1);
+		float c = Color.toFloatBits(0, 0, 0, 1);
 
 		m_segments[i++] = -1000f;
 		m_segments[i++] = -1000f;
@@ -309,43 +312,6 @@ public class RayHandler {
 		m_segments[i++] = c;
 		box.setVertices(m_segments, 0, i);
 
-	}
-
-	public void removeAll() {
-
-		for (int i = lightList.size - 1; i >= 0; i--) {
-			lightList.items[i].remove();
-		}
-		lightList.clear();
-	}
-
-	private boolean createShader() {
-		String vertexShader = "attribute vec4 vertex_positions;\n" //
-				+ "attribute vec4 quad_colors;\n" //
-				+ "uniform mat4 u_projectionViewMatrix;\n" //
-				+ "varying vec4 v_color;\n" //
-				+ "void main()\n" //
-				+ "{\n" //
-				+ "   v_color = quad_colors;\n" //
-				+ "   gl_Position =  u_projectionViewMatrix * vertex_positions;\n" //
-				+ "}\n";
-
-		String fragmentShader = "#ifdef GL_ES\n" //
-				+ "precision mediump float;\n" //
-				+ "#endif\n" //
-				+ "varying vec4 v_color;\n" //
-				+ "void main()\n"//
-				+ "{\n" //
-				+ "  gl_FragColor = v_color;\n" //
-				+ "}";
-
-		shader = new ShaderProgram(vertexShader, fragmentShader);
-		if (shader.isCompiled() == false) {
-			Gdx.app.log("ERROR", shader.getLog());
-			return false;
-		}
-
-		return true;
 	}
 
 }
