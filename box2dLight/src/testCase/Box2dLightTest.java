@@ -40,7 +40,7 @@ public class Box2dLightTest implements ApplicationListener,
 	 * a spritebatch and a font for text rendering and a Texture to draw our
 	 * boxes
 	 **/
-	private static final int RAYS_PER_BALL = 128;
+	private static final int RAYS_PER_BALL = 256;
 	private static final int BALLSNUM = 12;
 
 	private static final float LIGHT_DISTANCE = 20f;
@@ -100,6 +100,7 @@ public class Box2dLightTest implements ApplicationListener,
 
 	@Override
 	public void render() {
+	
 		camera.update();
 		// should use fixed step
 		world.step(Gdx.graphics.getDeltaTime(), 8, 3);
@@ -138,8 +139,10 @@ public class Box2dLightTest implements ApplicationListener,
 		/** FONT */
 		batch.setProjectionMatrix(normalProjection);
 		batch.begin();
-		font.draw(batch, Integer.toString(Gdx.graphics.getFramesPerSecond()),
+		
+		font.draw(batch, Integer.toString(Gdx.graphics.getFramesPerSecond())+"      - GL es 2.0:" + Gdx.graphics.isGL20Available(),
 				0, 20);
+		
 		batch.end();
 
 	}
