@@ -112,6 +112,13 @@ public abstract class Light {
 	public abstract void attachToBody(Body body, float offsetX, float offSetY);
 
 	/**
+	 * @return attached body or null if not set.
+	 * 
+	 *         NOTE: directional light allways return null
+	 */
+	public abstract Body getBody();
+
+	/**
 	 * set light starting position
 	 * 
 	 * NOTE: does absolute nothing if directional light
