@@ -32,11 +32,9 @@ public abstract class PositionalLight extends Light {
 	final Vector2 start = new Vector2();
 	final Vector2 end[];
 
-	PositionalLight(RayHandler rayHandler, int rays, boolean isStatic,
-			boolean isXray, Color color, float distance,
+	PositionalLight(RayHandler rayHandler, int rays, Color color, float distance,
 			float x, float y, float directionDegree) {
-
-		super(rayHandler, rays, isStatic, isXray, color, directionDegree,
+		super(rayHandler, rays, color, directionDegree,
 				distance);
 		setPos(x, y);
 		sin = new float[rays];
@@ -119,12 +117,6 @@ public abstract class PositionalLight extends Light {
 	public void setPos(float x, float y) {
 		start.x = x;
 		start.y = y;
-
-		if (staticLight) {
-			staticLight = false;
-			update();
-			staticLight = true;
-		}
 	}
 
 	@Override

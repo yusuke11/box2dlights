@@ -20,7 +20,7 @@ public class DirectionalLight extends Light {
 				boolean isXray, Color color, float directionDegree,
 			float distance) {
 
-		super(rayHandler, rays, isStatic, isXray, color, directionDegree,
+		super(rayHandler, rays, color, directionDegree,
 					distance);
 
 		vertexNum = (vertexNum - 1) * 2;
@@ -47,6 +47,8 @@ public class DirectionalLight extends Light {
 		super.direction = direction;
 		sin = MathUtils.sinDeg(direction);
 		cos = MathUtils.cosDeg(direction);
+		if (staticLight)		
+			staticUpdate();
 	}
 
 	@Override

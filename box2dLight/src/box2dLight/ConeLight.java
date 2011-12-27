@@ -23,13 +23,13 @@ public class ConeLight extends PositionalLight {
 	 * @param y
 	 * @param coneDegree
 	 */
-	public ConeLight(RayHandler rayHandler, int rays, boolean isStatic,
-			boolean isXray, Color color, float distance,
+	public ConeLight(RayHandler rayHandler, int rays, Color color,
+			float distance,
 			float x, float y, float directionDegree, float coneDegree) {
 
-		super(rayHandler, rays, isStatic, isXray, color, distance, x, y,
+		super(rayHandler, rays, color, distance, x, y,
 				directionDegree);
-		this.coneDegree = coneDegree;
+		setConeDegree(coneDegree);
 		setDirection(direction);
 	}
 
@@ -41,13 +41,40 @@ public class ConeLight extends PositionalLight {
 					* i / (rayNum - 1f);
 			final float s = sin[i] = MathUtils.sinDeg(angle);
 			final float c = cos[i] = MathUtils.cosDeg(angle);
-			end[i].set(distance * c, distance * s);
+			end[i].x = distance * c;
+			end[i].y = distance * s;
 		}
-		if (staticLight) {
-			staticLight = false;
-			update();
-			staticLight = true;
-		}
+		if (staticLight)
+			staticUpdate();
+	}
+
+	/**
+	 * @return the coneDegree
+	 */
+	public final float getConeDegree() {
+		return coneDegree;
+
+	}
+
+	/**
+	 * How big is the arc of cone. Arc angle = coneDegree *2
+	 * 
+	 * @param coneDegree
+	 *            the coneDegree to set
+	 */
+	public final void setConeDegree(float coneDegree) {
+		this.coneDegree = coneDegree;
+		setDirection(direction);
+	}
+
+	/**
+	 * setDistance(float dist) MIN capped to 1cm
+	 * 
+	 * @param dist
+	 */
+	public void setDistance(float dist) {
+		super.setDistance(dist);
+		setDirection(direction);
 	}
 
 }

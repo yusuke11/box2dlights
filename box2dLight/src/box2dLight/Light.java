@@ -16,7 +16,7 @@ public abstract class Light {
 	protected boolean soft = true;
 	protected boolean xray = false;
 	protected boolean staticLight = false;
-	protected float softShadowLenght = 0f;
+	protected float softShadowLenght = 2.5f;
 
 	protected RayHandler rayHandler;
 	protected boolean culled = false;
@@ -30,15 +30,12 @@ public abstract class Light {
 
 	protected float colorF;
 
-	Light(RayHandler rayHandler, int rays, boolean isStatic,
-			boolean isXray, Color color, float directionDegree, float distance) {
+	Light(RayHandler rayHandler, int rays, Color color, float directionDegree,
+			float distance) {
 		this.rayHandler = rayHandler;
 		setRayNum(rays);
-
-		this.staticLight = isStatic;
-		this.xray = isXray;
 		this.direction = directionDegree;
-		setDistance(distance);
+		this.distance = distance;
 		setColor(color);
 	}
 
@@ -49,8 +46,13 @@ public abstract class Light {
 	 * @param newColor
 	 */
 	public void setColor(Color newColor) {
-		this.color.set(newColor);
-		colorF = color.toIntBits();
+		if (color != null) {
+			this.color.set(newColor);
+			colorF = color.toIntBits();
+		} else {
+			color = Color.RED;
+			colorF = Color.RED.toFloatBits();
+		}
 	}
 
 	/**
@@ -75,7 +77,7 @@ public abstract class Light {
 	 * @param dist
 	 */
 	public void setDistance(float dist) {
-		this.distance = dist <= 0 ? 0 : dist;
+		this.distance = dist < 0.01f ? 0.01f : dist;
 	}
 
 	private final void setRayNum(int rays) {
@@ -118,11 +120,19 @@ public abstract class Light {
 
 	abstract void updateLightMesh();
 
+	void staticUpdate() {
+		staticLight = !staticLight;
+		update();
+		staticLight = !staticLight;
+	}
+
 	public final boolean isActive() {
 		return active;
 	}
 
 	/**
+	 * disable/enables this light updates and rendering.
+	 * 
 	 * @param active
 	 */
 	public final void setActive(boolean active) {
@@ -130,20 +140,8 @@ public abstract class Light {
 	}
 
 	/**
-	 * @return
-	 */
-	public final boolean isSoft() {
-		return soft;
-	}
-
-	/**
-	 * @param soft
-	 */
-	public final void setSoft(boolean soft) {
-		this.soft = soft;
-	}
-
-	/**
+	 * do light beams go through obstacles
+	 * 
 	 * @return
 	 */
 	public final boolean isXray() {
@@ -151,13 +149,24 @@ public abstract class Light {
 	}
 
 	/**
+	 * disable/enables xray beams. enabling this will allow beams go through
+	 * obstacles this reduce cpu burden of light about 70%. Use combination of
+	 * xray and non xray lights wisely
+	 * 
 	 * @param xray
 	 */
 	public final void setXray(boolean xray) {
 		this.xray = xray;
+		if (staticLight)
+			staticUpdate();
 	}
 
 	/**
+	 * return is this light static. Static light do not get any automatic
+	 * updates but setting any parameters will update it. Static lights are
+	 * usefull for lights that you want to collide with static geometry but
+	 * ignore all the dynamic objects.
+	 * 
 	 * @return
 	 */
 	public final boolean isStaticLight() {
@@ -165,13 +174,43 @@ public abstract class Light {
 	}
 
 	/**
+	 * disables/enables staticness for light. Static light do not get any
+	 * automatic updates but setting any parameters will update it. Static
+	 * lights are usefull for lights that you want to collide with static
+	 * geometry but ignore all the dynamic objects. Reduce cpu burden of light
+	 * about 90%.
+	 * 
 	 * @param staticLight
 	 */
 	public final void setStaticLight(boolean staticLight) {
 		this.staticLight = staticLight;
+		if (staticLight)
+			staticUpdate();
 	}
 
 	/**
+	 * is tips of light beams soft
+	 * 
+	 * @return
+	 */
+	public final boolean isSoft() {
+		return soft;
+	}
+
+	/**
+	 * disable/enables softness on tips of lights beams.
+	 * 
+	 * @param soft
+	 */
+	public final void setSoft(boolean soft) {
+		this.soft = soft;
+		if (staticLight)
+			staticUpdate();
+	}
+
+	/**
+	 * return how much is softness used in tip of the beams. default 2.5
+	 * 
 	 * @return
 	 */
 	public final float getSoftShadowLenght() {
@@ -179,10 +218,14 @@ public abstract class Light {
 	}
 
 	/**
+	 * set how much is softness used in tip of the beams. default 2.5
+	 * 
 	 * @param softShadowLenght
 	 */
 	public final void setSoftShadowLenght(float softShadowLenght) {
 		this.softShadowLenght = softShadowLenght;
+		if (staticLight)
+			staticUpdate();
 	}
 
 }
