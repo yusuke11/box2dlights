@@ -2,6 +2,7 @@ package box2dLight;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
@@ -35,10 +36,12 @@ public class DirectionalLight extends Light {
 
 		lightMesh = new Mesh(staticLight, vertexNum, 0,
 				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
-				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"));
+				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
+				new VertexAttribute(Usage.Generic, 1, "s"));
 		softShadowMesh = new Mesh(staticLight, vertexNum, 0,
 				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
-				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"));
+				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
+				new VertexAttribute(Usage.Generic, 1, "s"));
 
 		rayHandler.lightList.add(this);
 	}
@@ -90,11 +93,7 @@ public class DirectionalLight extends Light {
 				rayHandler.world.rayCast(rayHandler.ray, start[i], end[i]);
 			}
 		}
-
-		updateLightMesh();
-	}
-
-	void updateLightMesh() {
+		// update light mesh
 		// ray starting point
 		int size = 0;
 		// rays ending points.
@@ -107,10 +106,11 @@ public class DirectionalLight extends Light {
 			seg[size++] = start[i].x;
 			seg[size++] = start[i].y;
 			seg[size++] = colorF;
-
+			seg[size++] = 1f;
 			seg[size++] = m_x[i];
 			seg[size++] = m_y[i];
 			seg[size++] = colorF;
+			seg[size++] = 1f;
 		}
 
 		lightMesh.setVertices(seg, 0, size);
@@ -120,17 +120,18 @@ public class DirectionalLight extends Light {
 
 		size = 0;
 		// rays ending points.
-		final float localZero = zero;
 		for (int i = 0; i < arraySize; i++) {
 			seg[size++] = m_x[i];
 			seg[size++] = m_y[i];
 			seg[size++] = colorF;
+			seg[size++] = 1f;
 
 			seg[size++] = m_x[i]
 					+ softShadowLenght * cos;
 			seg[size++] = m_y[i]
 					+ softShadowLenght * sin;
-			seg[size++] = localZero;
+			seg[size++] = zero;
+			seg[size++] = 1f;
 		}
 		softShadowMesh.setVertices(seg, 0, size);
 
@@ -141,12 +142,13 @@ public class DirectionalLight extends Light {
 		if (active) {
 
 			if (rayHandler.isGL20) {
-				lightMesh.render(rayHandler.lightShader, GL10.GL_TRIANGLE_FAN,
+				lightMesh.render(rayHandler.lightShader,
+						GL20.GL_TRIANGLE_STRIP,
 						0,
 						vertexNum);
 				if (soft && !xray) {
 					softShadowMesh.render(rayHandler.lightShader,
-							GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
+							GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
 				}
 			} else {
 				lightMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);

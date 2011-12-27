@@ -134,8 +134,8 @@ public class RayHandler {
 					camera.viewportHeight);
 	}
 
-	public float viewportWidth;
-	public float zoom;
+	float viewportWidth;
+	float zoom;
 
 	void updateCameraCorners(float zoom, float viewportWidth,
 			float viewportHeight) {
