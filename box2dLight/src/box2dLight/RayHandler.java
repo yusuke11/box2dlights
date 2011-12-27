@@ -121,14 +121,6 @@ public class RayHandler {
 
 	}
 
-	public void enableCulling() {
-		culling = true;
-	}
-
-	public void disableCulling() {
-		culling = false;
-	}
-
 	boolean intersect(float x, float y, float side) {
 		final float bx = x - side;
 		final float bx2 = x + side;
@@ -277,7 +269,7 @@ public class RayHandler {
 
 	final RayCastCallback ray = new RayCastCallback() {
 		@Override
-		public float reportRayFixture(Fixture fixture, Vector2 point,
+		final public float reportRayFixture(Fixture fixture, Vector2 point,
 				Vector2 normal, float fraction) {
 
 			if ((filterA != null) && !contactFilter(fixture))
@@ -290,22 +282,7 @@ public class RayHandler {
 		}
 	};
 
-	/** light filter **/
-	private Filter filterA = null;
-
-	public void setContactFilter(Filter filter) {
-		filterA = filter;
-	}
-
-	public void setContactFilter(short categoryBits, short groupIndex,
-			short maskBits) {
-		filterA = new Filter();
-		filterA.categoryBits = categoryBits;
-		filterA.groupIndex = groupIndex;
-		filterA.maskBits = maskBits;
-	}
-
-	boolean contactFilter(Fixture fixtureB) {
+	final boolean contactFilter(Fixture fixtureB) {
 		Filter filterB = fixtureB.getFilterData();
 
 		if (filterA.groupIndex == filterB.groupIndex
@@ -315,6 +292,33 @@ public class RayHandler {
 		return (filterA.maskBits & filterB.categoryBits) != 0
 					&& (filterA.categoryBits & filterB.maskBits) != 0;
 
+	}
+
+	/** light filter **/
+	private Filter filterA = null;
+
+	/**
+	 * set given contact filter for ALL LIGHTS
+	 * 
+	 * @param filter
+	 */
+	public void setContactFilter(Filter filter) {
+		filterA = filter;
+	}
+
+	/**
+	 * create new contact filter for ALL LIGHTS with give parameters
+	 * 
+	 * @param categoryBits
+	 * @param groupIndex
+	 * @param maskBits
+	 */
+	public void setContactFilter(short categoryBits, short groupIndex,
+			short maskBits) {
+		filterA = new Filter();
+		filterA.categoryBits = categoryBits;
+		filterA.groupIndex = groupIndex;
+		filterA.maskBits = maskBits;
 	}
 
 	public void removeAll() {
