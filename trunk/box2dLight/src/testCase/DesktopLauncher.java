@@ -14,7 +14,7 @@ public class DesktopLauncher {
 		config.depth = 0;
 		config.vSyncEnabled = true;
 		config.useCPUSynch = true;
-		config.useGL20 = false;
+		config.useGL20 = true;
 
 		config.fullscreen = false;
 		new LwjglApplication(new Box2dLightTest(), config);
