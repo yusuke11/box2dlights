@@ -12,9 +12,9 @@ import com.badlogic.gdx.physics.box2d.Body;
 
 public abstract class PositionalLight extends Light {
 
-	public Body body;
-	public float bodyOffsetX;
-	public float bodyOffsetY;
+	private Body body;
+	private float bodyOffsetX;
+	private float bodyOffsetY;
 
 	/**
 	 * attach positional light to automatically follow body. Position is fixed
@@ -25,6 +25,11 @@ public abstract class PositionalLight extends Light {
 		this.body = body;
 		bodyOffsetX = offsetX;
 		bodyOffsetY = offSetY;
+	}
+
+	@Override
+	public Body getBody() {
+		return body;
 	}
 
 	final float sin[];
@@ -126,57 +131,7 @@ public abstract class PositionalLight extends Light {
 	@Override
 	void updateLightMesh() {
 
-		if (!rayHandler.isGL20) {
-			final float r = color.r;
-			final float g = color.g;
-			final float b = color.b;
-			final float a = color.a;
-			// ray starting point
-			int size = 0;
-			final float seg[] = rayHandler.m_segments;
-			final float m_x[] = rayHandler.m_x;
-			final float m_y[] = rayHandler.m_y;
-			final float m_f[] = rayHandler.m_f;
-
-			seg[size++] = start.x;
-			seg[size++] = start.y;
-			seg[size++] = colorF;
-			seg[size++] = 0f;
-			// rays ending points.
-			final int arraySize = rayNum;
-			for (int i = 0; i < arraySize; i++) {
-				seg[size++] = m_x[i];
-				seg[size++] = m_y[i];
-				final float s = 1f - m_f[i];
-				seg[size++] = Color.toFloatBits(r * s,
-						g * s, b * s, a * s);
-				seg[size++] = 0f;
-			}
-			lightMesh.setVertices(seg, 0, size);
-
-			if (!soft || xray)
-				return;
-
-			size = 0;
-
-			for (int i = 0; i < arraySize; i++) {
-				seg[size++] = m_x[i];
-				seg[size++] = m_y[i];
-				final float s = 1f - m_f[i];
-				seg[size++] = Color.toFloatBits(r * s,
-						g * s, b * s, a * s);
-				seg[size++] = 0f;
-				seg[size++] = m_x[i]
-						+ softShadowLenght * cos[i];
-
-				seg[size++] = m_y[i]
-						+ softShadowLenght * sin[i];
-				seg[size++] = zero;
-				seg[size++] = 0f;
-			}
-			softShadowMesh.setVertices(seg, 0, size);
-
-		} else {
+		if (rayHandler.isGL20) {
 			// ray starting point
 			int size = 0;
 			final float seg[] = rayHandler.m_segments;
@@ -189,8 +144,7 @@ public abstract class PositionalLight extends Light {
 			seg[size++] = colorF;
 			seg[size++] = 1;
 			// rays ending points.
-			final int arraySize = rayNum;
-			for (int i = 0; i < arraySize; i++) {
+			for (int i = 0; i < rayNum; i++) {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
 				seg[size++] = colorF;
@@ -204,20 +158,69 @@ public abstract class PositionalLight extends Light {
 			size = 0;
 			// rays ending points.
 
-			for (int i = 0; i < arraySize; i++) {
+			for (int i = 0; i < rayNum; i++) {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
 				seg[size++] = colorF;
 				final float s = (1 - m_f[i]);
 				seg[size++] = s;
 				seg[size++] = m_x[i]
-						+ s * softShadowLenght * cos[i];
+							+ s * softShadowLenght * cos[i];
 				seg[size++] = m_y[i]
-						+ s * softShadowLenght * sin[i];
+							+ s * softShadowLenght * sin[i];
+				seg[size++] = zero;
+				seg[size++] = 0f;
+			}
+			softShadowMesh.setVertices(seg, 0, size);
+		} else {
+			final float r = color.r;
+			final float g = color.g;
+			final float b = color.b;
+			final float a = color.a;
+			// ray starting point
+			final float seg[] = rayHandler.m_segments;
+			final float m_x[] = rayHandler.m_x;
+			final float m_y[] = rayHandler.m_y;
+			final float m_f[] = rayHandler.m_f;
+			int size = 0;
+			seg[size++] = start.x;
+			seg[size++] = start.y;
+			seg[size++] = colorF;
+			seg[size++] = 0f;
+			// rays ending points.
+			for (int i = 0; i < rayNum; i++) {
+				seg[size++] = m_x[i];
+				seg[size++] = m_y[i];
+				final float s = 1f - m_f[i];
+				seg[size++] = Color.toFloatBits(r * s,
+						g * s, b * s, a * s);
+				seg[size++] = 0f;
+			}
+			lightMesh.setVertices(seg, 0, size);
+
+			if (!soft || xray)
+				return;
+
+			size = 0;
+
+			for (int i = 0; i < rayNum; i++) {
+				seg[size++] = m_x[i];
+				seg[size++] = m_y[i];
+				final float s = 1f - m_f[i];
+				seg[size++] = Color.toFloatBits(r * s,
+						g * s, b * s, a * s);
+				seg[size++] = 0f;
+
+				seg[size++] = m_x[i]
+						+ softShadowLenght * cos[i];
+
+				seg[size++] = m_y[i]
+						+ softShadowLenght * sin[i];
 				seg[size++] = zero;
 				seg[size++] = 0f;
 			}
 			softShadowMesh.setVertices(seg, 0, size);
 		}
+
 	}
 }

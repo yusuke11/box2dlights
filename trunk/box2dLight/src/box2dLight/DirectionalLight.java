@@ -14,7 +14,7 @@ public class DirectionalLight extends Light {
 	float sin;
 	float cos;
 	final Vector2 start[];
-	final Vector2 end[];	
+	final Vector2 end[];
 
 	public DirectionalLight(RayHandler rayHandler, int rays, boolean isStatic,
 				boolean isXray, Color color, float directionDegree,
@@ -47,7 +47,7 @@ public class DirectionalLight extends Light {
 		super.direction = direction;
 		sin = MathUtils.sinDeg(direction);
 		cos = MathUtils.cosDeg(direction);
-		if (staticLight)		
+		if (staticLight)
 			staticUpdate();
 	}
 
@@ -166,6 +166,11 @@ public class DirectionalLight extends Light {
 
 	@Override
 	public void setPos(float x, float y) {
+	}
+
+	@Override
+	public Body getBody() {
+		return null;
 	}
 
 }

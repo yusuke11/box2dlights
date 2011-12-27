@@ -2,6 +2,7 @@ package box2dLight;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.physics.box2d.Body;
 
 public class PointLight extends PositionalLight {
 
