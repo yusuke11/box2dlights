@@ -9,13 +9,18 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.utils.NumberUtils;
 
 public abstract class PositionalLight extends Light {
 
 	private Body body;
 	private float bodyOffsetX;
 	private float bodyOffsetY;
+	final float sin[];
+	final float cos[];
+
+	final Vector2 start = new Vector2();
+	final float endX[];
+	final float endY[];
 
 	/**
 	 * attach positional light to automatically follow body. Position is fixed
@@ -33,39 +38,18 @@ public abstract class PositionalLight extends Light {
 		return body;
 	}
 
-	final float sin[];
-	final float cos[];
-
-	final Vector2 start = new Vector2();
-	final float endX[];
-	final float endY[];
-
-	PositionalLight(RayHandler rayHandler, int rays, Color color,
-			float distance,
-			float x, float y, float directionDegree) {
-		super(rayHandler, rays, color, directionDegree,
-				distance);
-		setPos(x, y);
-		sin = new float[rays];
-		cos = new float[rays];
-		endX = new float[rays];
-		endY = new float[rays];
-
-		lightMesh = new Mesh(staticLight, vertexNum, 0,
-				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
-				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
-				new VertexAttribute(Usage.Generic, 1, "s"));
-		softShadowMesh = new Mesh(staticLight, vertexNum * 2, 0,
-				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
-				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors")
-				, new VertexAttribute(Usage.Generic, 1, "s"));
-		rayHandler.lightList.add(this);
-	}
-
 	private final Vector2 tmpEnd = new Vector2();
 
 	@Override
-	public void update() {
+	public void setPos(float x, float y) {
+		start.x = x;
+		start.y = y;
+		if (staticLight)
+			staticUpdate();
+	}
+
+	@Override
+	void update() {
 		if (!active || staticLight)
 			return;
 
@@ -95,42 +79,6 @@ public abstract class PositionalLight extends Light {
 				rayHandler.world.rayCast(rayHandler.ray, start, tmpEnd);
 			}
 		}
-		updateLightMesh();
-	}
-
-	@Override
-	public void render() {
-		if (active && !culled) {
-
-			if (rayHandler.isGL20) {
-				lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN,
-						0,
-						vertexNum);
-				if (soft && !xray) {
-					softShadowMesh.render(rayHandler.lightShader,
-							GL20.GL_TRIANGLE_STRIP, 0, (vertexNum - 1) * 2);
-				}
-			} else {
-				lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);
-				if (soft && !xray) {
-					softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0,
-							(vertexNum - 1) * 2);
-				}
-			}
-		}
-	}
-
-	@Override
-	public void setPos(float x, float y) {
-		start.x = x;
-		start.y = y;
-		if (staticLight)
-			staticUpdate();
-	}
-
-	@Override
-	void updateLightMesh() {
-
 		if (rayHandler.isGL20) {
 			// ray starting point
 			int size = 0;
@@ -224,4 +172,49 @@ public abstract class PositionalLight extends Light {
 		}
 
 	}
+
+	@Override
+	void render() {
+		if (active && !culled) {
+
+			if (rayHandler.isGL20) {
+				lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN,
+						0,
+						vertexNum);
+				if (soft && !xray) {
+					softShadowMesh.render(rayHandler.lightShader,
+							GL20.GL_TRIANGLE_STRIP, 0, (vertexNum - 1) * 2);
+				}
+			} else {
+				lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);
+				if (soft && !xray) {
+					softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0,
+							(vertexNum - 1) * 2);
+				}
+			}
+		}
+	}
+
+	PositionalLight(RayHandler rayHandler, int rays, Color color,
+			float distance,
+			float x, float y, float directionDegree) {
+		super(rayHandler, rays, color, directionDegree,
+				distance);
+		setPos(x, y);
+		sin = new float[rays];
+		cos = new float[rays];
+		endX = new float[rays];
+		endY = new float[rays];
+
+		lightMesh = new Mesh(staticLight, vertexNum, 0,
+				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
+				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
+				new VertexAttribute(Usage.Generic, 1, "s"));
+		softShadowMesh = new Mesh(staticLight, vertexNum * 2, 0,
+				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
+				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors")
+				, new VertexAttribute(Usage.Generic, 1, "s"));
+		rayHandler.lightList.add(this);
+	}
+
 }

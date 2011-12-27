@@ -125,8 +125,6 @@ public abstract class Light {
 	 */
 	public abstract void setPos(float x, float y);
 
-	abstract void updateLightMesh();
-
 	void staticUpdate() {
 		staticLight = !staticLight;
 		update();
