@@ -58,14 +58,13 @@ public class DirectionalLight extends Light {
 
 		final float centerX = (rayHandler.x1 + rayHandler.x2) * 0.5f;
 		final float centerY = (rayHandler.y1 + rayHandler.y2) * 0.5f;
-		final float size = rayHandler.viewportWidth * rayHandler.zoom * 0.5f
-				* 1.41421356f;
 
-		// final float newX = tmpX * cos - tmpY * sin;
-		// final float newY = tmpX * sin + tmpY * cos;
+		// sqrt2 = 1.41421356f;
+		final float sizeOfScreen = rayHandler.viewportWidth * rayHandler.zoom
+				* 0.5f * 1.41421356f;
 
-		final float widthOff = size * -sin;
-		final float heightOff = size * cos;
+		final float widthOff = sizeOfScreen * -sin;
+		final float heightOff = sizeOfScreen * cos;
 
 		final float d1 = distance * cos;
 		final float d2 = distance * sin;
@@ -95,7 +94,6 @@ public class DirectionalLight extends Light {
 		updateLightMesh();
 	}
 
-	@Override
 	void updateLightMesh() {
 		// ray starting point
 		int size = 0;
