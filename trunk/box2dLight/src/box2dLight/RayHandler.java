@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -25,24 +26,22 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
 public class RayHandler {
-	
-	
+
 	final static int MIN_RAYS = 3;
 	boolean isGL20;
 
 	boolean culling = false;
-	boolean shadows = false;
+	boolean shadows = true;
 	boolean blur = true;
 	int blurNum = 1;
 	float ambientLight = 0.0f;
-	
-	int MAX_RAYS;	
+
+	int MAX_RAYS;
 	World world;
-	
+
 	public OrthographicCamera camera;
 	public ShaderProgram lightShader;
 
-	
 	private GL20 gl20;
 	private Mesh box;
 
@@ -309,6 +308,68 @@ public class RayHandler {
 		m_segments[i++] = -100000;
 		m_segments[i++] = c;
 		box.setVertices(m_segments, 0, i);
+	}
+
+	/**
+	 * Disables/enables culling. This save cpu and gpu time when world is bigger
+	 * than screen default = false
+	 * 
+	 * @param culling
+	 *            the culling to set
+	 */
+	public final void setCulling(boolean culling) {
+		this.culling = culling;
+	}
+
+	/**
+	 * Disables/enables gaussian blur. This make lights much more softer and
+	 * realistic look but also cost some precious shader time. With default fbo
+	 * size on android cost around 1ms
+	 * 
+	 * default = true;
+	 * 
+	 * @param blur
+	 *            the blur to set
+	 */
+	public final void setBlur(boolean blur) {
+		this.blur = blur;
+	}
+
+	/**
+	 * Set number of gaussian blur passes. Blurring can be pretty heavy weight
+	 * operation, 1-3 should be safe. Setting this to 0 is same as
+	 * setBlur(false)
+	 * 
+	 * default = 1
+	 * 
+	 * @param blurNum
+	 *            the blurNum to set
+	 */
+	public final void setBlurNum(int blurNum) {
+		this.blurNum = blurNum;
+	}
+
+	/**
+	 * Disables/enables shadows. NOTE: If gl1.1 android you need to change
+	 * render target to contain alpha channel* default = true
+	 * 
+	 * @param shadows
+	 *            the shadows to set
+	 */
+	public final void setShadows(boolean shadows) {
+		this.shadows = shadows;
+	}
+
+	/**
+	 * Ambient light is how dark are the shadows. clamped to 0-1
+	 * 
+	 * default = 0;
+	 * 
+	 * @param ambientLight
+	 *            the ambientLight to set
+	 */
+	public final void setAmbientLight(float ambientLight) {
+		this.ambientLight = MathUtils.clamp(ambientLight, 0, 1);
 	}
 
 }

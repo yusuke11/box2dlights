@@ -196,8 +196,7 @@ public class Box2dLightTest implements ApplicationListener,
 					MathUtils.random(),
 					1);
 
-			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL, false,
-					false,
+			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL,
 					c, LIGHT_DISTANCE, 0, 0);
 			light.body = boxBody;
 			light.bodyOffsetX = 0f;

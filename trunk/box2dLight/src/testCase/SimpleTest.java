@@ -21,7 +21,7 @@ public class SimpleTest extends ApplicationAdapter {
 		camera.update();
 		rayHandler = new RayHandler(new World(new Vector2(0, -10), true),
 				camera);
-		new PointLight(rayHandler, 32, false, false, Color.RED, 20, 0, 0);
+		new PointLight(rayHandler, 32, Color.RED, 20, 0, 0);
 	}
 
 	@Override

@@ -5,27 +5,35 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class PointLight extends PositionalLight {
 
-	public PointLight(RayHandler rayHandler, int rays, boolean isStatic,
-			boolean isXray, Color color, float distance,
+	public PointLight(RayHandler rayHandler, int rays, Color color,
+			float distance,
 			float x, float y) {
-		super(rayHandler, rays, isStatic, isXray, color, distance, x, y, 0f);
-		setEndPoints();		
+		super(rayHandler, rays, color, distance, x, y, 0f);
+		setEndPoints();
 	}
 
-	private final void setEndPoints() {
+	final void setEndPoints() {
+		float angleNum = 360f / (rayNum - 1);
 		for (int i = 0; i < rayNum; i++) {
-			float angle = direction + 360
-					* i / (rayNum - 1);
+			float angle = angleNum * i;
 			final float s = sin[i] = MathUtils.sinDeg(angle);
 			final float c = cos[i] = MathUtils.cosDeg(angle);
-			end[i].set(distance * c, distance * s);
+			end[i].x = distance * c;
+			end[i].y = distance * s;
 		}
 	}
 
 	@Override
 	public void setDirection(float directionDegree) {
-		// TODO Auto-generated method stub
-
 	}
 
+	/**
+	 * setDistance(float dist) MIN capped to 1cm
+	 * 
+	 * @param dist
+	 */
+	public void setDistance(float dist) {
+		super.setDistance(dist);
+		setEndPoints();
+	}
 }

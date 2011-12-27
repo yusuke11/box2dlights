@@ -103,7 +103,7 @@ class LightMap {
 	}
 
 	public LightMap(RayHandler rayHandler, int FboWidth, int FboHeight) {
-
+		this.rayHandler = rayHandler;
 		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888,
 				FboWidth,
 					FboHeight,
