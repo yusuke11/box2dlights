@@ -37,24 +37,40 @@ public abstract class Light {
 		setColor(color);
 	}
 
-	/** rgb set the color and alpha set intesity
-	 * NOTE: you can use colorless light too(EG 0,0,0,1)
-	 * */
+	/**
+	 * setColor(Color newColor) { rgb set the color and alpha set intesity NOTE:
+	 * you can also use colorless light with shadows(EG 0,0,0,1)
+	 * 
+	 * @param newColor
+	 */
 	public void setColor(Color newColor) {
 		this.color.set(newColor);
 		colorF = color.toIntBits();
 	}
 
+	/**
+	 * set Color(float r, float g, float b, float a) rgb set the color and alpha
+	 * set intesity NOTE: you can also use colorless light with shadows(EG
+	 * 0,0,0,1)
+	 * 
+	 * @param r
+	 * @param g
+	 * @param b
+	 * @param a
+	 *            intesity
+	 */
 	public void setColor(float r, float g, float b, float a) {
 		this.color.set(r, g, b, a);
 		colorF = color.toIntBits();
 	}
 
+	/**
+	 * setDistance(float dist) MIN capped to 1cm
+	 * 
+	 * @param dist
+	 */
 	public void setDistance(float dist) {
-		if (dist <= 0) {
-			dist = 0.01f;
-		}
-		this.distance = dist;
+		this.distance = dist <= 0 ? 0 : dist;
 	}
 
 	private final void setRayNum(int rays) {
