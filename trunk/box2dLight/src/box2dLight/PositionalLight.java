@@ -97,7 +97,7 @@ public abstract class PositionalLight extends Light {
 	public void render() {
 		if (active && !culled) {
 
-			if (RayHandler.isGL20) {
+			if (rayHandler.isGL20) {
 				lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN,
 						0,
 						vertexNum);
@@ -130,7 +130,7 @@ public abstract class PositionalLight extends Light {
 	@Override
 	void updateLightMesh() {
 
-		if (!RayHandler.isGL20) {
+		if (!rayHandler.isGL20) {
 			final float r = color.r;
 			final float g = color.g;
 			final float b = color.b;
@@ -144,7 +144,7 @@ public abstract class PositionalLight extends Light {
 
 			seg[size++] = start.x;
 			seg[size++] = start.y;
-			seg[size++] = Color.toFloatBits(r, g, b, a);
+			seg[size++] = colorF;
 			seg[size++] = 0f;
 			// rays ending points.
 			final int arraySize = rayNum;
@@ -181,7 +181,6 @@ public abstract class PositionalLight extends Light {
 			softShadowMesh.setVertices(seg, 0, size);
 
 		} else {
-			final float colorBits = color.toFloatBits();
 			// ray starting point
 			int size = 0;
 			final float seg[] = rayHandler.m_segments;
@@ -191,14 +190,14 @@ public abstract class PositionalLight extends Light {
 
 			seg[size++] = start.x;
 			seg[size++] = start.y;
-			seg[size++] = colorBits;
+			seg[size++] = colorF;
 			seg[size++] = 1;
 			// rays ending points.
 			final int arraySize = rayNum;
 			for (int i = 0; i < arraySize; i++) {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
-				seg[size++] = colorBits;
+				seg[size++] = colorF;
 				seg[size++] = 1 - m_f[i];
 			}
 			lightMesh.setVertices(seg, 0, size);
@@ -212,7 +211,7 @@ public abstract class PositionalLight extends Light {
 			for (int i = 0; i < arraySize; i++) {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
-				seg[size++] = colorBits;
+				seg[size++] = colorF;
 				final float s = (1 - m_f[i]);
 				seg[size++] = s;
 				seg[size++] = m_x[i]

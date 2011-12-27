@@ -1,15 +1,13 @@
 package shaders;
 
-import box2dLight.RayHandler;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 public class GaussianHorizontal {
 
-	public static ShaderProgram createBlurShader() {
-		final String FBO_W = Integer.toString(RayHandler.FBO_W);
-		final String FBO_H = Integer.toString(RayHandler.FBO_H);
+	public static ShaderProgram createBlurShader(int width, int heigth) {
+		final String FBO_W = Integer.toString(width);
+		final String FBO_H = Integer.toString(heigth);
 		final String vertexShader = "attribute vec4 a_position;\n" //
 				+ "attribute vec2 a_texCoord"
 				+ ";\n" //

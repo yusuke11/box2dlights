@@ -25,35 +25,40 @@ class LightMap {
 
 	private FrameBuffer pingPongBuffer;
 	private Texture pingPongTex;
-	private ShaderProgram blurShaderH;
-	private ShaderProgram blurShaderV;
+	private ShaderProgram blurShaderHorizontal;
+	private ShaderProgram blurShaderVertical;
+	private RayHandler rayHandler;
+	private ShaderProgram withoutShadowShader;
 
 	public void render(Camera camera) {
 		Gdx.gl.glEnable(GL10.GL_TEXTURE_2D);
 		lightMapTex.bind();
 
-		if (RayHandler.blur)
-			gaussianBlur(RayHandler.blurNum, camera);
+		if (rayHandler.blur)
+			gaussianBlur(rayHandler.blurNum, camera);
 
-		if (RayHandler.shadows) {
+		if (rayHandler.shadows) {
 			Gdx.gl20.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
+			shadowShader.begin();
+
+			shadowShader.setUniformf("ambient", 1 - rayHandler.ambientLight);
+			shadowShader.setUniformMatrix("u_projTrans",
+						camera.combined);
 		} else {
 			Gdx.gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+			withoutShadowShader.begin();
+			withoutShadowShader.setUniformMatrix("u_projTrans",
+						camera.combined);
 		}
-
-		shadowShader.begin();
-
-		shadowShader.setUniformf("ambient", 1 - RayHandler.ambientLight);
-		shadowShader.setUniformMatrix("u_projTrans",
-					camera.combined);
 
 		lightMapMesh.render(shadowShader, GL20.GL_TRIANGLE_FAN);
 		Gdx.gl20.glDisable(GL20.GL_BLEND);
 
-		if (RayHandler.shadows) {
+		if (rayHandler.shadows) {
 			shadowShader.end();
+		} else {
+			withoutShadowShader.end();
 		}
-
 		Gdx.gl.glDisable(GL10.GL_TEXTURE_2D);
 	}
 
@@ -65,11 +70,12 @@ class LightMap {
 
 			pingPongBuffer.begin();
 			{
-				blurShaderH.begin();
-				blurShaderH.setUniformMatrix("u_projTrans",
+				blurShaderHorizontal.begin();
+				blurShaderHorizontal.setUniformMatrix("u_projTrans",
 						camera.combined);
-				lightMapMesh.render(blurShaderH, GL20.GL_TRIANGLE_FAN, 0, 4);
-				blurShaderH.end();
+				lightMapMesh.render(blurShaderHorizontal, GL20.GL_TRIANGLE_FAN,
+						0, 4);
+				blurShaderHorizontal.end();
 			}
 			pingPongBuffer.end();
 
@@ -78,12 +84,13 @@ class LightMap {
 
 			frameBuffer.begin();
 			{
-				blurShaderV.begin();
-				blurShaderV.setUniformMatrix("u_projTrans",
+				blurShaderVertical.begin();
+				blurShaderVertical.setUniformMatrix("u_projTrans",
 						camera.combined);
 
-				lightMapMesh.render(blurShaderV, GL20.GL_TRIANGLE_FAN, 0, 4);
-				blurShaderV.end();
+				lightMapMesh.render(blurShaderVertical, GL20.GL_TRIANGLE_FAN,
+						0, 4);
+				blurShaderVertical.end();
 
 			}
 			frameBuffer.end();
@@ -95,15 +102,15 @@ class LightMap {
 
 	}
 
-	public LightMap(float x, float x2, float y, float y2) {
+	public LightMap(RayHandler rayHandler, int FboWidth, int FboHeight) {
 
 		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888,
-					RayHandler.FBO_W,
-					RayHandler.FBO_H,
+				FboWidth,
+					FboHeight,
 						false);
 		pingPongBuffer = new FrameBuffer(Pixmap.Format.RGBA8888,
-				RayHandler.FBO_W,
-				RayHandler.FBO_H,
+				FboWidth,
+				FboHeight,
 					false);
 
 		this.lightMapTex = frameBuffer.getColorBufferTexture();
@@ -115,15 +122,15 @@ class LightMap {
 					Usage.TextureCoordinates, 2,
 					"a_texCoord"));
 		setLightMapUV();
-		setLightMapPos(x, x2, y, 2);
 
-		if (RayHandler.shadows) {
-			shadowShader = ShadowShader.createShadowShader();
-		} else {
-			shadowShader = WithoutShadowShader.createShadowShader();
-		}
-		blurShaderH = GaussianHorizontal.createBlurShader();
-		blurShaderV = GaussianVertical.createBlurShader();
+		shadowShader = ShadowShader.createShadowShader();
+
+		withoutShadowShader = WithoutShadowShader.createShadowShader();
+
+		blurShaderHorizontal = GaussianHorizontal.createBlurShader(FboWidth,
+				FboHeight);
+		blurShaderVertical = GaussianVertical.createBlurShader(FboWidth,
+				FboHeight);
 
 	}
 
@@ -157,6 +164,9 @@ class LightMap {
 	}
 
 	void dispose() {
+		shadowShader.dispose();
+		blurShaderVertical.dispose();
+		blurShaderHorizontal.dispose();
 		lightMapMesh.dispose();
 		frameBuffer.dispose();
 		pingPongBuffer.dispose();

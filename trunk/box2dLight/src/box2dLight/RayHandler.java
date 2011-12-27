@@ -25,33 +25,70 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
 public class RayHandler {
-
-	public static final int FBO_W = 256;
-	public static final int FBO_H = 256;
-
-	public static boolean shadows = false;
-	public static boolean blur = true;
-	public static int blurNum = 2;
-	public static float ambientLight = 0.0f;
-
+	
+	
 	final static int MIN_RAYS = 3;
-	int MAX_RAYS;
-	private GL20 gl20;
-	public Mesh box;
-	public World world;
+	boolean isGL20;
+
 	boolean culling = false;
+	boolean shadows = false;
+	boolean blur = true;
+	int blurNum = 1;
+	float ambientLight = 0.0f;
+	
+	int MAX_RAYS;	
+	World world;
+	
 	public OrthographicCamera camera;
 	public ShaderProgram lightShader;
 
-	static boolean isGL20;
+	
+	private GL20 gl20;
+	private Mesh box;
 
 	final public Array<Light> lightList = new Array<Light>(
 			false, 16,
 			Light.class);
 
-	/**
-	 * cam need to be set for this feature
-	 */
+	public RayHandler(World world, OrthographicCamera camera) {
+		this(world, camera, defaultMaximum, Gdx.graphics
+				.getWidth() / 4, Gdx.graphics.getHeight() / 4);
+	}
+
+	public RayHandler(World world, OrthographicCamera camera, int maxRayCount,
+			int fboWidth,
+			int fboHeigth) {
+		this.world = world;
+		this.camera = camera;
+		updateCameraCorners();
+		MAX_RAYS = maxRayCount < MIN_RAYS ? MIN_RAYS : maxRayCount;
+
+		m_segments = new float[maxRayCount * 8];
+		m_x = new float[maxRayCount];
+		m_y = new float[maxRayCount];
+		m_f = new float[maxRayCount];
+
+		isGL20 = Gdx.graphics.isGL20Available();
+		if (isGL20) {
+
+			lightMap = new LightMap(this, fboWidth, fboHeigth);
+			lightShader = LightShader.createLightShader();
+
+			gl20 = Gdx.graphics.getGL20();
+		} else {
+			gl10 = Gdx.graphics.getGL10();
+
+			box = new Mesh(true, 12, 0, new VertexAttribute(Usage.Position,
+						2,
+						"vertex_positions"), new VertexAttribute(
+						Usage.ColorPacked,
+						4, "quad_colors"));
+			setShadowBox();
+
+		}
+
+	}
+
 	public void enableCulling() {
 		culling = true;
 	}
@@ -99,47 +136,6 @@ public class RayHandler {
 	private LightMap lightMap;
 
 	static final int defaultMaximum = 1023;
-
-	public RayHandler(World world, OrthographicCamera camera) {
-		this(world, camera, defaultMaximum);
-	}
-
-	public RayHandler(World world) {
-		this(world, null, defaultMaximum);
-	}
-
-	public RayHandler(World world, OrthographicCamera camera, int maxRayCount) {
-		if (maxRayCount < MIN_RAYS) {
-			maxRayCount = MIN_RAYS;
-		}
-		this.world = world;
-		MAX_RAYS = maxRayCount;
-		this.camera = camera;
-		updateCameraCorners();
-		m_segments = new float[maxRayCount * 8];
-		m_x = new float[maxRayCount];
-		m_y = new float[maxRayCount];
-		m_f = new float[maxRayCount];
-
-		isGL20 = Gdx.graphics.isGL20Available();
-		if (isGL20) {
-
-			lightMap = new LightMap(x1, x2, y1, y2);
-			lightShader = LightShader.createLightShader();
-		}
-
-		if (isGL20)
-			gl20 = Gdx.graphics.getGL20();
-		else {
-			gl10 = Gdx.graphics.getGL10();
-			box = new Mesh(true, 12, 0, new VertexAttribute(Usage.Position, 2,
-					"vertex_positions"), new VertexAttribute(Usage.ColorPacked,
-					4, "quad_colors"));
-			setShadowBox();
-
-		}
-
-	}
 
 	/**
 	 * Don't call this inside of any begin/end statements. Call this method
@@ -235,6 +231,10 @@ public class RayHandler {
 			lightList.items[i].lightMesh.dispose();
 			lightList.items[i].softShadowMesh.dispose();
 		}
+		if (lightMap != null)
+			lightMap.dispose();
+		if (lightShader != null)
+			lightShader.dispose();
 	}
 
 	float m_segments[];
@@ -287,10 +287,8 @@ public class RayHandler {
 
 	public void removeAll() {
 
-		for (int i = lightList.size - 1; i >= 0; i--) {
-			lightList.items[i].remove();
-		}
-		lightList.clear();
+		while (lightList.size > 0)
+			lightList.pop().remove();
 	}
 
 	private void setShadowBox() {
@@ -298,20 +296,19 @@ public class RayHandler {
 		// This need some work, maybe camera matrix would needed
 		float c = Color.toFloatBits(0, 0, 0, 1);
 
-		m_segments[i++] = -1000f;
-		m_segments[i++] = -1000f;
+		m_segments[i++] = -100000f;
+		m_segments[i++] = -100000f;
 		m_segments[i++] = c;
-		m_segments[i++] = -1000f;
-		m_segments[i++] = 1000f;
+		m_segments[i++] = -100000f;
+		m_segments[i++] = 100000f;
 		m_segments[i++] = c;
-		m_segments[i++] = 1000f;
-		m_segments[i++] = 1000f;
+		m_segments[i++] = 100000f;
+		m_segments[i++] = 100000f;
 		m_segments[i++] = c;
-		m_segments[i++] = 1000f;
-		m_segments[i++] = -1000;
+		m_segments[i++] = 100000f;
+		m_segments[i++] = -100000;
 		m_segments[i++] = c;
 		box.setVertices(m_segments, 0, i);
-
 	}
 
 }

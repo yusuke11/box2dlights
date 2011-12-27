@@ -4,26 +4,31 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.physics.box2d.Body;
 
+/**
+ * @author kalle
+ * 
+ */
 public abstract class Light {
 
 	static final float zero = Color.toFloatBits(0f, 0f, 0f, 0f);
 
-	public RayHandler rayHandler;
-	public boolean culled = false;
-	public boolean active = true;
-	public boolean soft = true;
-	public boolean xray = false;
-	public boolean staticLight = false;
+	protected boolean active = true;
+	protected boolean soft = true;
+	protected boolean xray = false;
+	protected boolean staticLight = false;
+	protected float softShadowLenght = 0f;
 
-	int rayNum;
-	int vertexNum;
-	float distance;
-	float direction;
-	Color color = new Color();
-	Mesh lightMesh;
-	Mesh softShadowMesh;
-	public float softShadowLenght = 5f;
-	float colorF;
+	protected RayHandler rayHandler;
+	protected boolean culled = false;
+	protected int rayNum;
+	protected int vertexNum;
+	protected float distance;
+	protected float direction;
+	protected Color color = new Color();
+	protected Mesh lightMesh;
+	protected Mesh softShadowMesh;
+
+	protected float colorF;
 
 	Light(RayHandler rayHandler, int rays, boolean isStatic,
 			boolean isXray, Color color, float directionDegree, float distance) {
@@ -92,7 +97,6 @@ public abstract class Light {
 	public abstract void setDirection(float directionDegree);
 
 	public void remove() {
-		rayHandler.lightList.removeValue(this, true);
 		lightMesh.dispose();
 		softShadowMesh.dispose();
 	}
@@ -113,5 +117,72 @@ public abstract class Light {
 	public abstract void setPos(float x, float y);
 
 	abstract void updateLightMesh();
+
+	public final boolean isActive() {
+		return active;
+	}
+
+	/**
+	 * @param active
+	 */
+	public final void setActive(boolean active) {
+		this.active = active;
+	}
+
+	/**
+	 * @return
+	 */
+	public final boolean isSoft() {
+		return soft;
+	}
+
+	/**
+	 * @param soft
+	 */
+	public final void setSoft(boolean soft) {
+		this.soft = soft;
+	}
+
+	/**
+	 * @return
+	 */
+	public final boolean isXray() {
+		return xray;
+	}
+
+	/**
+	 * @param xray
+	 */
+	public final void setXray(boolean xray) {
+		this.xray = xray;
+	}
+
+	/**
+	 * @return
+	 */
+	public final boolean isStaticLight() {
+		return staticLight;
+	}
+
+	/**
+	 * @param staticLight
+	 */
+	public final void setStaticLight(boolean staticLight) {
+		this.staticLight = staticLight;
+	}
+
+	/**
+	 * @return
+	 */
+	public final float getSoftShadowLenght() {
+		return softShadowLenght;
+	}
+
+	/**
+	 * @param softShadowLenght
+	 */
+	public final void setSoftShadowLenght(float softShadowLenght) {
+		this.softShadowLenght = softShadowLenght;
+	}
 
 }
