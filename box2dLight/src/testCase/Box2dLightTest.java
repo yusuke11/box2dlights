@@ -2,6 +2,7 @@ package testCase;
 
 import java.util.ArrayList;
 
+import box2dLight.DirectionalLight;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -106,6 +107,7 @@ public class Box2dLightTest implements ApplicationListener,
 					c, LIGHT_DISTANCE, 0, 0);
 			light.attachToBody(balls.get(i), 0, 0);
 		}
+		// new DirectionalLight(rayHandler, 1024, Color.BLUE, -95, 120);
 		/** BOX2D LIGHT STUFF END */
 
 	}
