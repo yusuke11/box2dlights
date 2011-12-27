@@ -26,10 +26,10 @@ import com.badlogic.gdx.utils.Array;
 
 public class RayHandler {
 
-	public static int FBO_W = 200;
-	public static int FBO_H = 120;
+	public static final int FBO_W = 256;
+	public static final int FBO_H = 256;
 
-	public static boolean shadows = true;
+	public static boolean shadows = false;
 	public static boolean blur = true;
 	public static int blurNum = 2;
 	public static float ambientLight = 0.0f;
@@ -91,10 +91,10 @@ public class RayHandler {
 
 	}
 
-	public float x1;
-	public float x2;
-	public float y1;
-	public float y2;
+	float x1;
+	float x2;
+	float y1;
+	float y2;
 	private GL10 gl10;
 	private LightMap lightMap;
 
@@ -133,8 +133,8 @@ public class RayHandler {
 		else {
 			gl10 = Gdx.graphics.getGL10();
 			box = new Mesh(true, 12, 0, new VertexAttribute(Usage.Position, 2,
-			"vertex_positions"), new VertexAttribute(Usage.ColorPacked,
-			4,"quad_colors"));
+					"vertex_positions"), new VertexAttribute(Usage.ColorPacked,
+					4, "quad_colors"));
 			setShadowBox();
 
 		}
@@ -154,7 +154,7 @@ public class RayHandler {
 	}
 
 	// Rays
-	public final void updateRays() {		
+	public final void updateRays() {
 		updateCameraCorners();
 
 		final int size = lightList.size;
