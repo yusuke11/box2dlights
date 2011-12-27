@@ -96,6 +96,18 @@ public class Box2dLightTest implements ApplicationListener,
 		normalProjection.setToOrtho2D(0, 0, Gdx.graphics.getWidth(),
 				Gdx.graphics.getHeight());
 
+		/** BOX2D LIGHT STUFF BEGIN */
+		rayHandler = new RayHandler(world, camera);
+
+		for (int i = 0; i < BALLSNUM; i++) {
+			final Color c = new Color(MathUtils.random(), MathUtils.random(),
+					MathUtils.random(), 1f);
+			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL,
+					c, LIGHT_DISTANCE, 0, 0);
+			light.attachToBody(balls.get(i), 0, 0);
+		}
+		/** BOX2D LIGHT STUFF END */
+
 	}
 
 	@Override
@@ -153,10 +165,6 @@ public class Box2dLightTest implements ApplicationListener,
 
 		world = new World(new Vector2(0, -10), true);
 
-		/** BOX2D LIGHT STUFF BEGIN */
-		rayHandler = new RayHandler(world, camera);
-		/** BOX2D LIGHT STUFF END */
-
 		ChainShape chainShape = new ChainShape();
 		chainShape
 				.createLoop(new Vector2[] { new Vector2(-22, 1),
@@ -190,17 +198,6 @@ public class Box2dLightTest implements ApplicationListener,
 			Body boxBody = world.createBody(boxBodyDef);
 			boxBody.createFixture(def);
 			balls.add(boxBody);
-
-			/** BOX2D LIGHT STUFF BEGIN */
-			Color c = new Color(MathUtils.random(), MathUtils.random(),
-					MathUtils.random(),
-					1);
-
-			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL,
-					Color.RED, LIGHT_DISTANCE, 0, 0);
-			light.attachToBody(boxBody, 0, 0);
-
-			/** BOX2D LIGHT STUFF END */
 		}
 		ballShape.dispose();
 	}
