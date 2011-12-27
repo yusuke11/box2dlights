@@ -99,6 +99,10 @@ public class Box2dLightTest implements ApplicationListener,
 
 		/** BOX2D LIGHT STUFF BEGIN */
 		rayHandler = new RayHandler(world, camera);
+		rayHandler.setShadows(true);// same as default
+		rayHandler.setAmbientLight(0.01f);
+		rayHandler.setCulling(false);
+		rayHandler.setBlurNum(2);
 
 		for (int i = 0; i < BALLSNUM; i++) {
 			final Color c = new Color(MathUtils.random(), MathUtils.random(),

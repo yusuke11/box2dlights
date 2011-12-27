@@ -227,7 +227,7 @@ public abstract class Light {
 	 * 
 	 * @param softShadowLenght
 	 */
-	public final void setSoftShadowLenght(float softShadowLenght) {
+	public final void setSoftnessLenght(float softShadowLenght) {
 		this.softShadowLenght = softShadowLenght;
 		if (staticLight)
 			staticUpdate();

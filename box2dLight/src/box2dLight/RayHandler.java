@@ -129,29 +129,6 @@ public class RayHandler {
 		return (x1 < bx2 && x2 > bx && y1 < by2 && y2 > by);
 	}
 
-	void updateCameraCorners() {
-		updateCameraCorners(camera.zoom, camera.viewportWidth,
-					camera.viewportHeight);
-	}
-
-	float viewportWidth;
-	float zoom;
-
-	void updateCameraCorners(float zoom, float viewportWidth,
-			float viewportHeight) {
-		this.zoom = zoom;
-		this.viewportWidth = viewportWidth;
-		final float halfWidth = viewportWidth * 0.5f * zoom;
-		final float halfHeight = viewportHeight * 0.5f * zoom;
-		final float x = camera.position.x;
-		final float y = camera.position.y;
-		x1 = x - halfWidth;
-		x2 = x + halfWidth;
-		y1 = y - halfHeight;
-		y2 = y + halfHeight;
-
-	}
-
 	float x1;
 	float x2;
 	float y1;
@@ -170,7 +147,6 @@ public class RayHandler {
 	public final void updateAndRender() {
 		updateRays();
 		renderLights();
-
 	}
 
 	// Rays
@@ -181,6 +157,23 @@ public class RayHandler {
 		for (int j = 0; j < size; j++) {
 			lightList.items[j].update();
 		}
+	}
+
+	float viewportWidth;
+	float zoom;
+
+	void updateCameraCorners() {
+
+		this.zoom = camera.zoom;
+		this.viewportWidth = camera.viewportWidth;
+		final float halfWidth = viewportWidth * 0.5f * zoom;
+		final float halfHeight = camera.viewportHeight * 0.5f * zoom;
+		final float x = camera.position.x;
+		final float y = camera.position.y;
+		x1 = x - halfWidth;
+		x2 = x + halfWidth;
+		y1 = y - halfHeight;
+		y2 = y + halfHeight;
 
 	}
 
