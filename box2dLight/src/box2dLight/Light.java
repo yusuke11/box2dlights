@@ -48,7 +48,7 @@ public abstract class Light {
 	public void setColor(Color newColor) {
 		if (color != null) {
 			this.color.set(newColor);
-			colorF = color.toIntBits();
+			colorF = color.toFloatBits();
 		} else {
 			color = Color.RED;
 			colorF = Color.RED.toFloatBits();

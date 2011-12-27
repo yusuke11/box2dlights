@@ -197,7 +197,7 @@ public class Box2dLightTest implements ApplicationListener,
 					1);
 
 			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL,
-					c, LIGHT_DISTANCE, 0, 0);
+					Color.RED, LIGHT_DISTANCE, 0, 0);
 			light.attachToBody(boxBody, 0, 0);
 
 			/** BOX2D LIGHT STUFF END */

@@ -41,8 +41,8 @@ public class ConeLight extends PositionalLight {
 					* i / (rayNum - 1f);
 			final float s = sin[i] = MathUtils.sinDeg(angle);
 			final float c = cos[i] = MathUtils.cosDeg(angle);
-			end[i].x = distance * c;
-			end[i].y = distance * s;
+			endX[i] = distance * c;
+			endY[i] = distance * s;
 		}
 		if (staticLight)
 			staticUpdate();

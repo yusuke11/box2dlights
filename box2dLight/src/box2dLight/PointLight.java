@@ -2,7 +2,6 @@ package box2dLight;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.physics.box2d.Body;
 
 public class PointLight extends PositionalLight {
 
@@ -19,8 +18,8 @@ public class PointLight extends PositionalLight {
 			float angle = angleNum * i;
 			final float s = sin[i] = MathUtils.sinDeg(angle);
 			final float c = cos[i] = MathUtils.cosDeg(angle);
-			end[i].x = distance * c;
-			end[i].y = distance * s;
+			endX[i] = distance * c;
+			endY[i] = distance * s;
 		}
 	}
 
