@@ -140,7 +140,7 @@ public class DirectionalLight extends Light {
 	public void render() {
 		if (active) {
 
-			if (RayHandler.isGL20) {
+			if (rayHandler.isGL20) {
 				lightMesh.render(rayHandler.lightShader, GL10.GL_TRIANGLE_FAN,
 						0,
 						vertexNum);

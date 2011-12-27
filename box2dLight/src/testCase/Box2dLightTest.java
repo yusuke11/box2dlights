@@ -154,7 +154,7 @@ public class Box2dLightTest implements ApplicationListener,
 		world = new World(new Vector2(0, -10), true);
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		rayHandler = new RayHandler(world, camera, RAYS_PER_BALL);
+		rayHandler = new RayHandler(world, camera);
 		/** BOX2D LIGHT STUFF END */
 
 		ChainShape chainShape = new ChainShape();

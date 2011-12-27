@@ -20,7 +20,7 @@ public class SimpleTest extends ApplicationAdapter {
 		camera = new OrthographicCamera(48, 32);
 		camera.update();
 		rayHandler = new RayHandler(new World(new Vector2(0, -10), true),
-				camera, 32);
+				camera);
 		new PointLight(rayHandler, 32, false, false, Color.RED, 20, 0, 0);
 	}
 
