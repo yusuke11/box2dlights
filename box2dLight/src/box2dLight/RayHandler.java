@@ -30,7 +30,7 @@ public class RayHandler {
 	final static int MIN_RAYS = 3;
 	boolean isGL20;
 
-	boolean culling = false;
+	boolean culling = true;
 	boolean shadows = true;
 	boolean blur = true;
 	int blurNum = 1;
@@ -39,8 +39,8 @@ public class RayHandler {
 	int MAX_RAYS;
 	World world;
 
-	public OrthographicCamera camera;
-	public ShaderProgram lightShader;
+	OrthographicCamera camera;
+	ShaderProgram lightShader;
 
 	private GL20 gl20;
 	private Mesh box;
@@ -49,11 +49,44 @@ public class RayHandler {
 			false, 16,
 			Light.class);
 
+	/**
+	 * Construct handler that manages everything related to updating and
+	 * rendering the lights MINIMUM parameters needed are world where collision
+	 * geometry is taken and OrthographicCamera. Camera will not be modified in
+	 * anyway but used only for culling, directional lights and rendering lights
+	 * to proper places. Camera must be set to work with box2d coordinates.
+	 * Default setting: culling = true, shadows = true, blur =
+	 * true(GL2.0),blurNum = 1, ambientLight = 0.0f;
+	 * 
+	 * NOTE1: rays number per lights are capped to 1024. For different size use
+	 * other constructor
+	 * 
+	 * NOTE2: On GL 2.0 FBO size is 1/4 * screen size and used by default. For
+	 * different sizes use other constructor
+	 * 
+	 * @param world
+	 * @param camera
+	 */
 	public RayHandler(World world, OrthographicCamera camera) {
 		this(world, camera, defaultMaximum, Gdx.graphics
 				.getWidth() / 4, Gdx.graphics.getHeight() / 4);
 	}
 
+	/**
+	 * Construct handler that manages everything related to updating and
+	 * rendering the lights MINIMUM parameters needed are world where collision
+	 * geometry is taken and OrthographicCamera. Camera will not be modified in
+	 * anyway but used only for culling, directional lights and rendering lights
+	 * to proper places. Camera must be set to work with box2d coordinates.
+	 * Default setting: culling = true, shadows = true, blur =
+	 * true(GL2.0),blurNum = 1, ambientLight = 0.0f;
+	 * 
+	 * @param world
+	 * @param camera
+	 * @param maxRayCount
+	 * @param fboWidth
+	 * @param fboHeigth
+	 */
 	public RayHandler(World world, OrthographicCamera camera, int maxRayCount,
 			int fboWidth,
 			int fboHeigth) {
@@ -312,7 +345,7 @@ public class RayHandler {
 
 	/**
 	 * Disables/enables culling. This save cpu and gpu time when world is bigger
-	 * than screen default = false
+	 * than screen default = true
 	 * 
 	 * @param culling
 	 *            the culling to set
@@ -370,6 +403,14 @@ public class RayHandler {
 	 */
 	public final void setAmbientLight(float ambientLight) {
 		this.ambientLight = MathUtils.clamp(ambientLight, 0, 1);
+	}
+
+	/**
+	 * @param world
+	 *            the world to set
+	 */
+	public final void setWorld(World world) {
+		this.world = world;
 	}
 
 }
