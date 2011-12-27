@@ -31,7 +31,7 @@ class LightMap {
 	private ShaderProgram withoutShadowShader;
 
 	public void render(Camera camera) {
-		Gdx.gl.glEnable(GL10.GL_TEXTURE_2D);
+		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
 		lightMapTex.bind();
 
 		if (rayHandler.blur)
