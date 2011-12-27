@@ -16,8 +16,8 @@ public class DirectionalLight extends Light {
 	final Vector2 start[];
 	final Vector2 end[];
 
-	public DirectionalLight(RayHandler rayHandler, int rays, boolean isStatic,
-				boolean isXray, Color color, float directionDegree,
+	public DirectionalLight(RayHandler rayHandler, int rays, Color color,
+			float directionDegree,
 			float distance) {
 
 		super(rayHandler, rays, color, directionDegree,
