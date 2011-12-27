@@ -14,6 +14,7 @@ public class Box2dLightTestAndroid extends AndroidApplication {
 		config.useCompass = false;
 		config.useAccelerometer = false;	
 		config.useGL20 = true;
+		config.depth = 0;
 		initialize(new Box2dLightTest(), config);
 	}
 }
