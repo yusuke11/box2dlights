@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.utils.NumberUtils;
 
 public abstract class PositionalLight extends Light {
 
@@ -36,7 +37,8 @@ public abstract class PositionalLight extends Light {
 	final float cos[];
 
 	final Vector2 start = new Vector2();
-	final Vector2 end[];
+	final float endX[];
+	final float endY[];
 
 	PositionalLight(RayHandler rayHandler, int rays, Color color,
 			float distance,
@@ -46,10 +48,8 @@ public abstract class PositionalLight extends Light {
 		setPos(x, y);
 		sin = new float[rays];
 		cos = new float[rays];
-		end = new Vector2[rays];
-		for (int i = 0; i < rays; i++) {
-			end[i] = new Vector2();
-		}
+		endX = new float[rays];
+		endY = new float[rays];
 
 		lightMesh = new Mesh(staticLight, vertexNum, 0,
 				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
@@ -87,9 +87,9 @@ public abstract class PositionalLight extends Light {
 		for (int i = 0; i < rayNum; i++) {
 			rayHandler.m_index = i;
 			rayHandler.m_f[i] = 1f;
-			tmpEnd.x = end[i].x + start.x;
+			tmpEnd.x = endX[i] + start.x;
 			rayHandler.m_x[i] = tmpEnd.x;
-			tmpEnd.y = end[i].y + start.y;
+			tmpEnd.y = endY[i] + start.y;
 			rayHandler.m_y[i] = tmpEnd.y;
 			if (!xray) {
 				rayHandler.world.rayCast(rayHandler.ray, start, tmpEnd);
@@ -173,10 +173,10 @@ public abstract class PositionalLight extends Light {
 			}
 			softShadowMesh.setVertices(seg, 0, size);
 		} else {
-			final float r = color.r;
-			final float g = color.g;
-			final float b = color.b;
-			final float a = color.a;
+			final float r = color.r * 255;
+			final float g = color.g * 255;
+			final float b = color.b * 255;
+			final float a = color.a * 255;
 			// ray starting point
 			final float seg[] = rayHandler.m_segments;
 			final float m_x[] = rayHandler.m_x;
@@ -192,8 +192,9 @@ public abstract class PositionalLight extends Light {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
 				final float s = 1f - m_f[i];
-				seg[size++] = Color.toFloatBits(r * s,
-						g * s, b * s, a * s);
+				seg[size++] = Float.intBitsToFloat(((int) (a * s) << 24)
+						| ((int) (b * s) << 16) | ((int) (g * s) << 8)
+						| ((int) (r * s)) & 0xfeffffff);
 				seg[size++] = 0f;
 			}
 			lightMesh.setVertices(seg, 0, size);
@@ -202,13 +203,13 @@ public abstract class PositionalLight extends Light {
 				return;
 
 			size = 0;
-
 			for (int i = 0; i < rayNum; i++) {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
 				final float s = 1f - m_f[i];
-				seg[size++] = Color.toFloatBits(r * s,
-						g * s, b * s, a * s);
+				seg[size++] = Float.intBitsToFloat(((int) (a * s) << 24)
+						| ((int) (b * s) << 16) | ((int) (g * s) << 8)
+						| ((int) (r * s)) & 0xfeffffff);
 				seg[size++] = 0f;
 
 				seg[size++] = m_x[i]
