@@ -2,7 +2,6 @@ package testCase;
 
 import java.util.ArrayList;
 
-import box2dLight.DirectionalLight;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -71,6 +70,7 @@ public class Box2dLightTest implements ApplicationListener,
 
 	/** BOX2D LIGHT STUFF END */
 
+	/** pixel perfect projection for font rendering*/
 	Matrix4 normalProjection = new Matrix4();
 
 	@Override
@@ -97,6 +97,7 @@ public class Box2dLightTest implements ApplicationListener,
 		normalProjection.setToOrtho2D(0, 0, Gdx.graphics.getWidth(),
 				Gdx.graphics.getHeight());
 
+		
 		/** BOX2D LIGHT STUFF BEGIN */
 		rayHandler = new RayHandler(world, camera);
 		rayHandler.setShadows(true);// same as default

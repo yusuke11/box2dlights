@@ -45,6 +45,11 @@ public class RayHandler {
 	private GL20 gl20;
 	private Mesh box;
 
+	/**
+	 * This Array contain all the lights.
+	 * 
+	 * NOTE: DO NOT MODIFY THIS LIST
+	 */
 	final public Array<Light> lightList = new Array<Light>(
 			false, 16,
 			Light.class);
