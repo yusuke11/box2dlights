@@ -18,8 +18,9 @@ public abstract class PositionalLight extends Light {
 
 	/**
 	 * attach positional light to automatically follow body. Position is fixed
-	 * to given offset
+	 * to given offset.
 	 */
+	@Override
 	public void attachToBody(Body body, float offsetX, float offSetY) {
 		this.body = body;
 		bodyOffsetX = offsetX;
@@ -32,7 +33,8 @@ public abstract class PositionalLight extends Light {
 	final Vector2 start = new Vector2();
 	final Vector2 end[];
 
-	PositionalLight(RayHandler rayHandler, int rays, Color color, float distance,
+	PositionalLight(RayHandler rayHandler, int rays, Color color,
+			float distance,
 			float x, float y, float directionDegree) {
 		super(rayHandler, rays, color, directionDegree,
 				distance);
@@ -117,6 +119,8 @@ public abstract class PositionalLight extends Light {
 	public void setPos(float x, float y) {
 		start.x = x;
 		start.y = y;
+		if (staticLight)
+			staticUpdate();
 	}
 
 	@Override
