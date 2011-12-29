@@ -112,10 +112,8 @@ public abstract class PositionalLight extends Light {
 				seg[size++] = colorF;
 				final float s = (1 - m_f[i]);
 				seg[size++] = s;
-				seg[size++] = m_x[i]
-							+ s * softShadowLenght * cos[i];
-				seg[size++] = m_y[i]
-							+ s * softShadowLenght * sin[i];
+				seg[size++] = m_x[i] + s * softShadowLenght * cos[i];
+				seg[size++] = m_y[i] + s * softShadowLenght * sin[i];
 				seg[size++] = zero;
 				seg[size++] = 0f;
 			}
@@ -140,6 +138,7 @@ public abstract class PositionalLight extends Light {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
 				final float s = 1f - m_f[i];
+				// ugly inlining
 				seg[size++] = Float.intBitsToFloat(((int) (a * s) << 24)
 						| ((int) (b * s) << 16) | ((int) (g * s) << 8)
 						| ((int) (r * s)) & 0xfeffffff);
@@ -155,16 +154,15 @@ public abstract class PositionalLight extends Light {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
 				final float s = 1f - m_f[i];
+				// ugly inlining
 				seg[size++] = Float.intBitsToFloat(((int) (a * s) << 24)
 						| ((int) (b * s) << 16) | ((int) (g * s) << 8)
 						| ((int) (r * s)) & 0xfeffffff);
 				seg[size++] = 0f;
 
-				seg[size++] = m_x[i]
-						+ softShadowLenght * cos[i];
+				seg[size++] = m_x[i] + softShadowLenght * cos[i];
 
-				seg[size++] = m_y[i]
-						+ softShadowLenght * sin[i];
+				seg[size++] = m_y[i] + softShadowLenght * sin[i];
 				seg[size++] = zero;
 				seg[size++] = 0f;
 			}
@@ -179,8 +177,7 @@ public abstract class PositionalLight extends Light {
 
 			if (rayHandler.isGL20) {
 				lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN,
-						0,
-						vertexNum);
+						0, vertexNum);
 				if (soft && !xray) {
 					softShadowMesh.render(rayHandler.lightShader,
 							GL20.GL_TRIANGLE_STRIP, 0, (vertexNum - 1) * 2);
@@ -196,24 +193,22 @@ public abstract class PositionalLight extends Light {
 	}
 
 	PositionalLight(RayHandler rayHandler, int rays, Color color,
-			float distance,
-			float x, float y, float directionDegree) {
-		super(rayHandler, rays, color, directionDegree,
-				distance);
+			float distance, float x, float y, float directionDegree) {
+		super(rayHandler, rays, color, directionDegree, distance);
 		setPos(x, y);
 		sin = new float[rays];
 		cos = new float[rays];
 		endX = new float[rays];
 		endY = new float[rays];
 
-		lightMesh = new Mesh(staticLight, vertexNum, 0,
+		lightMesh = new Mesh(staticLight, vertexNum, 0, new VertexAttribute(
+				Usage.Position, 2, "vertex_positions"), new VertexAttribute(
+				Usage.ColorPacked, 4, "quad_colors"), new VertexAttribute(
+				Usage.Generic, 1, "s"));
+		softShadowMesh = new Mesh(staticLight, vertexNum * 2, 0,
 				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
 				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
 				new VertexAttribute(Usage.Generic, 1, "s"));
-		softShadowMesh = new Mesh(staticLight, vertexNum * 2, 0,
-				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
-				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors")
-				, new VertexAttribute(Usage.Generic, 1, "s"));
 		rayHandler.lightList.add(this);
 	}
 

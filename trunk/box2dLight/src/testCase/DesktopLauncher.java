@@ -7,7 +7,7 @@ public class DesktopLauncher {
 
 	public static void main(String[] argv) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		config.title = "physic particle test";
+		config.title = "box2d lights test";
 		config.width = 800;
 		config.height = 480;
 		config.samples = 0;
