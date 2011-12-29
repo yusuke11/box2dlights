@@ -14,6 +14,8 @@ public class ConeLight extends PositionalLight {
 	/**
 	 * @param rayHandler
 	 * @param rays
+	 * @param isStatic
+	 * @param isXray
 	 * @param directionDegree
 	 * @param distance
 	 * @param color

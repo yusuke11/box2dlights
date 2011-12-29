@@ -40,7 +40,7 @@ public class Box2dLightTest implements ApplicationListener,
 	 * a spritebatch and a font for text rendering and a Texture to draw our
 	 * boxes
 	 **/
-	private static final int RAYS_PER_BALL = 96;
+	private static final int RAYS_PER_BALL = 128;
 	private static final int BALLSNUM = 8;
 
 	private static final float LIGHT_DISTANCE = 20f;

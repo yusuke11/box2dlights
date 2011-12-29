@@ -40,25 +40,16 @@ class LightMap {
 		if (rayHandler.shadows) {
 			Gdx.gl20.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
 			shadowShader.begin();
-
 			shadowShader.setUniformf("ambient", 1 - rayHandler.ambientLight);
-			shadowShader.setUniformMatrix("u_projTrans",
-						camera.combined);
+			lightMapMesh.render(shadowShader, GL20.GL_TRIANGLE_FAN);
+			shadowShader.end();
 		} else {
 			Gdx.gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 			withoutShadowShader.begin();
-			withoutShadowShader.setUniformMatrix("u_projTrans",
-						camera.combined);
-		}
-
-		lightMapMesh.render(shadowShader, GL20.GL_TRIANGLE_FAN);
-		Gdx.gl20.glDisable(GL20.GL_BLEND);
-
-		if (rayHandler.shadows) {
-			shadowShader.end();
-		} else {
+			lightMapMesh.render(withoutShadowShader, GL20.GL_TRIANGLE_FAN);
 			withoutShadowShader.end();
 		}
+		Gdx.gl20.glDisable(GL20.GL_BLEND);
 		Gdx.gl.glDisable(GL10.GL_TEXTURE_2D);
 	}
 
@@ -71,8 +62,6 @@ class LightMap {
 			pingPongBuffer.begin();
 			{
 				blurShaderHorizontal.begin();
-				blurShaderHorizontal.setUniformMatrix("u_projTrans",
-						camera.combined);
 				lightMapMesh.render(blurShaderHorizontal, GL20.GL_TRIANGLE_FAN,
 						0, 4);
 				blurShaderHorizontal.end();
@@ -85,8 +74,6 @@ class LightMap {
 			frameBuffer.begin();
 			{
 				blurShaderVertical.begin();
-				blurShaderVertical.setUniformMatrix("u_projTrans",
-						camera.combined);
 
 				lightMapMesh.render(blurShaderVertical, GL20.GL_TRIANGLE_FAN,
 						0, 4);
@@ -104,23 +91,17 @@ class LightMap {
 
 	public LightMap(RayHandler rayHandler, int FboWidth, int FboHeight) {
 		this.rayHandler = rayHandler;
-		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888,
-				FboWidth,
-					FboHeight,
-						false);
-		pingPongBuffer = new FrameBuffer(Pixmap.Format.RGBA8888,
-				FboWidth,
-				FboHeight,
-					false);
+		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, FboWidth,
+				FboHeight, false);
+		pingPongBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, FboWidth,
+				FboHeight, false);
 
 		this.lightMapTex = frameBuffer.getColorBufferTexture();
 		this.pingPongTex = pingPongBuffer.getColorBufferTexture();
 
 		lightMapMesh = new Mesh(false, 4, 0, new VertexAttribute(
-					Usage.Position, 2,
-					"a_position"), new VertexAttribute(
-					Usage.TextureCoordinates, 2,
-					"a_texCoord"));
+				Usage.Position, 2, "a_position"), new VertexAttribute(
+				Usage.TextureCoordinates, 2, "a_texCoord"));
 		setLightMapUV();
 
 		shadowShader = ShadowShader.createShadowShader();
@@ -135,17 +116,17 @@ class LightMap {
 	}
 
 	void setLightMapPos(float x, float x2, float y, float y2) {
-		verts[X1] = x;
-		verts[Y1] = y;
+		verts[X1] = -1;
+		verts[Y1] = -1;
 
-		verts[X2] = x2;
-		verts[Y2] = y;
+		verts[X2] = 1;
+		verts[Y2] = -1;
 
-		verts[X3] = x2;
-		verts[Y3] = y2;
+		verts[X3] = 1;
+		verts[Y3] = 1;
 
-		verts[X4] = x;
-		verts[Y4] = y2;
+		verts[X4] = -1;
+		verts[Y4] = 1;
 		lightMapMesh.setVertices(verts);
 	}
 

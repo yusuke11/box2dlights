@@ -10,15 +10,13 @@ public class GaussianVertical {
 		final String FBO_H = Integer.toString(heigth);
 
 		final String vertexShader = "attribute vec4 a_position;\n" //
-				+ "attribute vec2 a_texCoord"
-				+ ";\n" //
-				+ "uniform mat4 u_projTrans;\n" //
+				+ "attribute vec2 a_texCoord;\n" //
 				+ "varying vec2 v_texCoords;\n" //
 				+ "\n" //
 				+ "void main()\n" //
 				+ "{\n" //
 				+ "   v_texCoords = a_texCoord;\n" //
-				+ "   gl_Position =  u_projTrans * a_position;\n" //
+				+ "   gl_Position = a_position;\n" //
 				+ "}\n";
 		final String fragmentShader = "#ifdef GL_ES\n" //
 				+ "#define LOWP lowp\n"//
