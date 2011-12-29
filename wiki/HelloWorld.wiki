@@ -7,7 +7,7 @@ rayHandler = new RayHandler(world, camera);
 
 This create new white point light.
 {{{
-new PointLight(rayHandler, RAYS_NUM, isStatic, isXray, new Color(1,1,1,1), lightDistance, x, y);
+new PointLight(rayHandler, RAYS_NUM, new Color(1,1,1,1), lightDistance, x, y);
 }}}
 
 In gameloop after everything is drawed that you want to be lit:
