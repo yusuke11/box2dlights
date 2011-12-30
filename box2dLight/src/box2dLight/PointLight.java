@@ -36,4 +36,5 @@ public class PointLight extends PositionalLight {
 		super.setDistance(dist);
 		setEndPoints();
 	}
+
 }

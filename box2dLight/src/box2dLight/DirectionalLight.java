@@ -17,12 +17,17 @@ public class DirectionalLight extends Light {
 	final Vector2 start[];
 	final Vector2 end[];
 
+	/**
+	 * @param rayHandler
+	 * @param rays
+	 * @param color
+	 * @param directionDegree
+	 * @param distance
+	 */
 	public DirectionalLight(RayHandler rayHandler, int rays, Color color,
-			float directionDegree,
-			float distance) {
+			float directionDegree, float distance) {
 
-		super(rayHandler, rays, color, directionDegree,
-					distance);
+		super(rayHandler, rays, color, directionDegree, distance);
 
 		vertexNum = (vertexNum - 1) * 2;
 
@@ -34,10 +39,10 @@ public class DirectionalLight extends Light {
 		}
 		setDirection(direction);
 
-		lightMesh = new Mesh(staticLight, vertexNum, 0,
-				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
-				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
-				new VertexAttribute(Usage.Generic, 1, "s"));
+		lightMesh = new Mesh(staticLight, vertexNum, 0, new VertexAttribute(
+				Usage.Position, 2, "vertex_positions"), new VertexAttribute(
+				Usage.ColorPacked, 4, "quad_colors"), new VertexAttribute(
+				Usage.Generic, 1, "s"));
 		softShadowMesh = new Mesh(staticLight, vertexNum, 0,
 				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
 				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
@@ -46,6 +51,7 @@ public class DirectionalLight extends Light {
 		rayHandler.lightList.add(this);
 	}
 
+	@Override
 	public void setDirection(float direction) {
 		super.direction = direction;
 		sin = MathUtils.sinDeg(direction);
@@ -55,7 +61,7 @@ public class DirectionalLight extends Light {
 	}
 
 	@Override
-	public void update() {
+	void update() {
 		if (!active && staticLight)
 			return;
 
@@ -126,10 +132,8 @@ public class DirectionalLight extends Light {
 			seg[size++] = colorF;
 			seg[size++] = 1f;
 
-			seg[size++] = m_x[i]
-					+ softShadowLenght * cos;
-			seg[size++] = m_y[i]
-					+ softShadowLenght * sin;
+			seg[size++] = m_x[i] + softShadowLenght * cos;
+			seg[size++] = m_y[i] + softShadowLenght * sin;
 			seg[size++] = zero;
 			seg[size++] = 1f;
 		}
@@ -138,14 +142,12 @@ public class DirectionalLight extends Light {
 	}
 
 	@Override
-	public void render() {
+	void render() {
 		if (active) {
 
 			if (rayHandler.isGL20) {
 				lightMesh.render(rayHandler.lightShader,
-						GL20.GL_TRIANGLE_STRIP,
-						0,
-						vertexNum);
+						GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
 				if (soft && !xray) {
 					softShadowMesh.render(rayHandler.lightShader,
 							GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
@@ -153,8 +155,7 @@ public class DirectionalLight extends Light {
 			} else {
 				lightMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
 				if (soft && !xray) {
-					softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0,
-							vertexNum);
+					softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
 				}
 			}
 		}
@@ -171,6 +172,16 @@ public class DirectionalLight extends Light {
 	@Override
 	public Body getBody() {
 		return null;
+	}
+
+	@Override
+	public float getX() {
+		return 0;
+	}
+
+	@Override
+	public float getY() {
+		return 0;
 	}
 
 }

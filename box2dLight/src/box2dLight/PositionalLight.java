@@ -38,6 +38,22 @@ public abstract class PositionalLight extends Light {
 		return body;
 	}
 
+	/**
+	 * horizontal starting position of light in world coordinates.
+	 */
+	@Override
+	public float getX() {
+		return start.x;
+	}
+
+	/**
+	 * vertical starting position of light in world coordinates.
+	 */
+	@Override
+	public float getY() {
+		return start.y;
+	}
+
 	private final Vector2 tmpEnd = new Vector2();
 
 	@Override
