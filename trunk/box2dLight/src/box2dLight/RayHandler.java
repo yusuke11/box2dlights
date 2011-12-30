@@ -28,7 +28,7 @@ import com.badlogic.gdx.utils.Array;
 public class RayHandler {
 
 	final static int MIN_RAYS = 3;
-	boolean isGL20;
+	boolean isGL20 = false;
 
 	boolean culling = true;
 	boolean shadows = true;
@@ -50,8 +50,7 @@ public class RayHandler {
 	 * 
 	 * NOTE: DO NOT MODIFY THIS LIST
 	 */
-	final public Array<Light> lightList = new Array<Light>(
-			false, 16,
+	final public Array<Light> lightList = new Array<Light>(false, 16,
 			Light.class);
 
 	/**
@@ -73,8 +72,8 @@ public class RayHandler {
 	 * @param camera
 	 */
 	public RayHandler(World world, OrthographicCamera camera) {
-		this(world, camera, defaultMaximum, Gdx.graphics
-				.getWidth() / 4, Gdx.graphics.getHeight() / 4);
+		this(world, camera, defaultMaximum, Gdx.graphics.getWidth() / 4,
+				Gdx.graphics.getHeight() / 4);
 	}
 
 	/**
@@ -86,6 +85,7 @@ public class RayHandler {
 	 * Default setting: culling = true, shadows = true, blur =
 	 * true(GL2.0),blurNum = 1, ambientLight = 0.0f;
 	 * 
+	 * 
 	 * @param world
 	 * @param camera
 	 * @param maxRayCount
@@ -93,8 +93,7 @@ public class RayHandler {
 	 * @param fboHeigth
 	 */
 	public RayHandler(World world, OrthographicCamera camera, int maxRayCount,
-			int fboWidth,
-			int fboHeigth) {
+			int fboWidth, int fboHeigth) {
 		this.world = world;
 		this.camera = camera;
 		updateCameraCorners();
@@ -105,6 +104,7 @@ public class RayHandler {
 		m_y = new float[maxRayCount];
 		m_f = new float[maxRayCount];
 
+		
 		isGL20 = Gdx.graphics.isGL20Available();
 		if (isGL20) {
 
@@ -115,11 +115,9 @@ public class RayHandler {
 		} else {
 			gl10 = Gdx.graphics.getGL10();
 
-			box = new Mesh(true, 12, 0, new VertexAttribute(Usage.Position,
-						2,
-						"vertex_positions"), new VertexAttribute(
-						Usage.ColorPacked,
-						4, "quad_colors"));
+			box = new Mesh(true, 12, 0, new VertexAttribute(Usage.Position, 2,
+					"vertex_positions"), new VertexAttribute(Usage.ColorPacked,
+					4, "quad_colors"));
 			setShadowBox();
 
 		}
@@ -217,8 +215,7 @@ public class RayHandler {
 
 		lightShader.begin();
 		{
-			lightShader.setUniformMatrix("u_projTrans",
-					camera.combined);
+			lightShader.setUniformMatrix("u_projTrans", camera.combined);
 
 			lightMap.frameBuffer.begin();
 
@@ -283,12 +280,11 @@ public class RayHandler {
 	final boolean contactFilter(Fixture fixtureB) {
 		Filter filterB = fixtureB.getFilterData();
 
-		if (filterA.groupIndex == filterB.groupIndex
-					&& filterA.groupIndex != 0)
+		if (filterA.groupIndex == filterB.groupIndex && filterA.groupIndex != 0)
 			return filterA.groupIndex > 0;
 
 		return (filterA.maskBits & filterB.categoryBits) != 0
-					&& (filterA.categoryBits & filterB.maskBits) != 0;
+				&& (filterA.categoryBits & filterB.maskBits) != 0;
 
 	}
 

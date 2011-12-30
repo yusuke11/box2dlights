@@ -2,6 +2,7 @@ package box2dLight;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 
 /**
@@ -124,6 +125,24 @@ public abstract class Light {
 	 * NOTE: does absolute nothing if directional light
 	 */
 	public abstract void setPos(float x, float y);
+
+	/**
+	 * horizontal starting position of light in world coordinates. directional
+	 * light return 0
+	 */
+	/**
+	 * @return posX
+	 */
+	public abstract float getX();
+
+	/**
+	 * vertical starting position of light in world coordinates. directional
+	 * light return 0
+	 */
+	/**
+	 * @return posY
+	 */
+	public abstract float getY();
 
 	void staticUpdate() {
 		staticLight = !staticLight;

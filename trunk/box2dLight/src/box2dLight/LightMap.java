@@ -89,12 +89,17 @@ class LightMap {
 
 	}
 
-	public LightMap(RayHandler rayHandler, int FboWidth, int FboHeight) {
+	public LightMap(RayHandler rayHandler, int fboWidth, int fboHeight) {
 		this.rayHandler = rayHandler;
-		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, FboWidth,
-				FboHeight, false);
-		pingPongBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, FboWidth,
-				FboHeight, false);
+
+		if (fboWidth <= 0)
+			fboWidth = 1;
+		if (fboHeight <= 0)
+			fboHeight = 1;
+		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, fboWidth,
+				fboHeight, false);
+		pingPongBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, fboWidth,
+				fboHeight, false);
 
 		this.lightMapTex = frameBuffer.getColorBufferTexture();
 		this.pingPongTex = pingPongBuffer.getColorBufferTexture();
@@ -108,10 +113,10 @@ class LightMap {
 
 		withoutShadowShader = WithoutShadowShader.createShadowShader();
 
-		blurShaderHorizontal = GaussianHorizontal.createBlurShader(FboWidth,
-				FboHeight);
-		blurShaderVertical = GaussianVertical.createBlurShader(FboWidth,
-				FboHeight);
+		blurShaderHorizontal = GaussianHorizontal.createBlurShader(fboWidth,
+				fboHeight);
+		blurShaderVertical = GaussianVertical.createBlurShader(fboWidth,
+				fboHeight);
 
 	}
 

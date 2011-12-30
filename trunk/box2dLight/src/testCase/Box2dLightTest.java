@@ -31,8 +31,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 
-public class Box2dLightTest implements ApplicationListener,
-		InputProcessor {
+public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	/** the camera **/
 	private com.badlogic.gdx.graphics.OrthographicCamera camera;
 
@@ -70,7 +69,7 @@ public class Box2dLightTest implements ApplicationListener,
 
 	/** BOX2D LIGHT STUFF END */
 
-	/** pixel perfect projection for font rendering*/
+	/** pixel perfect projection for font rendering */
 	Matrix4 normalProjection = new Matrix4();
 
 	@Override
@@ -78,28 +77,22 @@ public class Box2dLightTest implements ApplicationListener,
 		camera = new OrthographicCamera(48, 32);
 		camera.position.set(0, 16, 0);
 		camera.update();
-
-		// next we create a SpriteBatch and a font
 		batch = new SpriteBatch();
 		font = new BitmapFont();
 		font.setColor(Color.RED);
 		textureRegion = new TextureRegion(new Texture(
 				Gdx.files.internal("data/marble.png")));
 
-		bg = new Texture(
-				Gdx.files.internal("data/bg.png"));
+		bg = new Texture(Gdx.files.internal("data/bg.png"));
 
-		// next we create out physics world.
 		createPhysicsWorld();
-		// register ourselfs as an InputProcessor
 		Gdx.input.setInputProcessor(this);
 
 		normalProjection.setToOrtho2D(0, 0, Gdx.graphics.getWidth(),
 				Gdx.graphics.getHeight());
 
-		
 		/** BOX2D LIGHT STUFF BEGIN */
-		rayHandler = new RayHandler(world, camera);
+		rayHandler = new RayHandler(world, camera, 1024, 200, 120);
 		rayHandler.setShadows(true);// same as default
 		rayHandler.setAmbientLight(0.01f);
 		rayHandler.setCulling(false);
@@ -108,11 +101,10 @@ public class Box2dLightTest implements ApplicationListener,
 		for (int i = 0; i < BALLSNUM; i++) {
 			final Color c = new Color(MathUtils.random(), MathUtils.random(),
 					MathUtils.random(), 1f);
-			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL,
-					c, LIGHT_DISTANCE, 0, 0);
+			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL, c,
+					LIGHT_DISTANCE, 0, 0);
 			light.attachToBody(balls.get(i), 0, 0);
 		}
-		// new DirectionalLight(rayHandler, 1024, Color.BLUE, -95, 120);
 		/** BOX2D LIGHT STUFF END */
 
 	}
@@ -145,8 +137,7 @@ public class Box2dLightTest implements ApplicationListener,
 			final Vector2 position = ball.getPosition();
 			final float angle = MathUtils.radiansToDegrees * ball.getAngle();
 			batch.draw(textureRegion, position.x - radius, position.y - radius,
-					radius, radius,
-					radius * 2, radius * 2, 1, 1, angle);
+					radius, radius, radius * 2, radius * 2, 1, 1, angle);
 		}
 
 		batch.end();
@@ -161,8 +152,7 @@ public class Box2dLightTest implements ApplicationListener,
 		batch.begin();
 
 		font.draw(batch, Integer.toString(Gdx.graphics.getFramesPerSecond())
-				+ "      - GL es 2.0:" + Gdx.graphics.isGL20Available(),
-				0, 20);
+				+ "      - GL es 2.0:" + Gdx.graphics.isGL20Available(), 0, 20);
 
 		batch.end();
 
@@ -173,10 +163,9 @@ public class Box2dLightTest implements ApplicationListener,
 		world = new World(new Vector2(0, -10), true);
 
 		ChainShape chainShape = new ChainShape();
-		chainShape
-				.createLoop(new Vector2[] { new Vector2(-22, 1),
-						new Vector2(22, 1), new Vector2(22, 31)
-						, new Vector2(0, 20), new Vector2(-22, 31) });
+		chainShape.createLoop(new Vector2[] { new Vector2(-22, 1),
+				new Vector2(22, 1), new Vector2(22, 31), new Vector2(0, 20),
+				new Vector2(-22, 31) });
 		BodyDef chainBodyDef = new BodyDef();
 		chainBodyDef.type = BodyType.StaticBody;
 		groundBody = world.createBody(chainBodyDef);
