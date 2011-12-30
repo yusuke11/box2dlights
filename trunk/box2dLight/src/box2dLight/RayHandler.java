@@ -326,17 +326,17 @@ public class RayHandler {
 		// This need some work, maybe camera matrix would needed
 		float c = Color.toFloatBits(0, 0, 0, 1);
 
-		m_segments[i++] = -100000f;
-		m_segments[i++] = -100000f;
+		m_segments[i++] = -1000000f;
+		m_segments[i++] = -1000000f;
 		m_segments[i++] = c;
-		m_segments[i++] = -100000f;
-		m_segments[i++] = 100000f;
+		m_segments[i++] = -1000000f;
+		m_segments[i++] = 1000000f;
 		m_segments[i++] = c;
-		m_segments[i++] = 100000f;
-		m_segments[i++] = 100000f;
+		m_segments[i++] = 1000000f;
+		m_segments[i++] = 1000000f;
 		m_segments[i++] = c;
-		m_segments[i++] = 100000f;
-		m_segments[i++] = -100000;
+		m_segments[i++] = 1000000f;
+		m_segments[i++] = -1000000;
 		m_segments[i++] = c;
 		box.setVertices(m_segments, 0, i);
 	}

@@ -32,7 +32,10 @@ class LightMap {
 
 	public void render(Camera camera) {
 		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
-		lightMapTex.bind();
+		if (rayHandler.blur)
+			pingPongTex.bind(1);
+
+		lightMapTex.bind(0);
 
 		if (rayHandler.blur)
 			gaussianBlur(rayHandler.blurNum, camera);
@@ -69,11 +72,11 @@ class LightMap {
 			pingPongBuffer.end();
 
 			// vertical
-			pingPongTex.bind();
 
 			frameBuffer.begin();
 			{
 				blurShaderVertical.begin();
+				blurShaderVertical.setUniformi("u_texture", 1);
 
 				lightMapMesh.render(blurShaderVertical, GL20.GL_TRIANGLE_FAN,
 						0, 4);
@@ -82,7 +85,7 @@ class LightMap {
 			}
 			frameBuffer.end();
 
-			lightMapTex.bind();
+			// lightMapTex.bind();
 		}
 
 		Gdx.gl20.glEnable(GL20.GL_BLEND);

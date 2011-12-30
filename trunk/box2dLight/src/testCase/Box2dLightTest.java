@@ -39,7 +39,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	 * a spritebatch and a font for text rendering and a Texture to draw our
 	 * boxes
 	 **/
-	private static final int RAYS_PER_BALL = 128;
+	private static final int RAYS_PER_BALL = 256;
 	private static final int BALLSNUM = 8;
 
 	private static final float LIGHT_DISTANCE = 20f;
@@ -92,11 +92,11 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 				Gdx.graphics.getHeight());
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		rayHandler = new RayHandler(world, camera, 1024, 200, 120);
-		rayHandler.setShadows(true);// same as default
+		rayHandler = new RayHandler(world, camera, RAYS_PER_BALL, 200, 120);
+		rayHandler.setShadows(true);
 		rayHandler.setAmbientLight(0.01f);
 		rayHandler.setCulling(false);
-		rayHandler.setBlurNum(2);
+		rayHandler.setBlurNum(1);
 
 		for (int i = 0; i < BALLSNUM; i++) {
 			final Color c = new Color(MathUtils.random(), MathUtils.random(),
@@ -126,7 +126,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 		batch.disableBlending();
 		batch.begin();
-		;
+		
 		batch.draw(bg, -24, 0, 48, 32);
 
 		batch.enableBlending();
