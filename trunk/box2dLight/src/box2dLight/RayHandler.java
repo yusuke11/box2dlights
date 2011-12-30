@@ -104,7 +104,6 @@ public class RayHandler {
 		m_y = new float[maxRayCount];
 		m_f = new float[maxRayCount];
 
-		
 		isGL20 = Gdx.graphics.isGL20Available();
 		if (isGL20) {
 
@@ -211,8 +210,6 @@ public class RayHandler {
 	}
 
 	void renderWithShaders() {
-		lightMap.setLightMapPos(x1, x2, y1, y2);
-
 		lightShader.begin();
 		{
 			lightShader.setUniformMatrix("u_projTrans", camera.combined);
@@ -232,7 +229,7 @@ public class RayHandler {
 		}
 		lightShader.end();
 
-		lightMap.render(camera);
+		lightMap.render();
 	}
 
 	private void alphaChannelClear() {

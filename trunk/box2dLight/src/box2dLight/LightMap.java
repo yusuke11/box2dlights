@@ -30,16 +30,18 @@ class LightMap {
 	private RayHandler rayHandler;
 	private ShaderProgram withoutShadowShader;
 
-	public void render(Camera camera) {
+	public void render() {
 		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
+
+		// this way lot less binding
 		if (rayHandler.blur)
 			pingPongTex.bind(1);
 
 		lightMapTex.bind(0);
-
 		if (rayHandler.blur)
-			gaussianBlur(rayHandler.blurNum, camera);
+			gaussianBlur();
 
+		// at last lights are rendered over scene
 		if (rayHandler.shadows) {
 			Gdx.gl20.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
 			shadowShader.begin();
@@ -56,12 +58,11 @@ class LightMap {
 		Gdx.gl.glDisable(GL10.GL_TEXTURE_2D);
 	}
 
-	public void gaussianBlur(int times, Camera camera) {
+	public void gaussianBlur() {
 
 		Gdx.gl20.glDisable(GL20.GL_BLEND);
-		for (int i = 0; i < times; i++) {
+		for (int i = 0; i < rayHandler.blurNum; i++) {
 			// horizontal
-
 			pingPongBuffer.begin();
 			{
 				blurShaderHorizontal.begin();
@@ -72,7 +73,6 @@ class LightMap {
 			pingPongBuffer.end();
 
 			// vertical
-
 			frameBuffer.begin();
 			{
 				blurShaderVertical.begin();
@@ -84,8 +84,6 @@ class LightMap {
 
 			}
 			frameBuffer.end();
-
-			// lightMapTex.bind();
 		}
 
 		Gdx.gl20.glEnable(GL20.GL_BLEND);
@@ -107,10 +105,7 @@ class LightMap {
 		this.lightMapTex = frameBuffer.getColorBufferTexture();
 		this.pingPongTex = pingPongBuffer.getColorBufferTexture();
 
-		lightMapMesh = new Mesh(false, 4, 0, new VertexAttribute(
-				Usage.Position, 2, "a_position"), new VertexAttribute(
-				Usage.TextureCoordinates, 2, "a_texCoord"));
-		setLightMapUV();
+		lightMapMesh = createLightMapMesh();
 
 		shadowShader = ShadowShader.createShadowShader();
 
@@ -123,7 +118,18 @@ class LightMap {
 
 	}
 
-	void setLightMapPos(float x, float x2, float y, float y2) {
+	void dispose() {
+		shadowShader.dispose();
+		blurShaderVertical.dispose();
+		blurShaderHorizontal.dispose();
+		lightMapMesh.dispose();
+		frameBuffer.dispose();
+		pingPongBuffer.dispose();
+
+	}
+
+	private Mesh createLightMapMesh() {
+		// vertex coord
 		verts[X1] = -1;
 		verts[Y1] = -1;
 
@@ -135,10 +141,8 @@ class LightMap {
 
 		verts[X4] = -1;
 		verts[Y4] = 1;
-		lightMapMesh.setVertices(verts);
-	}
 
-	private void setLightMapUV() {
+		// tex coords
 		verts[U1] = 0f;
 		verts[V1] = 0f;
 
@@ -150,15 +154,13 @@ class LightMap {
 
 		verts[U4] = 0f;
 		verts[V4] = 1f;
-	}
 
-	void dispose() {
-		shadowShader.dispose();
-		blurShaderVertical.dispose();
-		blurShaderHorizontal.dispose();
-		lightMapMesh.dispose();
-		frameBuffer.dispose();
-		pingPongBuffer.dispose();
+		Mesh tmpMesh = new Mesh(false, 4, 0, new VertexAttribute(
+				Usage.Position, 2, "a_position"), new VertexAttribute(
+				Usage.TextureCoordinates, 2, "a_texCoord"));
+
+		tmpMesh.setVertices(verts);
+		return tmpMesh;
 
 	}
 
