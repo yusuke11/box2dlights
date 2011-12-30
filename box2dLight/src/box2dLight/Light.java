@@ -10,8 +10,6 @@ import com.badlogic.gdx.physics.box2d.Body;
  */
 public abstract class Light {
 
-	static final float zero = Color.toFloatBits(0f, 0f, 0f, 0f);
-
 	protected boolean active = true;
 	protected boolean soft = true;
 	protected boolean xray = false;
@@ -61,8 +59,11 @@ public abstract class Light {
 	 * 0,0,0,1)
 	 * 
 	 * @param r
+	 *            red
 	 * @param g
+	 *            green
 	 * @param b
+	 *            blue
 	 * @param a
 	 *            intesity
 	 */
@@ -78,18 +79,6 @@ public abstract class Light {
 	 */
 	public void setDistance(float dist) {
 		this.distance = dist < 0.01f ? 0.01f : dist;
-	}
-
-	private final void setRayNum(int rays) {
-		if (rays > rayHandler.MAX_RAYS) {
-			rays = rayHandler.MAX_RAYS;
-		}
-		if (rays < RayHandler.MIN_RAYS) {
-			rays = RayHandler.MIN_RAYS;
-		}
-		rayNum = rays;
-		vertexNum = rays + 1;
-
 	}
 
 	abstract void update();
@@ -250,5 +239,19 @@ public abstract class Light {
 		if (staticLight)
 			staticUpdate();
 	}
+
+	private final void setRayNum(int rays) {
+		if (rays > rayHandler.MAX_RAYS) {
+			rays = rayHandler.MAX_RAYS;
+		}
+		if (rays < RayHandler.MIN_RAYS) {
+			rays = RayHandler.MIN_RAYS;
+		}
+		rayNum = rays;
+		vertexNum = rays + 1;
+
+	}
+
+	static final float zero = Color.toFloatBits(0f, 0f, 0f, 0f);
 
 }

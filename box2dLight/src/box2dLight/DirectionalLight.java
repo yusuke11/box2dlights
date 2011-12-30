@@ -18,6 +18,10 @@ public class DirectionalLight extends Light {
 	final Vector2 end[];
 
 	/**
+	 * Directional lights simulate light source that is at infinite distance.
+	 * Direction and intensity is same everywhere. Starting point is allways top
+	 * of the screen.
+	 * 
 	 * @param rayHandler
 	 * @param rays
 	 * @param color
