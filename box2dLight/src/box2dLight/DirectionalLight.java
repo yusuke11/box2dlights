@@ -170,7 +170,7 @@ public class DirectionalLight extends Light {
 	}
 
 	@Override
-	public void setPos(float x, float y) {
+	public void setPosition(float x, float y) {
 	}
 
 	@Override
@@ -186,6 +186,10 @@ public class DirectionalLight extends Light {
 	@Override
 	public float getY() {
 		return 0;
+	}
+
+	@Override
+	public void setPosition(Vector2 position) {		
 	}
 
 }

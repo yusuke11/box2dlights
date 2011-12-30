@@ -34,6 +34,12 @@ public abstract class PositionalLight extends Light {
 	}
 
 	@Override
+	public Vector2 getPosition() {
+		tmpPosition.x = start.x;
+		tmpPosition.y = start.y;
+		return tmpPosition;
+	}
+	
 	public Body getBody() {
 		return body;
 	}
@@ -57,9 +63,17 @@ public abstract class PositionalLight extends Light {
 	private final Vector2 tmpEnd = new Vector2();
 
 	@Override
-	public void setPos(float x, float y) {
+	public void setPosition(float x, float y) {
 		start.x = x;
 		start.y = y;
+		if (staticLight)
+			staticUpdate();
+	}
+
+	@Override
+	public void setPosition(Vector2 position) {
+		start.x = position.x;
+		start.y = position.y;
 		if (staticLight)
 			staticUpdate();
 	}
@@ -211,7 +225,7 @@ public abstract class PositionalLight extends Light {
 	PositionalLight(RayHandler rayHandler, int rays, Color color,
 			float distance, float x, float y, float directionDegree) {
 		super(rayHandler, rays, color, directionDegree, distance);
-		setPos(x, y);
+		setPosition(x, y);
 		sin = new float[rays];
 		cos = new float[rays];
 		endX = new float[rays];

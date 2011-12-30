@@ -5,6 +5,14 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class PointLight extends PositionalLight {
 
+	/**
+	 * @param rayHandler
+	 * @param rays
+	 * @param color
+	 * @param distance
+	 * @param x
+	 * @param y
+	 */
 	public PointLight(RayHandler rayHandler, int rays, Color color,
 			float distance,
 			float x, float y) {
