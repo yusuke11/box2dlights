@@ -340,7 +340,9 @@ public class RayHandler {
 
 	/**
 	 * Disables/enables culling. This save cpu and gpu time when world is bigger
-	 * than screen default = true
+	 * than screen. 
+	 * 
+	 * Default = true
 	 * 
 	 * @param culling
 	 *            the culling to set
