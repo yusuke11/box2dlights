@@ -165,21 +165,26 @@ public class RayHandler {
 	 * bodies
 	 */
 	public final void updateAndRender() {
-		updateRays();
-		renderLights();
+		update();
+		render();
 	}
 
+	
+	private boolean updated = true;
 	/**
 	 * Manual update method for all lights. Use this if you have less physic
 	 * steps than rendering steps.
 	 */
-	public final void updateRays() {
+	public final void update() {
+		
 		updateCameraCorners();
 
 		final int size = lightList.size;
 		for (int j = 0; j < size; j++) {
 			lightList.items[j].update();
 		}
+		
+	updated = true;
 	}
 
 	void updateCameraCorners() {
@@ -206,7 +211,8 @@ public class RayHandler {
 	 * rendered before or after depending how you want x-ray light interact with
 	 * bodies
 	 */
-	public void renderLights() {
+	public void render() {
+		
 		lightRenderedLastFrame = 0;
 
 		Gdx.gl.glDepthMask(false);
@@ -238,9 +244,11 @@ public class RayHandler {
 
 			gl10.glDisable(GL10.GL_BLEND);
 		}
+		
 	}
 
 	void renderWithShaders() {
+		if (updated){
 		lightShader.begin();
 		{
 			lightShader.setUniformMatrix("u_projTrans", combined);
@@ -259,8 +267,10 @@ public class RayHandler {
 			lightMap.frameBuffer.end();
 		}
 		lightShader.end();
-
-		lightMap.render();
+		}
+		lightMap.render(updated);
+		
+		//updated = false;
 	}
 
 	private void alphaChannelClear() {

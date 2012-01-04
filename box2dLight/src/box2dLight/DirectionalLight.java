@@ -18,8 +18,8 @@ public class DirectionalLight extends Light {
 	final Vector2 end[];
 
 	/**
-	 * Directional lights simulate light source that is at infinite distance.
-	 * Direction and intensity is same everywhere. -90 direction is straight from up light. 
+	 * Directional lights simulate light source that locations is at infinite distance.
+	 * Direction and intensity is same everywhere. -90 direction is straight from up. 
 	 * 
 	 * @param rayHandler
 	 * @param rays
@@ -50,8 +50,7 @@ public class DirectionalLight extends Light {
 				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
 				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
 				new VertexAttribute(Usage.Generic, 1, "s"));
-
-		rayHandler.lightList.add(this);
+		update();
 	}
 
 	@Override
@@ -92,7 +91,7 @@ public class DirectionalLight extends Light {
 			rayHandler.m_x[i] = end[i].x = steppedX + d1;
 			rayHandler.m_y[i] = end[i].y = steppedY + d2;
 
-			if (!xray) {
+			if (rayHandler.world != null && !xray) {
 				rayHandler.world.rayCast(rayHandler.ray, start[i], end[i]);
 			}
 		}

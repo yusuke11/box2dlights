@@ -18,6 +18,7 @@ public class PointLight extends PositionalLight {
 			float x, float y) {
 		super(rayHandler, rays, color, distance, x, y, 0f);
 		setEndPoints();
+		update();
 	}
 
 	final void setEndPoints() {
