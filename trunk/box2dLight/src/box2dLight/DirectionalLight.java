@@ -19,8 +19,7 @@ public class DirectionalLight extends Light {
 
 	/**
 	 * Directional lights simulate light source that is at infinite distance.
-	 * Direction and intensity is same everywhere. Starting point is allways top
-	 * of the screen.
+	 * Direction and intensity is same everywhere. -90 direction is straight from up light. 
 	 * 
 	 * @param rayHandler
 	 * @param rays
@@ -29,9 +28,9 @@ public class DirectionalLight extends Light {
 	 * @param distance
 	 */
 	public DirectionalLight(RayHandler rayHandler, int rays, Color color,
-			float directionDegree, float distance) {
+			float directionDegree) {
 
-		super(rayHandler, rays, color, directionDegree, distance);
+		super(rayHandler, rays, color, directionDegree, Float.POSITIVE_INFINITY);
 
 		vertexNum = (vertexNum - 1) * 2;
 
@@ -69,36 +68,30 @@ public class DirectionalLight extends Light {
 		if (!active && staticLight)
 			return;
 
-		final float centerX = (rayHandler.x1 + rayHandler.x2) * 0.5f;
-		final float centerY = (rayHandler.y1 + rayHandler.y2) * 0.5f;
-
 		// sqrt2 = 1.41421356f;
-		final float sizeOfScreen = rayHandler.viewportWidth * rayHandler.zoom
-				* 0.5f * 1.41421356f;
+		final float sizeOfScreen = (rayHandler.x2 - rayHandler.x1) * 0.45f * 1.41421356f;
 
 		final float widthOff = sizeOfScreen * -sin;
 		final float heightOff = sizeOfScreen * cos;
 
-		final float d1 = distance * cos;
-		final float d2 = distance * sin;
-		final float f = 2f / rayNum;
+		final float x = (rayHandler.x1 + rayHandler.x2) * 0.5f - widthOff;
+		final float y = (rayHandler.y1 + rayHandler.y2) * 0.5f - heightOff;
 
+		final float d1 = sizeOfScreen * cos;
+		final float d2 = sizeOfScreen * sin;
+		
+		final float portion = 2f / rayNum;
 		for (int i = 0; i < rayNum; i++) {
-			final float portion = i * f;
-			final float dx = portion * widthOff;
-			final float dy = portion * heightOff;
+			final float steppedX = i * portion * widthOff + x;
+			final float steppedY = i * portion * heightOff + y;
 
-			start[i].x = centerX - d1 - widthOff + dx;
-			start[i].y = centerY - d2 - heightOff + dy;
+			
+			rayHandler.m_index=i;
+			start[i].x = steppedX - d1;
+			start[i].y = steppedY - d2;
+			rayHandler.m_x[i] = end[i].x = steppedX + d1;
+			rayHandler.m_y[i] = end[i].y = steppedY + d2;
 
-			end[i].x = centerX + d1 - widthOff + dx;
-			end[i].y = centerY + d2 - heightOff + dy;
-		}
-
-		for (int i = 0; i < rayNum; i++) {
-			rayHandler.m_index = i;
-			rayHandler.m_x[i] = end[i].x;
-			rayHandler.m_y[i] = end[i].y;
 			if (!xray) {
 				rayHandler.world.rayCast(rayHandler.ray, start[i], end[i]);
 			}
@@ -152,12 +145,14 @@ public class DirectionalLight extends Light {
 			if (rayHandler.isGL20) {
 				lightMesh.render(rayHandler.lightShader,
 						GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
+				rayHandler.lightRenderedLastFrame++;
 				if (soft && !xray) {
 					softShadowMesh.render(rayHandler.lightShader,
 							GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
 				}
 			} else {
 				lightMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
+				rayHandler.lightRenderedLastFrame++;
 				if (soft && !xray) {
 					softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
 				}
@@ -189,7 +184,7 @@ public class DirectionalLight extends Light {
 	}
 
 	@Override
-	public void setPosition(Vector2 position) {		
+	public void setPosition(Vector2 position) {
 	}
 
 }
