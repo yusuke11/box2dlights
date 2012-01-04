@@ -2,6 +2,7 @@ package testCase;
 
 import java.util.ArrayList;
 
+import box2dLight.DirectionalLight;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
@@ -92,10 +94,11 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 				Gdx.graphics.getHeight());
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		rayHandler = new RayHandler(world, camera, RAYS_PER_BALL, 200, 120);
+		rayHandler = new RayHandler(world,  RAYS_PER_BALL, 200, 120);
+		rayHandler.setCombinedMatrix(camera.combined);
 		rayHandler.setShadows(true);
 		rayHandler.setAmbientLight(0.01f);
-		rayHandler.setCulling(false);
+		rayHandler.setCulling(true);
 		rayHandler.setBlurNum(1);
 
 		for (int i = 0; i < BALLSNUM; i++) {
@@ -105,6 +108,8 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 					LIGHT_DISTANCE, 0, 0);
 			light.attachToBody(balls.get(i), 0, 0);
 		}
+		
+		new DirectionalLight(rayHandler, 32, new Color(0,0.4f,0,1f), -45);
 		/** BOX2D LIGHT STUFF END */
 
 	}
@@ -113,6 +118,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	public void render() {
 
 		camera.update();
+		
 		// should use fixed step
 		world.step(Gdx.graphics.getDeltaTime(), 8, 3);
 
@@ -152,7 +158,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		batch.begin();
 
 		font.draw(batch, Integer.toString(Gdx.graphics.getFramesPerSecond())
-				+ "      - GL es 2.0:" + Gdx.graphics.isGL20Available(), 0, 20);
+				+ "      - GL es 2.0:" + Gdx.graphics.isGL20Available()+" - light Rendered Last Frame: " + rayHandler.lightRenderedLastFrame, 0, 20);
 
 		batch.end();
 
@@ -164,7 +170,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 		ChainShape chainShape = new ChainShape();
 		chainShape.createLoop(new Vector2[] { new Vector2(-22, 1),
-				new Vector2(22, 1), new Vector2(22, 31), new Vector2(0, 20),
+				new Vector2(122, 1), new Vector2(122, 31), new Vector2(0, 20),
 				new Vector2(-22, 31) });
 		BodyDef chainBodyDef = new BodyDef();
 		chainBodyDef.type = BodyType.StaticBody;
@@ -278,6 +284,15 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
+		if (keycode == Input.Keys.RIGHT)
+			camera.position.x +=5f;
+		if (keycode == Input.Keys.LEFT)
+			camera.position.x -=5f;
+		if (keycode == Input.Keys.UP)
+			camera.position.y +=5f;
+		if (keycode == Input.Keys.DOWN)
+			camera.position.y -=5f;
+		
 
 		return false;
 	}
@@ -300,6 +315,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean scrolled(int amount) {
+		camera.zoom += (float)amount *0.1f;
 		return false;
 	}
 

@@ -13,11 +13,11 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -27,23 +27,35 @@ import com.badlogic.gdx.utils.Array;
 
 public class RayHandler {
 
+	private static final int DEFAULT_MAX_RAYS = 1023;
 	final static int MIN_RAYS = 3;
-	boolean isGL20 = false;
 
+	boolean isGL20 = false;
 	boolean culling = true;
 	boolean shadows = true;
 	boolean blur = true;
+
 	int blurNum = 1;
 	float ambientLight = 0.0f;
 
 	int MAX_RAYS;
-	World world;
 
-	OrthographicCamera camera;
+	World world;
 	ShaderProgram lightShader;
 
 	private GL20 gl20;
+
+	private GL10 gl10;
+	/** gles1.0 shadows mesh */
 	private Mesh box;
+
+	/** combined projection and combined matrix */
+	private Matrix4 combined;
+
+	/** camera matrix corners */
+	float x1, x2, y1, y2;
+
+	private LightMap lightMap;
 
 	/**
 	 * This Array contain all the lights.
@@ -53,16 +65,18 @@ public class RayHandler {
 	final public Array<Light> lightList = new Array<Light>(false, 16,
 			Light.class);
 
+	/** how many lights passed culling and rendered to scene */
+	public int lightRenderedLastFrame = 0;
+
 	/**
 	 * Construct handler that manages everything related to updating and
 	 * rendering the lights MINIMUM parameters needed are world where collision
-	 * geometry is taken and OrthographicCamera. Camera will not be modified in
-	 * anyway but used only for culling, directional lights and rendering lights
-	 * to proper places. Camera must be set to work with box2d coordinates.
+	 * geometry is taken.
+	 * 
 	 * Default setting: culling = true, shadows = true, blur =
 	 * true(GL2.0),blurNum = 1, ambientLight = 0.0f;
 	 * 
-	 * NOTE1: rays number per lights are capped to 1024. For different size use
+	 * NOTE1: rays number per lights are capped to 1023. For different size use
 	 * other constructor
 	 * 
 	 * NOTE2: On GL 2.0 FBO size is 1/4 * screen size and used by default. For
@@ -71,17 +85,16 @@ public class RayHandler {
 	 * @param world
 	 * @param camera
 	 */
-	public RayHandler(World world, OrthographicCamera camera) {
-		this(world, camera, defaultMaximum, Gdx.graphics.getWidth() / 4,
-				Gdx.graphics.getHeight() / 4);
+	public RayHandler(World world) {
+		this(world, DEFAULT_MAX_RAYS, Gdx.graphics.getWidth() / 4, Gdx.graphics
+				.getHeight() / 4);
 	}
 
 	/**
 	 * Construct handler that manages everything related to updating and
 	 * rendering the lights MINIMUM parameters needed are world where collision
-	 * geometry is taken and OrthographicCamera. Camera will not be modified in
-	 * anyway but used only for culling, directional lights and rendering lights
-	 * to proper places. Camera must be set to work with box2d coordinates.
+	 * geometry is taken.
+	 * 
 	 * Default setting: culling = true, shadows = true, blur =
 	 * true(GL2.0),blurNum = 1, ambientLight = 0.0f;
 	 * 
@@ -92,11 +105,8 @@ public class RayHandler {
 	 * @param fboWidth
 	 * @param fboHeigth
 	 */
-	public RayHandler(World world, OrthographicCamera camera, int maxRayCount,
-			int fboWidth, int fboHeigth) {
+	public RayHandler(World world, int maxRayCount, int fboWidth, int fboHeigth) {
 		this.world = world;
-		this.camera = camera;
-		updateCameraCorners();
 		MAX_RAYS = maxRayCount < MIN_RAYS ? MIN_RAYS : maxRayCount;
 
 		m_segments = new float[maxRayCount * 8];
@@ -123,6 +133,21 @@ public class RayHandler {
 
 	}
 
+	/**
+	 * Set combined camera matrix. Matrix will not be modified in anyway but
+	 * used for rendering lights, culling. Matrix must be set to work in box2d
+	 * coordinates. Reference is kept so its not needed to call this every
+	 * frame.
+	 * 
+	 * NOTE: Matrix4 is assumed to be orthogonal for culling and directional
+	 * lights.
+	 * 
+	 * @param combined
+	 */
+	public void setCombinedMatrix(Matrix4 combined) {
+		this.combined = combined;
+	}
+
 	boolean intersect(float x, float y, float side) {
 		final float bx = x - side;
 		final float bx2 = x + side;
@@ -131,16 +156,9 @@ public class RayHandler {
 		return (x1 < bx2 && x2 > bx && y1 < by2 && y2 > by);
 	}
 
-	float x1;
-	float x2;
-	float y1;
-	float y2;
-	private GL10 gl10;
-	private LightMap lightMap;
-
-	static final int defaultMaximum = 1023;
-
 	/**
+	 * Remember setCombinedMatrix(Matrix4 combined) before drawing.
+	 * 
 	 * Don't call this inside of any begin/end statements. Call this method
 	 * after you have rendered background but before UI. Box2d bodies can be
 	 * rendered before or after depending how you want x-ray light interact with
@@ -151,7 +169,10 @@ public class RayHandler {
 		renderLights();
 	}
 
-	// Rays
+	/**
+	 * Manual update method for all lights. Use this if you have less physic
+	 * steps than rendering steps.
+	 */
 	public final void updateRays() {
 		updateCameraCorners();
 
@@ -161,31 +182,41 @@ public class RayHandler {
 		}
 	}
 
-	float viewportWidth;
-	float zoom;
-
 	void updateCameraCorners() {
+		final float halfViewPortWidth = 1f / combined.val[Matrix4.M00];
+		final float x = -halfViewPortWidth * combined.val[Matrix4.M03];
+		x1 = x - halfViewPortWidth;
+		x2 = x + halfViewPortWidth;
 
-		this.zoom = camera.zoom;
-		this.viewportWidth = camera.viewportWidth;
-		final float halfWidth = viewportWidth * 0.5f * zoom;
-		final float halfHeight = camera.viewportHeight * 0.5f * zoom;
-		final float x = camera.position.x;
-		final float y = camera.position.y;
-		x1 = x - halfWidth;
-		x2 = x + halfWidth;
-		y1 = y - halfHeight;
-		y2 = y + halfHeight;
-
+		final float halfViewPortHeight = 1f / combined.val[Matrix4.M11];
+		final float y = -halfViewPortHeight * combined.val[Matrix4.M13];
+		y1 = y - halfViewPortHeight;
+		y2 = y + halfViewPortHeight;
 	}
 
+	/**
+	 * Manual rendering method for all lights.
+	 * 
+	 * NOTE! Remember to call updateRays if you use this method. * Remember
+	 * setCombinedMatrix(Matrix4 combined) before drawing.
+	 * 
+	 * 
+	 * Don't call this inside of any begin/end statements. Call this method
+	 * after you have rendered background but before UI. Box2d bodies can be
+	 * rendered before or after depending how you want x-ray light interact with
+	 * bodies
+	 */
 	public void renderLights() {
+		lightRenderedLastFrame = 0;
+
 		Gdx.gl.glDepthMask(false);
 
 		if (isGL20) {
 			renderWithShaders();
 		} else {
-			camera.apply(gl10);
+			// camera.apply(gl10);'
+			gl10.glMatrixMode(GL10.GL_PROJECTION);
+			gl10.glLoadMatrixf(combined.val, 0);
 			gl10.glEnable(GL10.GL_BLEND);
 
 			if (shadows) {
@@ -212,7 +243,7 @@ public class RayHandler {
 	void renderWithShaders() {
 		lightShader.begin();
 		{
-			lightShader.setUniformMatrix("u_projTrans", camera.combined);
+			lightShader.setUniformMatrix("u_projTrans", combined);
 
 			lightMap.frameBuffer.begin();
 
@@ -340,7 +371,7 @@ public class RayHandler {
 
 	/**
 	 * Disables/enables culling. This save cpu and gpu time when world is bigger
-	 * than screen. 
+	 * than screen.
 	 * 
 	 * Default = true
 	 * 
