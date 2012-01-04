@@ -1,6 +1,6 @@
 = Vocabulary =
 
-  * *Ray Handler* is handler class for all the lights. Ray handler manage updating, rendering and disposing the lights. Ray handler also check the current openGl es version and use right mode for rendering. If gles2.0 is detected: gaussian blurred lights map is enabled and used automatically. Gles2.0 have bigger constant time but its scale better with multiple lights becouse ligths are rendered small fbo isntead of render target and fragment shader have to do less work. 
+  * *Ray Handler* is handler class for all the lights. Ray handler manage updating, rendering and disposing the lights. Ray handler also check the current OpenGl es version and use right mode for rendering. If GLes2.0 is detected: gaussian blurred lights map is enabled and used automatically. GLes2.0 have bigger constant time but its scale better with multiple lights becouse ligths are rendered small FBO instead of render target and fragment shader have to do less work. 
 
   * *Light* Abstract class that contain shared parameters and act as "interface" for all the lights. Light is made from bunch of rays that are tested with raycasting against box2d geometry and from this data light mesh is constructed and rendered to scene. All lights have meaningfull color, number of rays, softShadowLenght and some booleans like active, soft, xray, staticLight.
 
