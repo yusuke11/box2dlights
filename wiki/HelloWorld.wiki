@@ -2,7 +2,8 @@ These need to be added to your project for integrating the box2dligths
 
 In create:
 {{{
-rayHandler = new RayHandler(world, camera);
+rayHandler = new RayHandler(world);
+rayHandler.setCombinedMatrix(camera.combined);
 }}}
 
 This create new white point light.
