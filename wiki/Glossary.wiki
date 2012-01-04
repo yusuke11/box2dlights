@@ -10,3 +10,5 @@
   * *Point Light* is first concreate class. It's simplest and most used light. Pointh lights have meaningfull position and distance and all other lights atributes. Point lights is allways circular shaped.
 
  * *Cone Light* is second concreate class. It's basically point light but only a sector of the full circle. Cone light has direction and cone degree as additional parameters. cone degree is aberration of straight line to both directions. Setting Cone Degree to 180 means that you got full circle.
+
+ * *Directional Light* simulate light source that location is at infinite distance. This means that direction and intensity is same everywhere. -90 direction is straight from up. 
