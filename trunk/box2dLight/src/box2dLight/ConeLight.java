@@ -29,6 +29,7 @@ public class ConeLight extends PositionalLight {
 				directionDegree);
 		setConeDegree(coneDegree);
 		setDirection(direction);
+		update();
 	}
 
 	public void setDirection(float direction) {
@@ -60,8 +61,8 @@ public class ConeLight extends PositionalLight {
 	 * @param coneDegree
 	 *            the coneDegree to set
 	 */
-	public final void setConeDegree(float coneDegree) {
-		this.coneDegree = coneDegree;
+	public final void setConeDegree(float coneDegree) {		
+		this.coneDegree = MathUtils.clamp(coneDegree, 0, 180);
 		setDirection(direction);
 	}
 

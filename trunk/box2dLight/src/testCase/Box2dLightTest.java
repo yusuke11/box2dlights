@@ -2,7 +2,6 @@ package testCase;
 
 import java.util.ArrayList;
 
-import box2dLight.DirectionalLight;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -94,11 +93,12 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 				Gdx.graphics.getHeight());
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		rayHandler = new RayHandler(world,  RAYS_PER_BALL, 200, 120);
+		rayHandler = new RayHandler(world, RAYS_PER_BALL, 200, 120);
 		rayHandler.setCombinedMatrix(camera.combined);
 		rayHandler.setShadows(true);
-		rayHandler.setAmbientLight(0.01f);
+		rayHandler.setAmbientLight(0.5f);
 		rayHandler.setCulling(true);
+		rayHandler.setBlur(true);
 		rayHandler.setBlurNum(1);
 
 		for (int i = 0; i < BALLSNUM; i++) {
@@ -108,8 +108,8 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 					LIGHT_DISTANCE, 0, 0);
 			light.attachToBody(balls.get(i), 0, 0);
 		}
-		
-		new DirectionalLight(rayHandler, 32, new Color(0,0.4f,0,1f), -45);
+
+		// new DirectionalLight(rayHandler, 32, new Color(0,0.4f,0,1f), -45);
 		/** BOX2D LIGHT STUFF END */
 
 	}
@@ -118,9 +118,10 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	public void render() {
 
 		camera.update();
-		
+
 		// should use fixed step
-		world.step(Gdx.graphics.getDeltaTime(), 8, 3);
+
+		boolean stepped = fixedStep(Gdx.graphics.getDeltaTime());
 
 		if (Gdx.graphics.isGL20Available()) {
 			Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -128,11 +129,11 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 			Gdx.graphics.getGL10().glClear(GL10.GL_COLOR_BUFFER_BIT);
 		}
 
-		batch.getProjectionMatrix().set(camera.combined);
+		batch.setProjectionMatrix(camera.combined);
 
 		batch.disableBlending();
 		batch.begin();
-		
+
 		batch.draw(bg, -24, 0, 48, 32);
 
 		batch.enableBlending();
@@ -149,7 +150,11 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		batch.end();
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		rayHandler.updateAndRender();
+
+		if (stepped)
+			rayHandler.update();
+
+		rayHandler.render();
 
 		/** BOX2D LIGHT STUFF END */
 
@@ -158,10 +163,36 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		batch.begin();
 
 		font.draw(batch, Integer.toString(Gdx.graphics.getFramesPerSecond())
-				+ "      - GL es 2.0:" + Gdx.graphics.isGL20Available()+" - light Rendered Last Frame: " + rayHandler.lightRenderedLastFrame, 0, 20);
+				+ "      - GL es 2.0:" + Gdx.graphics.isGL20Available()
+				+ " - light Rendered Last Frame: "
+				+ rayHandler.lightRenderedLastFrame, 0, 20);
 
 		batch.end();
 
+	}
+
+	private final static int MAX_FPS = 30;
+	private final static int MIN_FPS = 15;
+	public final static float TIME_STEP = 1f / MAX_FPS;
+	private final static float MAX_STEPS = 1f + MAX_FPS / MIN_FPS;
+	private final static float MAX_TIME_PER_FRAME = TIME_STEP * MAX_STEPS;
+	private final static int VELOCITY_ITERS = 6;
+	private final static int POSITION_ITERS = 2;
+
+	float physicsTimeLeft;
+
+	private boolean fixedStep(float delta) {
+		physicsTimeLeft += delta;
+		if (physicsTimeLeft > MAX_TIME_PER_FRAME)
+			physicsTimeLeft = MAX_TIME_PER_FRAME;
+
+		boolean stepped = false;
+		while (physicsTimeLeft >= TIME_STEP) {
+			world.step(TIME_STEP, VELOCITY_ITERS, POSITION_ITERS);
+			physicsTimeLeft -= TIME_STEP;
+			stepped = true;
+		}
+		return stepped;
 	}
 
 	private void createPhysicsWorld() {
@@ -170,7 +201,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 		ChainShape chainShape = new ChainShape();
 		chainShape.createLoop(new Vector2[] { new Vector2(-22, 1),
-				new Vector2(122, 1), new Vector2(122, 31), new Vector2(0, 20),
+				new Vector2(22, 1), new Vector2(22, 31), new Vector2(0, 20),
 				new Vector2(-22, 31) });
 		BodyDef chainBodyDef = new BodyDef();
 		chainBodyDef.type = BodyType.StaticBody;
@@ -285,14 +316,13 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	@Override
 	public boolean keyDown(int keycode) {
 		if (keycode == Input.Keys.RIGHT)
-			camera.position.x +=5f;
+			camera.position.x += 5f;
 		if (keycode == Input.Keys.LEFT)
-			camera.position.x -=5f;
+			camera.position.x -= 5f;
 		if (keycode == Input.Keys.UP)
-			camera.position.y +=5f;
+			camera.position.y += 5f;
 		if (keycode == Input.Keys.DOWN)
-			camera.position.y -=5f;
-		
+			camera.position.y -= 5f;
 
 		return false;
 	}
@@ -315,7 +345,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean scrolled(int amount) {
-		camera.zoom += (float)amount *0.1f;
+		camera.zoom += (float) amount * 0.1f;
 		return false;
 	}
 

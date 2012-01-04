@@ -23,7 +23,7 @@ public abstract class Light {
 	protected int vertexNum;
 	protected float distance;
 	protected float direction;
-	protected Color color = new Color();
+	protected Color color = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 	protected Mesh lightMesh;
 	protected Mesh softShadowMesh;
 
@@ -31,11 +31,12 @@ public abstract class Light {
 
 	Light(RayHandler rayHandler, int rays, Color color, float directionDegree,
 			float distance) {
+		rayHandler.lightList.add(this);
 		this.rayHandler = rayHandler;
 		setRayNum(rays);
 		this.direction = directionDegree;
 		this.distance = distance;
-		setColor(color);
+		setColor(color);		
 	}
 
 	/**
@@ -89,6 +90,7 @@ public abstract class Light {
 	public abstract void setDirection(float directionDegree);
 
 	public void remove() {
+		rayHandler.lightList.removeValue(this,false);
 		lightMesh.dispose();
 		softShadowMesh.dispose();
 	}

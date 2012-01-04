@@ -31,6 +31,8 @@ public abstract class PositionalLight extends Light {
 		this.body = body;
 		bodyOffsetX = offsetX;
 		bodyOffsetY = offSetY;
+		if (staticLight)
+			staticUpdate();
 	}
 
 	@Override
@@ -105,7 +107,7 @@ public abstract class PositionalLight extends Light {
 			rayHandler.m_x[i] = tmpEnd.x;
 			tmpEnd.y = endY[i] + start.y;
 			rayHandler.m_y[i] = tmpEnd.y;
-			if (!xray) {
+			if (rayHandler.world != null && !xray) {
 				rayHandler.world.rayCast(rayHandler.ray, start, tmpEnd);
 			}
 		}
@@ -242,7 +244,6 @@ public abstract class PositionalLight extends Light {
 				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
 				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
 				new VertexAttribute(Usage.Generic, 1, "s"));
-		rayHandler.lightList.add(this);
 	}
 
 }
