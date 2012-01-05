@@ -18,8 +18,9 @@ public class DirectionalLight extends Light {
 	final Vector2 end[];
 
 	/**
-	 * Directional lights simulate light source that locations is at infinite distance.
-	 * Direction and intensity is same everywhere. -90 direction is straight from up. 
+	 * Directional lights simulate light source that locations is at infinite
+	 * distance. Direction and intensity is same everywhere. -90 direction is
+	 * straight from up.
 	 * 
 	 * @param rayHandler
 	 * @param rays
@@ -68,7 +69,7 @@ public class DirectionalLight extends Light {
 			return;
 
 		// sqrt2 = 1.41421356f;
-		final float sizeOfScreen = (rayHandler.x2 - rayHandler.x1) * 0.45f * 1.41421356f;
+		final float sizeOfScreen = (rayHandler.x2 - rayHandler.x1) * 0.5f * 1.41421356f;
 
 		final float widthOff = sizeOfScreen * -sin;
 		final float heightOff = sizeOfScreen * cos;
@@ -76,25 +77,35 @@ public class DirectionalLight extends Light {
 		final float x = (rayHandler.x1 + rayHandler.x2) * 0.5f - widthOff;
 		final float y = (rayHandler.y1 + rayHandler.y2) * 0.5f - heightOff;
 
-		final float d1 = sizeOfScreen * cos;
-		final float d2 = sizeOfScreen * sin;
+		float xAxelOffSet = sizeOfScreen * cos;
+		float yAxelOffSet = sizeOfScreen * sin;
+
+		// checking against rayCast length <= 0 assertion error
 		
+		if ((xAxelOffSet * xAxelOffSet + yAxelOffSet * yAxelOffSet) < 0.1f) {
+			xAxelOffSet = 0.1f;
+			yAxelOffSet = 0.1f;
+		}
+
 		final float portion = 2f / rayNum;
 		for (int i = 0; i < rayNum; i++) {
 			final float steppedX = i * portion * widthOff + x;
 			final float steppedY = i * portion * heightOff + y;
 
+			rayHandler.m_index = i;
+			start[i].x = steppedX - xAxelOffSet;
+			start[i].y = steppedY - yAxelOffSet;
 			
-			rayHandler.m_index=i;
-			start[i].x = steppedX - d1;
-			start[i].y = steppedY - d2;
-			rayHandler.m_x[i] = end[i].x = steppedX + d1;
-			rayHandler.m_y[i] = end[i].y = steppedY + d2;
+			
+			rayHandler.m_x[i] = end[i].x = steppedX + xAxelOffSet;
+			rayHandler.m_y[i] = end[i].y = steppedY + yAxelOffSet;
 
 			if (rayHandler.world != null && !xray) {
 				rayHandler.world.rayCast(rayHandler.ray, start[i], end[i]);
 			}
 		}
+		
+		
 		// update light mesh
 		// ray starting point
 		int size = 0;

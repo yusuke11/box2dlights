@@ -2,6 +2,7 @@ package testCase;
 
 import java.util.ArrayList;
 
+import box2dLight.DirectionalLight;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -41,7 +42,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	 * boxes
 	 **/
 	private static final int RAYS_PER_BALL = 96;
-	private static final int BALLSNUM = 8;
+	private static final int BALLSNUM = 2;
 
 	private static final float LIGHT_DISTANCE = 20f;
 	private static final float radius = 1f;
@@ -93,10 +94,9 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 				Gdx.graphics.getHeight());
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		rayHandler = new RayHandler(world, RAYS_PER_BALL, 200, 120);
-		rayHandler.setCombinedMatrix(camera.combined);
-		rayHandler.setShadows(true);
-		rayHandler.setAmbientLight(0.5f);
+		rayHandler = new RayHandler(world, RAYS_PER_BALL, 200, 120);		
+		rayHandler.setShadows(false);
+		rayHandler.setAmbientLight(0.0f);
 		rayHandler.setCulling(true);
 		rayHandler.setBlur(true);
 		rayHandler.setBlurNum(1);
@@ -109,7 +109,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 			light.attachToBody(balls.get(i), 0, 0);
 		}
 
-		// new DirectionalLight(rayHandler, 32, new Color(0,0.4f,0,1f), -45);
+	//	new DirectionalLight(rayHandler, 32, new Color(0,0.4f,0,1f), -45);
 		/** BOX2D LIGHT STUFF END */
 
 	}
@@ -124,11 +124,14 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		boolean stepped = fixedStep(Gdx.graphics.getDeltaTime());
 
 		if (Gdx.graphics.isGL20Available()) {
-			Gdx.graphics.getGL20().glClear(GL20.GL_COLOR_BUFFER_BIT);
+			Gdx.gl20.glClearColor(1, 0, 1, 1);
+			Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		} else {
-			Gdx.graphics.getGL10().glClear(GL10.GL_COLOR_BUFFER_BIT);
+			Gdx.gl10.glClearColor(1, 0, 1, 1);
+			Gdx.gl10.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		}
 
+	
 		batch.setProjectionMatrix(camera.combined);
 
 		batch.disableBlending();
@@ -148,12 +151,13 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		}
 
 		batch.end();
-
+		
 		/** BOX2D LIGHT STUFF BEGIN */
 
 		if (stepped)
 			rayHandler.update();
 
+		rayHandler.setCombinedMatrix(camera.combined,camera.position.x,camera.position.y,camera.viewportWidth*camera.zoom,camera.viewportHeight*camera.zoom);
 		rayHandler.render();
 
 		/** BOX2D LIGHT STUFF END */
@@ -345,7 +349,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean scrolled(int amount) {
-		camera.zoom += (float) amount * 0.1f;
+		camera.rotate((float) amount * 3f,0,0,1);
 		return false;
 	}
 

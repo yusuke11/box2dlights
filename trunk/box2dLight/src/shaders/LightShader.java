@@ -23,7 +23,7 @@ public final class LightShader {
 				+ "   v_color = s*quad_colors;\n" //				
 				+ "   gl_Position =  u_projTrans * vertex_positions;\n" //
 				+ "}\n";
-
+		//log2(1.0+s)
 		final String fragmentShader = "#ifdef GL_ES\n" //
 				+ "#define LOWP lowp\n"
 				+ "precision mediump float;\n" //
