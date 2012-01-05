@@ -49,8 +49,11 @@ public class RayHandler {
 	/** gles1.0 shadows mesh */
 	private Mesh box;
 
-	/** combined projection and combined matrix */
-	private Matrix4 combined;
+	/**
+	 * @param combined
+	 *            matrix that include projection and translation matrices
+	 */
+	final private Matrix4 combined = new Matrix4();
 
 	/** camera matrix corners */
 	float x1, x2, y1, y2;
@@ -134,26 +137,75 @@ public class RayHandler {
 	}
 
 	/**
-	 * Set combined camera matrix. Matrix will not be modified in anyway but
-	 * used for rendering lights, culling. Matrix must be set to work in box2d
-	 * coordinates. Reference is kept so its not needed to call this every
-	 * frame.
+	 * Set combined camera matrix. Matrix will be copied and used for rendering
+	 * lights, culling. Matrix must be set to work in box2d coordinates. Matrix
+	 * has to be updated every frame(if camera is changed)
+	 * 
 	 * 
 	 * NOTE: Matrix4 is assumed to be orthogonal for culling and directional
 	 * lights.
 	 * 
+	 * If any problems detected Use: [public void setCombinedMatrix(Matrix4
+	 * combined, float x, float y, float viewPortWidth, float viewPortHeight)]
+	 * Instead
+	 * 
+	 * 
 	 * @param combined
+	 *            matrix that include projection and translation matrices
 	 */
 	public void setCombinedMatrix(Matrix4 combined) {
-		this.combined = combined;
+		System.arraycopy(combined.val, 0, this.combined.val, 0, 16);
+
+		// updateCameraCorners
+		final float halfViewPortWidth = 1f / combined.val[Matrix4.M00];
+		final float x = -halfViewPortWidth * combined.val[Matrix4.M03];
+		x1 = x - halfViewPortWidth;
+		x2 = x + halfViewPortWidth;
+
+		final float halfViewPortHeight = 1f / combined.val[Matrix4.M11];
+		final float y = -halfViewPortHeight * combined.val[Matrix4.M13];
+		y1 = y - halfViewPortHeight;
+		y2 = y + halfViewPortHeight;
+
+	}
+
+	/**
+	 * EXPERT USE Set combined camera matrix. Matrix will be copied and used for
+	 * rendering lights, culling. Matrix must be set to work in box2d
+	 * coordinates. Matrix has to be updated every frame(if camera is changed)
+	 * 
+	 * NOTE: this work with rotated cameras.
+	 * 
+	 * @param combined
+	 *            matrix that include projection and translation matrices
+	 * 
+	 * @param x
+	 *            combined matrix position
+	 * @param y
+	 *            combined matrix position
+	 * @param viewPortWidth
+	 *            NOTE!! use actual size, remember to multiple with zoom value
+	 *            if pulled from OrthoCamera
+	 * @param viewPortHeight
+	 *            NOTE!! use actual size, remember to multiple with zoom value
+	 *            if pulled from OrthoCamera
+	 */
+	public void setCombinedMatrix(Matrix4 combined, float x, float y,
+			float viewPortWidth, float viewPortHeight) {
+		System.arraycopy(combined.val, 0, this.combined.val, 0, 16);
+		// updateCameraCorners
+		final float halfViewPortWidth = viewPortWidth * 0.5f;
+		x1 = x - halfViewPortWidth;
+		x2 = x + halfViewPortWidth;
+
+		final float halfViewPortHeight = viewPortHeight * 0.5f;
+		y1 = y - halfViewPortHeight;
+		y2 = y + halfViewPortHeight;
+
 	}
 
 	boolean intersect(float x, float y, float side) {
-		final float bx = x - side;
-		final float bx2 = x + side;
-		final float by = y - side;
-		final float by2 = y + side;
-		return (x1 < bx2 && x2 > bx && y1 < by2 && y2 > by);
+		return (x1 < (x + side) && x2 > (x - side) && y1 < (y + side) && y2 > (y - side));
 	}
 
 	/**
@@ -169,34 +221,16 @@ public class RayHandler {
 		render();
 	}
 
-	
-	private boolean updated = true;
 	/**
 	 * Manual update method for all lights. Use this if you have less physic
 	 * steps than rendering steps.
 	 */
 	public final void update() {
-		
-		updateCameraCorners();
-
 		final int size = lightList.size;
 		for (int j = 0; j < size; j++) {
 			lightList.items[j].update();
 		}
-		
-	updated = true;
-	}
 
-	void updateCameraCorners() {
-		final float halfViewPortWidth = 1f / combined.val[Matrix4.M00];
-		final float x = -halfViewPortWidth * combined.val[Matrix4.M03];
-		x1 = x - halfViewPortWidth;
-		x2 = x + halfViewPortWidth;
-
-		final float halfViewPortHeight = 1f / combined.val[Matrix4.M11];
-		final float y = -halfViewPortHeight * combined.val[Matrix4.M13];
-		y1 = y - halfViewPortHeight;
-		y2 = y + halfViewPortHeight;
 	}
 
 	/**
@@ -212,7 +246,7 @@ public class RayHandler {
 	 * bodies
 	 */
 	public void render() {
-		
+
 		lightRenderedLastFrame = 0;
 
 		Gdx.gl.glDepthMask(false);
@@ -220,7 +254,6 @@ public class RayHandler {
 		if (isGL20) {
 			renderWithShaders();
 		} else {
-			// camera.apply(gl10);'
 			gl10.glMatrixMode(GL10.GL_PROJECTION);
 			gl10.glLoadMatrixf(combined.val, 0);
 			gl10.glEnable(GL10.GL_BLEND);
@@ -244,17 +277,18 @@ public class RayHandler {
 
 			gl10.glDisable(GL10.GL_BLEND);
 		}
-		
+
 	}
 
 	void renderWithShaders() {
-		if (updated){
+
 		lightShader.begin();
 		{
 			lightShader.setUniformMatrix("u_projTrans", combined);
 
 			lightMap.frameBuffer.begin();
 
+			gl20.glClearColor(0f,0f,0f,0f);
 			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 			gl20.glEnable(GL20.GL_BLEND);
@@ -267,10 +301,9 @@ public class RayHandler {
 			lightMap.frameBuffer.end();
 		}
 		lightShader.end();
-		}
-		lightMap.render(updated);
-		
-		//updated = false;
+
+		lightMap.render();
+
 	}
 
 	private void alphaChannelClear() {

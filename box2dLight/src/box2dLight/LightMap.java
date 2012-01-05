@@ -29,16 +29,16 @@ class LightMap {
 	private RayHandler rayHandler;
 	private ShaderProgram withoutShadowShader;
 
-	public void render(boolean updated) {
+	public void render() {
 		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
 
 		// this way lot less binding
-		
-		if (updated && rayHandler.blur)
+
+		if (rayHandler.blur)
 			pingPongTex.bind(1);
 
 		lightMapTex.bind(0);
-		if (updated && rayHandler.blur)
+		if (rayHandler.blur)
 			gaussianBlur();
 
 		// at last lights are rendered over scene
