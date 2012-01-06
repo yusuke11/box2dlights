@@ -1,6 +1,6 @@
 #labels Featured,performance
 = Object creation =
- * Ray Handler is heavy weight object. It contains many float arrays and couple FBO:s when openGL es 2.0 is avaible. RayHandler can safely used over the aplication lifetime. Ray Handler need to be disposed when its destroyed.
+ * Ray Handler is heavy weight object. It contains many float arrays and couple FBO:s when openGL es 2.0 is avaible. Ray Handler can safely used over the aplication lifetime. Ray Handler need to be disposed when its destroyed.
 
  * Lights are moderate weight objects. Every light contain two mesh and if possible try to reuse these lights. Just set ligth to disabled if you know that you will be needing another that type of light soon. Remove lights if you dont need them anymore or there is big time window between them. Be aware that setActive(false) do not set body reference to null.
 
