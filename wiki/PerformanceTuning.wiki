@@ -29,3 +29,7 @@
  * Be reasonable with soft light distance and turn softness off it that is not needed.*(CPU & GPU)*
 
  * Only create rayHanlder with maxNumberRays that are needed *(MEMORY)*
+
+ * If physics are stepped more sparsely than game is rendered ray handler update can be skipped if physic did not skipped between frames. If physics are updated more often that game is rendered then calling updareAndRender is best choise.*(CPU)*
+
+ * If not single lights are rendered blurring and light map blitting is skipped. So cull/disable lights that are not visible (GPU)
