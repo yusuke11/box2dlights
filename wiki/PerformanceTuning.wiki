@@ -18,7 +18,7 @@
 
  * Setting FBO size to small make really big difference with performance. First it helps with light drawing becouse its use less fillrate. Secondly it help with blurring. One blur pass use 5+5 dynamic texture fetch. With 800x480 screen: using original screen size as fbo size and three blur pass would need over 10million texture look ups. But using box2dLights defaults settings 200x120(quarter of screen sizes) and one blur pass use only 240 000 texture look ups but yield more smoothed look. *(GPU & MEMORY)*
 
- * For dynamic lights use only that amount rays that are absolute needed. Usually best outcome is somewhere between 5 and 128. For something really accurate and visible you sometimes need more but be carefull. Every ray use box2d raycast, 1 vertex + 2 for soft light.*(CPU & GPU & MEMORY)*
+ * For dynamic lights use only that amount rays that are absolute needed. Usually best outcome is somewhere between 5 and 128. For something really accurate and visible you sometimes need more but be carefull. FOr every ray box2dLights have to use one raycast and 1 vertex + 2 for soft light.*(CPU & GPU & MEMORY)*
 
  * Light distance make light a bit heavier. Ray Cast need to travel bigger distance and more pixels need to drawn. For bigger light try first add color alpha channel and maybe add some white color. If that does not help try to use different fallof scheme(Still WIP).*(CPU & GPU)*
 
