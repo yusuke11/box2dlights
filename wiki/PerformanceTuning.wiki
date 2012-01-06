@@ -6,17 +6,17 @@
 
 = Performance tips =
 
- * Tips are marked with *(CPU || GPU || MEMORY)* depending which part of system that tip might help.
+ * Tips are marked with *(CPU | GPU | MEMORY)* depending which part of system that tip might help.
 
  * Disabled light do not have any performance overhead. Disable lights are stored on separate list. *(CPU && GPU)*
 
  * Disable shadows if game is running on platform with GL es 1.0 and where render target do not have alpha channel. Usually this mean android with gles1.0. This maybe can be done automatically in library but dont count on that! *(GPU)*
 
- * Static flag make light very cheap. You can use static light even for objects that move but they do it rarely. Static lights can be attached to bodies but they do not follow body movement after initial attach call. Every time you call method that alter static light state it has to be updated. Static lights is wrong choise if light is updated every frame. [CPU]
+ * Static flag make light very cheap. You can use static light even for objects that move but they do it rarely. Static lights can be attached to bodies but they do not follow body movement after initial attach call. Every time you call method that alter static light state it has to be updated. Static lights is wrong choise if light is updated every frame. *(CPU)*
 
- * Xray flag prevent all the raycasting for the light. So this lower cpu load about 80%. Xrays are optimal for small objects and usually dynamic light look better/smoother when combined with xray pointlight. Use this flag allways when you don't need dynamic behaviour. [CPU]
+ * Xray flag prevent all the raycasting for the light. So this lower cpu load about 80%. Xrays are optimal for small objects and usually dynamic light look better/smoother when combined with xray pointlight. Use this flag allways when you don't need dynamic behaviour. *(CPU)*
 
- * Setting FBO size to small make really big difference with performance. First it helps with light drawing becouse its use less fillrate. Secondly it help with blurring. One blur pass use 5+5 dynamic texture fetch. With 800x480 screen: using original screen size as fbo size and three blur pass would need over 10million texture look ups. But using box2dLights defaults settings 200x120(quarter of screen sizes) and one blur pass use only 240 000 texture look ups but yield more smoothed look. [GPU]
+ * Setting FBO size to small make really big difference with performance. First it helps with light drawing becouse its use less fillrate. Secondly it help with blurring. One blur pass use 5+5 dynamic texture fetch. With 800x480 screen: using original screen size as fbo size and three blur pass would need over 10million texture look ups. But using box2dLights defaults settings 200x120(quarter of screen sizes) and one blur pass use only 240 000 texture look ups but yield more smoothed look. *(GPU)*
 
  * For dynamic lights use only that amount rays that are absolute needed. Usually best outcome is somewhere between 5 and 128. For something really accurate and visible you sometimes need more but be carefull. Every ray use box2d raycast, 1 vertex + 2 for soft light.
 *(CPU && GPU)*
