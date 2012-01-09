@@ -1,0 +1,11 @@
+ =Games using box2dlights.=
+
+If you want your game to this list just send me email or contact me on irc.
+
+https://market.android.com/details?id=boxtrix.android
+
+http://www.ludumdare.com/compo/ludum-dare-22/?action=preview&uid=8170
+
+https://market.android.com/details?id=com.sturdygames.gemdrop
+
+more coming!
