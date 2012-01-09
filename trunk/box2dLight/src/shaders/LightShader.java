@@ -1,23 +1,25 @@
 package shaders;
 
+import box2dLight.RayHandler;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 public final class LightShader {
 	static final public ShaderProgram createLightShader() {
-		final String vertexShader = "#ifdef GL_ES\n" //
-				+ "#define LOWP lowp\n"
-				+ "#define MED mediump\n"
-				+ "precision lowp float;\n" //
-				+ "#else\n"
-				+ "#define LOWP \n"
+		final String vertexShader = "#ifdef GL_ES\n" //				
+				+ "#define MED "+ RayHandler.getColorPrecision() + "\n"
+				+ "precision "+RayHandler.getColorPrecision()+" float;\n" //
+				+ "#define PRES mediump\n"				
+				+ "#else\n"				
 				+ "#define MED \n"
+				+ "#define PRES \n"
 				+ "#endif\n" //
 				+ "attribute MED vec4 vertex_positions;\n" //
-				+ "attribute LOWP vec4 quad_colors;\n" //
+				+ "attribute MED vec4 quad_colors;\n" //
 				+ "attribute float s;\n"
-				+ "uniform MED mat4 u_projTrans;\n" //
-				+ "varying LOWP vec4 v_color;\n" //
+				+ "uniform PRES mat4 u_projTrans;\n" //
+				+ "varying MED vec4 v_color;\n" //
 				+ "void main()\n" //
 				+ "{\n" //
 				+ "   v_color = s*quad_colors;\n" //				
@@ -25,12 +27,12 @@ public final class LightShader {
 				+ "}\n";
 		//log2(1.0+s)
 		final String fragmentShader = "#ifdef GL_ES\n" //
-				+ "#define LOWP lowp\n"
-				+ "precision mediump float;\n" //
+				+ "#define MED "+ RayHandler.getColorPrecision() + "\n"
+				+ "precision "+RayHandler.getColorPrecision()+" float;\n" //
 				+ "#else\n"
-				+ "#define LOWP \n"
+				+ "#define MED \n"
 				+ "#endif\n" //
-				+ "varying LOWP vec4 v_color;\n" //
+				+ "varying MED vec4 v_color;\n" //
 				+ "void main()\n"//
 				+ "{\n" //
 				+ "  gl_FragColor = v_color;\n" //

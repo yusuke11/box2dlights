@@ -1,5 +1,7 @@
 package shaders;
 
+import box2dLight.RayHandler;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
@@ -18,10 +20,10 @@ public class GaussianHorizontal {
 				+ "   gl_Position =  a_position;\n" //
 				+ "}\n";
 		final String fragmentShader = "#ifdef GL_ES\n" //
-				+ "#define LOWP lowp\n"//
-				+ "precision lowp float;\n" //
+				+ "#define MED "+ RayHandler.getColorPrecision() + "\n"
+				+ "precision "+RayHandler.getColorPrecision()+" float;\n" //
 				+ "#else\n"//
-				+ "#define LOWP \n"//
+				+ "#define MED \n"//
 				+ "#endif\n" //
 				+ "#define FBO_W "
 				+ FBO_W
@@ -30,7 +32,7 @@ public class GaussianHorizontal {
 				+ FBO_H
 				+ ".0\n"//
 				+ "varying vec2 v_texCoords;\n" //
-				+ "uniform LOWP sampler2D u_texture;\n" //
+				+ "uniform MED sampler2D u_texture;\n" //
 				+ "const vec2 futher  = vec2(3.2307692308  / FBO_W , 0.0 / FBO_H );\n"
 				+ "const vec2 closer = vec2(1.3846153846 / FBO_W , 0.0 / FBO_H );\n"
 				+ "void main()\n"//

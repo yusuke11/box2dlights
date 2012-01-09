@@ -2,7 +2,9 @@ package testCase;
 
 import java.util.ArrayList;
 
+import box2dLight.ConeLight;
 import box2dLight.DirectionalLight;
+import box2dLight.Light;
 import box2dLight.PointLight;
 import box2dLight.RayHandler;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -14,7 +16,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
-import com.badlogic.gdx.graphics.GL20;
+
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
@@ -32,6 +34,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
+import com.badlogic.gdx.utils.Array;
 
 public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	/** the camera **/
@@ -41,8 +44,8 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	 * a spritebatch and a font for text rendering and a Texture to draw our
 	 * boxes
 	 **/
-	private static final int RAYS_PER_BALL = 96;
-	private static final int BALLSNUM = 2;
+	private static final int RAYS_PER_BALL = 16;
+	private static final int BALLSNUM = 32;
 
 	private static final float LIGHT_DISTANCE = 20f;
 	private static final float radius = 1f;
@@ -94,44 +97,36 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 				Gdx.graphics.getHeight());
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		rayHandler = new RayHandler(world, RAYS_PER_BALL, 200, 120);		
-		rayHandler.setShadows(false);
+		RayHandler.setColorPrecisionMediump();
+		rayHandler = new RayHandler(world);
 		rayHandler.setAmbientLight(0.0f);
 		rayHandler.setCulling(true);
-		rayHandler.setBlur(true);
-		rayHandler.setBlurNum(1);
+		//rayHandler.setBlur(true);
+		//rayHandler.setBlurNum(1);
+		rayHandler.setShadows(false);
 
 		for (int i = 0; i < BALLSNUM; i++) {
 			final Color c = new Color(MathUtils.random(), MathUtils.random(),
 					MathUtils.random(), 1f);
-			PointLight light = new PointLight(rayHandler, RAYS_PER_BALL, c,
+			Light light = new PointLight(rayHandler, RAYS_PER_BALL, c,
 					LIGHT_DISTANCE, 0, 0);
 			light.attachToBody(balls.get(i), 0, 0);
-		}
 
-	//	new DirectionalLight(rayHandler, 32, new Color(0,0.4f,0,1f), -45);
+		}
+		//new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
 		/** BOX2D LIGHT STUFF END */
 
 	}
 
 	@Override
 	public void render() {
-
 		camera.update();
 
 		// should use fixed step
 
 		boolean stepped = fixedStep(Gdx.graphics.getDeltaTime());
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
-		if (Gdx.graphics.isGL20Available()) {
-			Gdx.gl20.glClearColor(1, 0, 1, 1);
-			Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		} else {
-			Gdx.gl10.glClearColor(1, 0, 1, 1);
-			Gdx.gl10.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		}
-
-	
 		batch.setProjectionMatrix(camera.combined);
 
 		batch.disableBlending();
@@ -151,13 +146,15 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		}
 
 		batch.end();
-		
+
 		/** BOX2D LIGHT STUFF BEGIN */
 
 		if (stepped)
 			rayHandler.update();
 
-		rayHandler.setCombinedMatrix(camera.combined,camera.position.x,camera.position.y,camera.viewportWidth*camera.zoom,camera.viewportHeight*camera.zoom);
+		rayHandler.setCombinedMatrix(camera.combined, camera.position.x,
+				camera.position.y, camera.viewportWidth * camera.zoom,
+				camera.viewportHeight * camera.zoom);
 		rayHandler.render();
 
 		/** BOX2D LIGHT STUFF END */
@@ -314,19 +311,20 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 	@Override
 	public void dispose() {
+		rayHandler.dispose();
 		world.dispose();
 	}
 
 	@Override
 	public boolean keyDown(int keycode) {
 		if (keycode == Input.Keys.RIGHT)
-			camera.position.x += 5f;
+			camera.position.x += 3f;
 		if (keycode == Input.Keys.LEFT)
-			camera.position.x -= 5f;
+			camera.position.x -= 3f;
 		if (keycode == Input.Keys.UP)
-			camera.position.y += 5f;
+			camera.position.y += 3f;
 		if (keycode == Input.Keys.DOWN)
-			camera.position.y -= 5f;
+			camera.position.y -= 3f;
 
 		return false;
 	}
@@ -349,7 +347,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean scrolled(int amount) {
-		camera.rotate((float) amount * 3f,0,0,1);
+		camera.rotate((float) amount * 3f, 0, 0, 1);
 		return false;
 	}
 

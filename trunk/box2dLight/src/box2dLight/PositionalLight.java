@@ -41,7 +41,7 @@ public abstract class PositionalLight extends Light {
 		tmpPosition.y = start.y;
 		return tmpPosition;
 	}
-	
+
 	public Body getBody() {
 		return body;
 	}
@@ -82,7 +82,7 @@ public abstract class PositionalLight extends Light {
 
 	@Override
 	void update() {
-		if (!active || staticLight)
+		if (staticLight)
 			return;
 
 		if (body != null) {
@@ -205,7 +205,7 @@ public abstract class PositionalLight extends Light {
 
 	@Override
 	void render() {
-		if (active && !culled) {
+		if (!culled) {
 
 			if (rayHandler.isGL20) {
 				lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN,
@@ -214,7 +214,7 @@ public abstract class PositionalLight extends Light {
 				if (soft && !xray) {
 					softShadowMesh.render(rayHandler.lightShader,
 							GL20.GL_TRIANGLE_STRIP, 0, (vertexNum - 1) * 2);
-					
+
 				}
 			} else {
 				lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);

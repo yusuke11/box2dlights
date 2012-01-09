@@ -11,7 +11,7 @@ import com.badlogic.gdx.physics.box2d.Body;
  */
 public abstract class Light {
 
-	protected boolean active = true;
+	private boolean active = true;
 	protected boolean soft = true;
 	protected boolean xray = false;
 	protected boolean staticLight = false;
@@ -36,7 +36,7 @@ public abstract class Light {
 		setRayNum(rays);
 		this.direction = directionDegree;
 		this.distance = distance;
-		setColor(color);		
+		setColor(color);
 	}
 
 	/**
@@ -90,7 +90,7 @@ public abstract class Light {
 	public abstract void setDirection(float directionDegree);
 
 	public void remove() {
-		rayHandler.lightList.removeValue(this,false);
+		rayHandler.lightList.removeValue(this, false);
 		lightMesh.dispose();
 		softShadowMesh.dispose();
 	}
@@ -172,7 +172,20 @@ public abstract class Light {
 	 * @param active
 	 */
 	public final void setActive(boolean active) {
+		if (active == this.active)
+			return;
+
+		if (active) {
+			rayHandler.lightList.add(this);
+			rayHandler.disabledLights.removeValue(this, true);
+		} else {
+			rayHandler.disabledLights.add(this);
+			rayHandler.lightList.removeValue(this, true);
+
+		}
+
 		this.active = active;
+
 	}
 
 	/**
@@ -277,5 +290,23 @@ public abstract class Light {
 	}
 
 	static final float zero = Color.toFloatBits(0f, 0f, 0f, 0f);
+
+	/**
+	 * Color getColor
+	 * 
+	 * @return current lights color
+	 */
+	public Color getColor() {
+		return color;
+	}
+
+	/**
+	 * float getDistance()
+	 * 
+	 * @return light rays distance.
+	 */
+	public float getDistance() {
+		return distance;
+	}
 
 }
