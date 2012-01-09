@@ -32,13 +32,13 @@ class LightMap {
 	public void render() {
 		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
 
+		boolean needed = rayHandler.lightRenderedLastFrame > 0;
 		// this way lot less binding
-
-		if (rayHandler.blur)
+		if (needed && rayHandler.blur)
 			pingPongTex.bind(1);
 
 		lightMapTex.bind(0);
-		if (rayHandler.blur)
+		if (needed && rayHandler.blur)
 			gaussianBlur();
 
 		// at last lights are rendered over scene
@@ -48,7 +48,8 @@ class LightMap {
 			shadowShader.setUniformf("ambient", 1 - rayHandler.ambientLight);
 			lightMapMesh.render(shadowShader, GL20.GL_TRIANGLE_FAN);
 			shadowShader.end();
-		} else {
+		} else if (needed) {
+
 			Gdx.gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 			withoutShadowShader.begin();
 			lightMapMesh.render(withoutShadowShader, GL20.GL_TRIANGLE_FAN);

@@ -24,8 +24,9 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 
-public class RayHandler {
+public class RayHandler implements Disposable {
 
 	private static final int DEFAULT_MAX_RAYS = 1023;
 	final static int MIN_RAYS = 3;
@@ -43,9 +44,6 @@ public class RayHandler {
 	World world;
 	ShaderProgram lightShader;
 
-	private GL20 gl20;
-
-	private GL10 gl10;
 	/** gles1.0 shadows mesh */
 	private Mesh box;
 
@@ -66,6 +64,13 @@ public class RayHandler {
 	 * NOTE: DO NOT MODIFY THIS LIST
 	 */
 	final public Array<Light> lightList = new Array<Light>(false, 16,
+			Light.class);
+	/**
+	 * This Array contain all the disabled lights.
+	 * 
+	 * NOTE: DO NOT MODIFY THIS LIST
+	 */
+	final public Array<Light> disabledLights = new Array<Light>(false, 16,
 			Light.class);
 
 	/** how many lights passed culling and rendered to scene */
@@ -123,14 +128,16 @@ public class RayHandler {
 			lightMap = new LightMap(this, fboWidth, fboHeigth);
 			lightShader = LightShader.createLightShader();
 
-			gl20 = Gdx.graphics.getGL20();
 		} else {
-			gl10 = Gdx.graphics.getGL10();
 
-			box = new Mesh(true, 12, 0, new VertexAttribute(Usage.Position, 2,
-					"vertex_positions"), new VertexAttribute(Usage.ColorPacked,
-					4, "quad_colors"));
-			setShadowBox();
+			if (Gdx.graphics.getBufferFormat().a == 0) {
+				setShadows(false);
+			} else {
+				box = new Mesh(true, 12, 0, new VertexAttribute(Usage.Position,
+						2, "vertex_positions"), new VertexAttribute(
+						Usage.ColorPacked, 4, "quad_colors"));
+				setShadowBox();
+			}
 
 		}
 
@@ -254,15 +261,15 @@ public class RayHandler {
 		if (isGL20) {
 			renderWithShaders();
 		} else {
-			gl10.glMatrixMode(GL10.GL_PROJECTION);
-			gl10.glLoadMatrixf(combined.val, 0);
-			gl10.glEnable(GL10.GL_BLEND);
+			Gdx.gl10.glMatrixMode(GL10.GL_PROJECTION);
+			Gdx.gl10.glLoadMatrixf(combined.val, 0);
+			Gdx.gl.glEnable(GL10.GL_BLEND);
 
 			if (shadows) {
 				alphaChannelClear();
 			}
 
-			gl10.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE);
+			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE);
 
 			final Light[] list = lightList.items;
 			for (int i = 0, size = lightList.size; i < size; i++) {
@@ -270,12 +277,15 @@ public class RayHandler {
 			}
 
 			if (shadows) {
-				gl10.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
-				box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
-				gl10.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_COLOR);
+				if (box != null) {
+					Gdx.gl.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
+					box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
+					Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA,
+							GL10.GL_ONE_MINUS_SRC_ALPHA);
+				}
 			}
 
-			gl10.glDisable(GL10.GL_BLEND);
+			Gdx.gl.glDisable(GL10.GL_BLEND);
 		}
 
 	}
@@ -286,41 +296,52 @@ public class RayHandler {
 		{
 			lightShader.setUniformMatrix("u_projTrans", combined);
 
-			lightMap.frameBuffer.begin();
+			if (shadows || blur) {
+				lightMap.frameBuffer.begin();
 
-			gl20.glClearColor(0f,0f,0f,0f);
-			gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-			gl20.glEnable(GL20.GL_BLEND);
-			gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+				Gdx.gl20.glClearColor(0f, 0f, 0f, 0f);
+				Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+			}
+			Gdx.gl20.glEnable(GL20.GL_BLEND);
+			Gdx.gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 
 			final Light[] list = lightList.items;
 			for (int i = 0, size = lightList.size; i < size; i++) {
 				list[i].render();
 			}
-			lightMap.frameBuffer.end();
+			if (shadows || blur)
+				lightMap.frameBuffer.end();
 		}
 		lightShader.end();
 
-		lightMap.render();
+		if (shadows || blur)
+			lightMap.render();
 
 	}
 
 	private void alphaChannelClear() {
-		gl10.glClearColor(0f, 0f, 0f, ambientLight);
-		gl10.glColorMask(false, false, false, true);
-		gl10.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		gl10.glColorMask(true, true, true, true);
-		gl10.glClearColor(0f, 0f, 0f, 0f);
+		Gdx.gl10.glClearColor(0f, 0f, 0f, ambientLight);
+		Gdx.gl10.glColorMask(false, false, false, true);
+		Gdx.gl10.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		Gdx.gl10.glColorMask(true, true, true, true);
+		Gdx.gl10.glClearColor(0f, 0f, 0f, 0f);
 
 	}
 
 	public void dispose() {
-		final int size = lightList.size;
-		for (int i = 0; i < size; i++) {
+
+		for (int i = 0; i < lightList.size; i++) {
 			lightList.items[i].lightMesh.dispose();
 			lightList.items[i].softShadowMesh.dispose();
 		}
+		lightList.clear();
+
+		for (int i = 0; i < disabledLights.size; i++) {
+			disabledLights.items[i].lightMesh.dispose();
+			disabledLights.items[i].softShadowMesh.dispose();
+		}
+		disabledLights.clear();
+
 		if (lightMap != null)
 			lightMap.dispose();
 		if (lightShader != null)
@@ -484,4 +505,42 @@ public class RayHandler {
 		this.world = world;
 	}
 
+	final static String HIGH = "highp";
+	final static String MED = "mediump";
+	final static String LOW = "lowp";
+	static String colorPrecision = MED;
+
+	/**
+	 * set color precision to highp. Overkill quality. NOTE: this must be set
+	 * before rayHandler is constructed
+	 * */
+	public static void setColorPrecisionHighp() {
+		colorPrecision = HIGH;
+	}
+
+	/**
+	 * set color precision to mediump. Good quality and performance. NOTE: this
+	 * must be set before rayHandler is constructed
+	 * */
+	public static void setColorPrecisionMediump() {
+		colorPrecision = MED;
+	}
+
+	/**
+	 * set color precision to lowp. Worst quality, best performance. NOTE: this
+	 * must be set before rayHandler is constructed
+	 * */
+	public static void setColorPrecisionLowp() {
+		colorPrecision = LOW;
+	}
+
+	/**
+	 * return current color precision Note: if changed after RayHandler is
+	 * initialized, returned String is not what rayHandler is using
+	 * 
+	 * @return colorPrecision
+	 */
+	public static String getColorPrecision() {
+		return colorPrecision;
+	}
 }

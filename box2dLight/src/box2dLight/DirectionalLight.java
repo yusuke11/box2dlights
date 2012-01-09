@@ -63,40 +63,44 @@ public class DirectionalLight extends Light {
 			staticUpdate();
 	}
 
+	float lastX;
+
 	@Override
 	void update() {
-		if (!active && staticLight)
+		if (staticLight)
 			return;
 
-		// sqrt2 = 1.41421356f;
-		final float sizeOfScreen = (rayHandler.x2 - rayHandler.x1) * 0.5f * 1.41421356f;
-
-		final float widthOff = sizeOfScreen * -sin;
-		final float heightOff = sizeOfScreen * cos;
-
-		final float x = (rayHandler.x1 + rayHandler.x2) * 0.5f - widthOff;
-		final float y = (rayHandler.y1 + rayHandler.y2) * 0.5f - heightOff;
+		final float width = (rayHandler.x2 - rayHandler.x1);
+		final float height = (rayHandler.y2 - rayHandler.y1);
+		final float sizeOfScreen = width > height ? width : height;
 
 		float xAxelOffSet = sizeOfScreen * cos;
 		float yAxelOffSet = sizeOfScreen * sin;
 
 		// checking against rayCast length <= 0 assertion error
-		
 		if ((xAxelOffSet * xAxelOffSet + yAxelOffSet * yAxelOffSet) < 0.1f) {
 			xAxelOffSet = 0.1f;
 			yAxelOffSet = 0.1f;
 		}
 
-		final float portion = 2f / rayNum;
-		for (int i = 0; i < rayNum; i++) {
-			final float steppedX = i * portion * widthOff + x;
-			final float steppedY = i * portion * heightOff + y;
+		final float widthOffSet = sizeOfScreen * -sin;
+		final float heightOffSet = sizeOfScreen * cos;
 
+		float x = (rayHandler.x1 + rayHandler.x2) * 0.5f - widthOffSet;
+		float y = (rayHandler.y1 + rayHandler.y2) * 0.5f - heightOffSet;
+
+		final float portionX = 2f * widthOffSet / (rayNum - 1);
+		x = (MathUtils.floor(x / (portionX * 2))) * portionX * 2;
+		final float portionY = 2f * heightOffSet / (rayNum - 1);
+		y = (MathUtils.ceil(y / (portionY * 2))) * portionY * 2;
+		for (int i = 0; i < rayNum; i++) {
+
+			final float steppedX = i * portionX + x;
+			final float steppedY = i * portionY + y;
 			rayHandler.m_index = i;
 			start[i].x = steppedX - xAxelOffSet;
 			start[i].y = steppedY - yAxelOffSet;
-			
-			
+
 			rayHandler.m_x[i] = end[i].x = steppedX + xAxelOffSet;
 			rayHandler.m_y[i] = end[i].y = steppedY + yAxelOffSet;
 
@@ -104,12 +108,10 @@ public class DirectionalLight extends Light {
 				rayHandler.world.rayCast(rayHandler.ray, start[i], end[i]);
 			}
 		}
-		
-		
+
 		// update light mesh
 		// ray starting point
 		int size = 0;
-		// rays ending points.
 		final int arraySize = rayNum;
 		final float seg[] = rayHandler.m_segments;
 		final float m_x[] = rayHandler.m_x;
@@ -132,7 +134,6 @@ public class DirectionalLight extends Light {
 			return;
 
 		size = 0;
-		// rays ending points.
 		for (int i = 0; i < arraySize; i++) {
 			seg[size++] = m_x[i];
 			seg[size++] = m_y[i];
@@ -150,22 +151,20 @@ public class DirectionalLight extends Light {
 
 	@Override
 	void render() {
-		if (active) {
 
-			if (rayHandler.isGL20) {
-				lightMesh.render(rayHandler.lightShader,
+		if (rayHandler.isGL20) {
+			lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_STRIP, 0,
+					vertexNum);
+			rayHandler.lightRenderedLastFrame++;
+			if (soft && !xray) {
+				softShadowMesh.render(rayHandler.lightShader,
 						GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
-				rayHandler.lightRenderedLastFrame++;
-				if (soft && !xray) {
-					softShadowMesh.render(rayHandler.lightShader,
-							GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
-				}
-			} else {
-				lightMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
-				rayHandler.lightRenderedLastFrame++;
-				if (soft && !xray) {
-					softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
-				}
+			}
+		} else {
+			lightMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
+			rayHandler.lightRenderedLastFrame++;
+			if (soft && !xray) {
+				softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
 			}
 		}
 	}

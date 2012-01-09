@@ -1,5 +1,7 @@
 package shaders;
 
+import box2dLight.RayHandler;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
@@ -12,16 +14,16 @@ public final class ShadowShader {
 				+ "void main()\n" //
 				+ "{\n" //
 				+ "   v_texCoords = a_texCoord;\n" //
-				+ "   gl_Position =   a_position;\n" //
+				+ "   gl_Position = a_position;\n" //
 				+ "}\n";
 		final String fragmentShader = "#ifdef GL_ES\n" //
-				+ "#define LOWP lowp\n"
-				+ "precision lowp float;\n" //
-				+ "#else\n" + "#define LOWP \n"
+				+ "#define MED "+ RayHandler.getColorPrecision() + "\n"
+				+ "precision "+RayHandler.getColorPrecision()+" float;\n" //
+				+ "#else\n" + "#define MED \n"
 				+ "#endif\n" //
 				+ "varying vec2 v_texCoords;\n" //
-				+ "uniform LOWP sampler2D u_texture;\n" //
-				+ "uniform LOWP float ambient;\n"
+				+ "uniform MED sampler2D u_texture;\n" //
+				+ "uniform MED float ambient;\n"
 				+ "void main()\n"//
 				+ "{\n" //
 				+ "vec4 v_c = texture2D(u_texture, v_texCoords);\n"

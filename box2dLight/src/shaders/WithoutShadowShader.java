@@ -16,6 +16,8 @@ public final class WithoutShadowShader {
 				+ "   v_texCoords = a_texCoord;\n" //
 				+ "   gl_Position = a_position;\n" //
 				+ "}\n";
+		
+		//this is allways perfect precision
 		final String fragmentShader = "#ifdef GL_ES\n" //
 				+ "#define LOWP lowp\n"
 				+ "precision lowp float;\n" //

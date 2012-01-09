@@ -20,6 +20,7 @@ public class SimpleTest extends ApplicationAdapter {
 		camera.update();
 		rayHandler = new RayHandler(new World(new Vector2(0, -10), true)
 				);
+		rayHandler.setBlurNum(1);
 		rayHandler.setCombinedMatrix(camera.combined);
 		new PointLight(rayHandler, 32, Color.RED, 10, 0,
 					0);
