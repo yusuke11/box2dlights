@@ -34,8 +34,8 @@ public class GaussianVertical {
 				+ ".0\n"//
 				+ "varying vec2 v_texCoords;\n" //
 				+ "uniform MED sampler2D u_texture;\n" //
-				+ "const vec2 futher  = vec2(0.0  / FBO_W , 3.2307692308 / FBO_H );\n"
-				+ "const vec2 closer = vec2(0.0 / FBO_W , 1.3846153846 / FBO_H );\n"
+				+ "const vec2 futher = vec2(0.0 / FBO_W, 3.2307692308 / FBO_H );\n"
+				+ "const vec2 closer = vec2(0.0 / FBO_W, 1.3846153846 / FBO_H );\n"
 				+ "void main()\n"//
 				+ "{\n" //
 				+ "gl_FragColor = 0.2270270270 * texture2D(u_texture, v_texCoords)"

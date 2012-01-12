@@ -113,13 +113,14 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 			light.attachToBody(balls.get(i), 0, 0);
 
 		}
-		//new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
+		new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
 		/** BOX2D LIGHT STUFF END */
 
 	}
 
 	@Override
 	public void render() {
+		camera.position.y += Gdx.graphics.getDeltaTime();
 		camera.update();
 
 		// should use fixed step
@@ -155,6 +156,8 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		rayHandler.setCombinedMatrix(camera.combined, camera.position.x,
 				camera.position.y, camera.viewportWidth * camera.zoom,
 				camera.viewportHeight * camera.zoom);
+		
+		rayHandler.setCombinedMatrix(camera.combined);
 		rayHandler.render();
 
 		/** BOX2D LIGHT STUFF END */
@@ -203,7 +206,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		ChainShape chainShape = new ChainShape();
 		chainShape.createLoop(new Vector2[] { new Vector2(-22, 1),
 				new Vector2(22, 1), new Vector2(22, 31), new Vector2(0, 20),
-				new Vector2(-22, 31) });
+				new Vector2(-22, 31),new Vector2(-22, 1) });
 		BodyDef chainBodyDef = new BodyDef();
 		chainBodyDef.type = BodyType.StaticBody;
 		groundBody = world.createBody(chainBodyDef);

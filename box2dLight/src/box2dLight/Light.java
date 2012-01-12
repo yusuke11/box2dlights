@@ -71,7 +71,7 @@ public abstract class Light {
 	 */
 	public void setColor(float r, float g, float b, float a) {
 		this.color.set(r, g, b, a);
-		colorF = color.toIntBits();
+		colorF = color.toFloatBits();
 	}
 
 	/**
