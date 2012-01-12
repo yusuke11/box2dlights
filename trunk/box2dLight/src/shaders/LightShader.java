@@ -22,7 +22,7 @@ public final class LightShader {
 				+ "varying MED vec4 v_color;\n" //
 				+ "void main()\n" //
 				+ "{\n" //
-				+ "   v_color = s*quad_colors;\n" //				
+				+ "   v_color = s * quad_colors;\n" //				
 				+ "   gl_Position =  u_projTrans * vertex_positions;\n" //
 				+ "}\n";
 		//log2(1.0+s)

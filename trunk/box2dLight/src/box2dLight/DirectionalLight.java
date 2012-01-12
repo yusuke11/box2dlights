@@ -72,15 +72,17 @@ public class DirectionalLight extends Light {
 
 		final float width = (rayHandler.x2 - rayHandler.x1);
 		final float height = (rayHandler.y2 - rayHandler.y1);
+
 		final float sizeOfScreen = width > height ? width : height;
 
 		float xAxelOffSet = sizeOfScreen * cos;
 		float yAxelOffSet = sizeOfScreen * sin;
 
-		// checking against rayCast length <= 0 assertion error
-		if ((xAxelOffSet * xAxelOffSet + yAxelOffSet * yAxelOffSet) < 0.1f) {
-			xAxelOffSet = 0.1f;
-			yAxelOffSet = 0.1f;
+		//preventing length <0 assertion error on box2d.
+		if ((xAxelOffSet * xAxelOffSet < 0.1f)
+				&& (yAxelOffSet * yAxelOffSet < 0.1f)) {
+			xAxelOffSet = 1;
+			yAxelOffSet = 1;
 		}
 
 		final float widthOffSet = sizeOfScreen * -sin;

@@ -164,12 +164,16 @@ public class RayHandler implements Disposable {
 		System.arraycopy(combined.val, 0, this.combined.val, 0, 16);
 
 		// updateCameraCorners
-		final float halfViewPortWidth = 1f / combined.val[Matrix4.M00];
+		float invWidth = combined.val[Matrix4.M00];
+
+		final float halfViewPortWidth = 1f / invWidth;
 		final float x = -halfViewPortWidth * combined.val[Matrix4.M03];
 		x1 = x - halfViewPortWidth;
 		x2 = x + halfViewPortWidth;
 
-		final float halfViewPortHeight = 1f / combined.val[Matrix4.M11];
+		float invHeight = combined.val[Matrix4.M11];
+
+		final float halfViewPortHeight = 1f / invHeight;
 		final float y = -halfViewPortHeight * combined.val[Matrix4.M13];
 		y1 = y - halfViewPortHeight;
 		y2 = y + halfViewPortHeight;
