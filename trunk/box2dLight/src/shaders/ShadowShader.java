@@ -23,7 +23,7 @@ public final class ShadowShader {
 				+ "#endif\n" //
 				+ "varying vec2 v_texCoords;\n" //
 				+ "uniform MED sampler2D u_texture;\n" //
-				+ "uniform MED float ambient;\n"
+				+ "uniform MED float ambient;\n"				
 				+ "void main()\n"//
 				+ "{\n" //
 				+ "vec4 v_c = texture2D(u_texture, v_texCoords);\n"
