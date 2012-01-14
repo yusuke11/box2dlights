@@ -20,9 +20,10 @@ public final class LightShader {
 				+ "attribute float s;\n"
 				+ "uniform PRES mat4 u_projTrans;\n" //
 				+ "varying MED vec4 v_color;\n" //
+				+ "const MED vec4 gamma = vec4(0.454545455,0.454545455,0.454545455,0.454545455);\n"
 				+ "void main()\n" //
 				+ "{\n" //
-				+ "   v_color = s * quad_colors;\n" //				
+				+ "   v_color = (s * quad_colors);\n" //				
 				+ "   gl_Position =  u_projTrans * vertex_positions;\n" //
 				+ "}\n";
 		//log2(1.0+s)

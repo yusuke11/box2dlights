@@ -44,8 +44,8 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	 * a spritebatch and a font for text rendering and a Texture to draw our
 	 * boxes
 	 **/
-	private static final int RAYS_PER_BALL = 16;
-	private static final int BALLSNUM = 32;
+	private static final int RAYS_PER_BALL = 64;
+	private static final int BALLSNUM = 5;
 
 	private static final float LIGHT_DISTANCE = 20f;
 	private static final float radius = 1f;
@@ -103,24 +103,25 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		rayHandler.setCulling(true);
 		//rayHandler.setBlur(true);
 		//rayHandler.setBlurNum(1);
-		rayHandler.setShadows(false);
+		//rayHandler.setShadows(false);
 
 		for (int i = 0; i < BALLSNUM; i++) {
-			final Color c = new Color(MathUtils.random(), MathUtils.random(),
-					MathUtils.random(), 1f);
+			final Color c = new Color(MathUtils.random()*0.0f, MathUtils.random()*0.0f,
+					MathUtils.random()*0.0f, 1f);
 			Light light = new PointLight(rayHandler, RAYS_PER_BALL, c,
-					LIGHT_DISTANCE, 0, 0);
-			light.attachToBody(balls.get(i), 0, 0);
+					LIGHT_DISTANCE, 20, 10);
+			//(light.attachToBody(balls.get(i), 0, 0);
+			light.setStaticLight(true);
 
 		}
-		new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
+	//	new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
 		/** BOX2D LIGHT STUFF END */
 
 	}
 
 	@Override
 	public void render() {
-		camera.position.y += Gdx.graphics.getDeltaTime();
+		
 		camera.update();
 
 		// should use fixed step
