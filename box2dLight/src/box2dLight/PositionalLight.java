@@ -84,7 +84,7 @@ public abstract class PositionalLight extends Light {
 	void update() {
 		if (staticLight)
 			return;
-
+		
 		if (body != null) {
 			final Vector2 vec = body.getPosition();
 			float angle = body.getAngle();
@@ -95,10 +95,6 @@ public abstract class PositionalLight extends Light {
 			start.x = vec.x + dX;
 			start.y = vec.y + dY;
 		}
-
-		if (rayHandler.culling)
-			if ((culled = !rayHandler.intersect(start.x, start.y, distance)))
-				return;
 
 		for (int i = 0; i < rayNum; i++) {
 			rayHandler.m_index = i;
@@ -205,7 +201,9 @@ public abstract class PositionalLight extends Light {
 
 	@Override
 	void render() {
-		if (!culled) {
+		if (rayHandler.culling)
+			if ((!rayHandler.intersect(start.x, start.y, distance)))
+				return;
 
 			if (rayHandler.isGL20) {
 				lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN,
@@ -224,7 +222,7 @@ public abstract class PositionalLight extends Light {
 							(vertexNum - 1) * 2);
 				}
 			}
-		}
+		
 	}
 
 	PositionalLight(RayHandler rayHandler, int rays, Color color,
