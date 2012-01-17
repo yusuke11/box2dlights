@@ -14,11 +14,23 @@ public class PointLight extends PositionalLight {
 	 * @param y
 	 */
 	public PointLight(RayHandler rayHandler, int rays, Color color,
-			float distance,
-			float x, float y) {
+			float distance, float x, float y) {
 		super(rayHandler, rays, color, distance, x, y, 0f);
 		setEndPoints();
 		update();
+	}
+
+	/**
+	 * @param rayHandler
+	 * @param rays
+	 * @param color
+	 *            Note default values,: 
+	 *            Color:WHITE
+	 *            Distance:15            
+	 *            Positon:origo
+	 */
+	public PointLight(RayHandler rayHandler, int rays) {
+		this(rayHandler, rays, Light.DefaultColor, 15f, 0f, 0f);
 	}
 
 	final void setEndPoints() {
@@ -42,7 +54,8 @@ public class PointLight extends PositionalLight {
 	 * @param dist
 	 */
 	public void setDistance(float dist) {
-		super.setDistance(dist);
+		dist *= RayHandler.gammaCorrectionParameter;
+		this.distance = dist < 0.01f ? 0.01f : dist;
 		setEndPoints();
 	}
 

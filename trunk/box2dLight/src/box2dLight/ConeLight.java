@@ -22,11 +22,10 @@ public class ConeLight extends PositionalLight {
 	 * @param coneDegree
 	 */
 	public ConeLight(RayHandler rayHandler, int rays, Color color,
-			float distance,
-			float x, float y, float directionDegree, float coneDegree) {
+			float distance, float x, float y, float directionDegree,
+			float coneDegree) {
 
-		super(rayHandler, rays, color, distance, x, y,
-				directionDegree);
+		super(rayHandler, rays, color, distance, x, y, directionDegree);
 		setConeDegree(coneDegree);
 		setDirection(direction);
 		update();
@@ -36,8 +35,8 @@ public class ConeLight extends PositionalLight {
 
 		this.direction = direction;
 		for (int i = 0; i < rayNum; i++) {
-			float angle = direction + coneDegree - 2f * coneDegree
-					* i / (rayNum - 1f);
+			float angle = direction + coneDegree - 2f * coneDegree * i
+					/ (rayNum - 1f);
 			final float s = sin[i] = MathUtils.sinDeg(angle);
 			final float c = cos[i] = MathUtils.cosDeg(angle);
 			endX[i] = distance * c;
@@ -61,7 +60,7 @@ public class ConeLight extends PositionalLight {
 	 * @param coneDegree
 	 *            the coneDegree to set
 	 */
-	public final void setConeDegree(float coneDegree) {		
+	public final void setConeDegree(float coneDegree) {
 		this.coneDegree = MathUtils.clamp(coneDegree, 0, 180);
 		setDirection(direction);
 	}
@@ -72,7 +71,8 @@ public class ConeLight extends PositionalLight {
 	 * @param dist
 	 */
 	public void setDistance(float dist) {
-		super.setDistance(dist);
+		dist *= RayHandler.gammaCorrectionParameter;
+		this.distance = dist < 0.01f ? 0.01f : dist;
 		setDirection(direction);
 	}
 

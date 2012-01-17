@@ -26,7 +26,6 @@ public class DirectionalLight extends Light {
 	 * @param rays
 	 * @param color
 	 * @param directionDegree
-	 * @param distance
 	 */
 	public DirectionalLight(RayHandler rayHandler, int rays, Color color,
 			float directionDegree) {

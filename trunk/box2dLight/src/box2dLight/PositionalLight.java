@@ -82,10 +82,7 @@ public abstract class PositionalLight extends Light {
 
 	@Override
 	void update() {
-		if (staticLight)
-			return;
-		
-		if (body != null) {
+		if (body != null && !staticLight) {
 			final Vector2 vec = body.getPosition();
 			float angle = body.getAngle();
 			final float cos = MathUtils.cos(angle);
@@ -95,6 +92,15 @@ public abstract class PositionalLight extends Light {
 			start.x = vec.x + dX;
 			start.y = vec.y + dY;
 		}
+
+		if (rayHandler.culling) {
+			culled = ((!rayHandler.intersect(start.x, start.y, distance)));
+			if (culled)
+				return;
+		}
+
+		if (staticLight)
+			return;
 
 		for (int i = 0; i < rayNum; i++) {
 			rayHandler.m_index = i;
@@ -107,6 +113,10 @@ public abstract class PositionalLight extends Light {
 				rayHandler.world.rayCast(rayHandler.ray, start, tmpEnd);
 			}
 		}
+		setMesh();
+	}
+
+	void setMesh() {
 		if (rayHandler.isGL20) {
 			// ray starting point
 			int size = 0;
@@ -160,17 +170,16 @@ public abstract class PositionalLight extends Light {
 			seg[size++] = start.x;
 			seg[size++] = start.y;
 			seg[size++] = colorF;
-			seg[size++] = 0f;
 			// rays ending points.
 			for (int i = 0; i < rayNum; i++) {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
 				final float s = 1f - m_f[i];
 				// ugly inlining
-				seg[size++] = Float.intBitsToFloat(((int) (a * s) << 24)
-						| ((int) (b * s) << 16) | ((int) (g * s) << 8)
-						| ((int) (r * s)) & 0xfeffffff);
-				seg[size++] = 0f;
+				m_f[i] = seg[size++] = Float
+						.intBitsToFloat(((int) (a * s) << 24)
+								| ((int) (b * s) << 16) | ((int) (g * s) << 8)
+								| ((int) (r * s)) & 0xfeffffff);
 			}
 			lightMesh.setVertices(seg, 0, size);
 
@@ -181,18 +190,11 @@ public abstract class PositionalLight extends Light {
 			for (int i = 0; i < rayNum; i++) {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
-				final float s = 1f - m_f[i];
-				// ugly inlining
-				seg[size++] = Float.intBitsToFloat(((int) (a * s) << 24)
-						| ((int) (b * s) << 16) | ((int) (g * s) << 8)
-						| ((int) (r * s)) & 0xfeffffff);
-				seg[size++] = 0f;
-
+				// color value is cached.
+				seg[size++] = m_f[i];
 				seg[size++] = m_x[i] + softShadowLenght * cos[i];
-
 				seg[size++] = m_y[i] + softShadowLenght * sin[i];
 				seg[size++] = zero;
-				seg[size++] = 0f;
 			}
 			softShadowMesh.setVertices(seg, 0, size);
 		}
@@ -201,47 +203,58 @@ public abstract class PositionalLight extends Light {
 
 	@Override
 	void render() {
-		if (rayHandler.culling)
-			if ((!rayHandler.intersect(start.x, start.y, distance)))
-				return;
+		if (rayHandler.culling && culled)
+			return;
 
-			if (rayHandler.isGL20) {
-				lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN,
-						0, vertexNum);
-				rayHandler.lightRenderedLastFrame++;
-				if (soft && !xray) {
-					softShadowMesh.render(rayHandler.lightShader,
-							GL20.GL_TRIANGLE_STRIP, 0, (vertexNum - 1) * 2);
+		if (rayHandler.isGL20) {
+			lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN, 0,
+					vertexNum);
+			rayHandler.lightRenderedLastFrame++;
+			if (soft && !xray) {
+				softShadowMesh.render(rayHandler.lightShader,
+						GL20.GL_TRIANGLE_STRIP, 0, (vertexNum - 1) * 2);
 
-				}
-			} else {
-				lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);
-				rayHandler.lightRenderedLastFrame++;
-				if (soft && !xray) {
-					softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0,
-							(vertexNum - 1) * 2);
-				}
 			}
-		
+		} else {
+			lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);
+			rayHandler.lightRenderedLastFrame++;
+			if (soft && !xray) {
+				softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0,
+						(vertexNum - 1) * 2);
+			}
+		}
+
 	}
 
 	PositionalLight(RayHandler rayHandler, int rays, Color color,
 			float distance, float x, float y, float directionDegree) {
 		super(rayHandler, rays, color, directionDegree, distance);
-		setPosition(x, y);
+		start.x = x;
+		start.y = y;
 		sin = new float[rays];
 		cos = new float[rays];
 		endX = new float[rays];
 		endY = new float[rays];
 
-		lightMesh = new Mesh(staticLight, vertexNum, 0, new VertexAttribute(
-				Usage.Position, 2, "vertex_positions"), new VertexAttribute(
-				Usage.ColorPacked, 4, "quad_colors"), new VertexAttribute(
-				Usage.Generic, 1, "s"));
-		softShadowMesh = new Mesh(staticLight, vertexNum * 2, 0,
-				new VertexAttribute(Usage.Position, 2, "vertex_positions"),
-				new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
-				new VertexAttribute(Usage.Generic, 1, "s"));
+		if (rayHandler.isGL20) {
+			lightMesh = new Mesh(staticLight, vertexNum, 0,
+					new VertexAttribute(Usage.Position, 2, "vertex_positions"),
+					new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
+					new VertexAttribute(Usage.Generic, 1, "s"));
+			softShadowMesh = new Mesh(staticLight, vertexNum * 2, 0,
+					new VertexAttribute(Usage.Position, 2, "vertex_positions"),
+					new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"),
+					new VertexAttribute(Usage.Generic, 1, "s"));
+
+		} else {
+			lightMesh = new Mesh(staticLight, vertexNum, 0,
+					new VertexAttribute(Usage.Position, 2, "vertex_positions"),
+					new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"));
+			softShadowMesh = new Mesh(staticLight, vertexNum * 2, 0,
+					new VertexAttribute(Usage.Position, 2, "vertex_positions"),
+					new VertexAttribute(Usage.ColorPacked, 4, "quad_colors"));
+		}
+		setMesh();
 	}
 
 }

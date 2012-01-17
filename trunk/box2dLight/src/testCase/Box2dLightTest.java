@@ -45,9 +45,9 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	 * boxes
 	 **/
 	private static final int RAYS_PER_BALL = 64;
-	private static final int BALLSNUM = 5;
+	private static final int BALLSNUM = 16;
 
-	private static final float LIGHT_DISTANCE = 20f;
+	private static final float LIGHT_DISTANCE = 15f;
 	private static final float radius = 1f;
 	private SpriteBatch batch;
 	private BitmapFont font;
@@ -98,22 +98,28 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 		/** BOX2D LIGHT STUFF BEGIN */
 		RayHandler.setColorPrecisionMediump();
+		RayHandler.setGammaCorrection(true);
 		rayHandler = new RayHandler(world);
 		rayHandler.setAmbientLight(0.0f);
 		rayHandler.setCulling(true);
-		//rayHandler.setBlur(true);
+		//rayHandler.setBlur(false);
 		//rayHandler.setBlurNum(1);
 		//rayHandler.setShadows(false);
-
+		camera.update(true);
+		rayHandler.setCombinedMatrix(camera.combined, camera.position.x,
+				camera.position.y, camera.viewportWidth * camera.zoom,
+				camera.viewportHeight * camera.zoom);
 		for (int i = 0; i < BALLSNUM; i++) {
-			final Color c = new Color(MathUtils.random()*0.0f, MathUtils.random()*0.0f,
-					MathUtils.random()*0.0f, 1f);
-			Light light = new PointLight(rayHandler, RAYS_PER_BALL, c,
-					LIGHT_DISTANCE, 20, 10);
-			//(light.attachToBody(balls.get(i), 0, 0);
-			light.setStaticLight(true);
+//			final Color c = new Color(MathUtils.random()*0.4f, MathUtils.random()*0.4f,
+//					MathUtils.random()*0.4f, 1f);
+			Light light = new PointLight(rayHandler, RAYS_PER_BALL);
+
+			light.attachToBody(balls.get(i), 0, 0);
+			
+
 
 		}
+		rayHandler.setAmbientLight(0.0f,0.6f,0.6f,0.1f);
 	//	new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
 		/** BOX2D LIGHT STUFF END */
 
@@ -158,7 +164,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 				camera.position.y, camera.viewportWidth * camera.zoom,
 				camera.viewportHeight * camera.zoom);
 		
-		rayHandler.setCombinedMatrix(camera.combined);
+		//rayHandler.setCombinedMatrix(camera.combined);
 		rayHandler.render();
 
 		/** BOX2D LIGHT STUFF END */

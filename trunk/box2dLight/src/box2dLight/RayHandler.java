@@ -37,7 +37,7 @@ public class RayHandler implements Disposable {
 	boolean blur = true;
 
 	int blurNum = 1;
-	float ambientLight = 0.0f;
+	Color ambientLight = new Color();
 
 	int MAX_RAYS;
 
@@ -129,7 +129,7 @@ public class RayHandler implements Disposable {
 			lightShader = LightShader.createLightShader();
 
 		} else {
-
+			setGammaCorrection(false);
 			if (Gdx.graphics.getBufferFormat().a == 0) {
 				setShadows(false);
 			} else {
@@ -324,7 +324,7 @@ public class RayHandler implements Disposable {
 	}
 
 	private void alphaChannelClear() {
-		Gdx.gl10.glClearColor(0f, 0f, 0f, ambientLight);
+		Gdx.gl10.glClearColor(0f, 0f, 0f, ambientLight.a);
 		Gdx.gl10.glColorMask(false, false, false, true);
 		Gdx.gl10.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		Gdx.gl10.glColorMask(true, true, true, true);
@@ -498,7 +498,29 @@ public class RayHandler implements Disposable {
 	 *            the ambientLight to set
 	 */
 	public final void setAmbientLight(float ambientLight) {
-		this.ambientLight = MathUtils.clamp(ambientLight, 0, 1);
+		this.ambientLight.a = MathUtils.clamp(ambientLight, 0, 1);
+	}
+
+	/**
+	 * Ambient light color is how dark and what colored the shadows are. clamped
+	 * to 0-1 NOTE: color is changed only in gles2.0 default = 0;
+	 * 
+	 * @param ambientLight
+	 *            the ambientLight to set
+	 */
+	public final void setAmbientLight(float r, float g, float b, float a) {
+		this.ambientLight.set(r, g, b, a);
+	}
+
+	/**
+	 * Ambient light color is how dark and what colored the shadows are. clamped
+	 * to 0-1 NOTE: color is changed only in gles2.0 default = 0,0,0,0;
+	 * 
+	 * @param ambientLight
+	 *            the ambientLight to set
+	 */
+	public final void setAmbientLight(Color ambientLightColor) {
+		this.ambientLight.set(ambientLightColor);
 	}
 
 	/**
@@ -546,5 +568,34 @@ public class RayHandler implements Disposable {
 	 */
 	public static String getColorPrecision() {
 		return colorPrecision;
+	}
+
+	static boolean gammaCorrection = false;
+	static float gammaCorrectionParameter = 1f;
+	final static float GAMMA_COR = 0.625f;
+
+	/**
+	 * return is gamma correction enabled
+	 * 
+	 * @return
+	 */
+	public static boolean getGammaCorrection() {
+		return gammaCorrection;
+	}
+
+	/**
+	 * set gammaCorrection. This need to be done before creating instance of
+	 * rayHandler. NOTE: this do nothing on gles1.0. NOTE2: for match the
+	 * visuals with gamma uncorrected lights light distance parameters is
+	 * modified internal.
+	 * 
+	 * @param gammeCorrectionWanted
+	 */
+	public static void setGammaCorrection(boolean gammeCorrectionWanted) {
+		gammaCorrection = gammeCorrectionWanted;
+		if (gammaCorrection)
+			gammaCorrectionParameter = GAMMA_COR;
+		else
+			gammaCorrectionParameter = 1f;
 	}
 }
