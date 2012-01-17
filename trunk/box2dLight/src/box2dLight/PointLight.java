@@ -36,11 +36,11 @@ public class PointLight extends PositionalLight {
 	final void setEndPoints() {
 		float angleNum = 360f / (rayNum - 1);
 		for (int i = 0; i < rayNum; i++) {
-			float angle = angleNum * i;
-			final float s = sin[i] = MathUtils.sinDeg(angle);
-			final float c = cos[i] = MathUtils.cosDeg(angle);
-			endX[i] = distance * c;
-			endY[i] = distance * s;
+			final float angle = angleNum * i;
+			sin[i] = MathUtils.sinDeg(angle);
+			cos[i] = MathUtils.cosDeg(angle);
+			endX[i] = distance * sin[i];
+			endY[i] = distance * cos[i];
 		}
 	}
 
@@ -57,6 +57,8 @@ public class PointLight extends PositionalLight {
 		dist *= RayHandler.gammaCorrectionParameter;
 		this.distance = dist < 0.01f ? 0.01f : dist;
 		setEndPoints();
+		if (staticLight)
+			staticUpdate();
 	}
 
 }
