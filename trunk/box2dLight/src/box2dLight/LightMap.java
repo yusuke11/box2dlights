@@ -48,7 +48,7 @@ class LightMap {
 			shadowShader.begin();
 			final Color c = rayHandler.ambientLight;
 			shadowShader.setUniformf("ambient", c.r * c.a, c.g * c.a,
-					c.b * c.a, 1 - c.a);
+					c.b * c.a, 1f - c.a);
 			lightMapMesh.render(shadowShader, GL20.GL_TRIANGLE_FAN);
 			shadowShader.end();
 		} else if (needed) {

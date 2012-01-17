@@ -163,8 +163,11 @@ public abstract class Light {
 	public abstract float getY();
 
 	void staticUpdate() {
+		boolean tmp = rayHandler.culling;
 		staticLight = !staticLight;
+		rayHandler.culling = false;
 		update();
+		rayHandler.culling = tmp;
 		staticLight = !staticLight;
 	}
 

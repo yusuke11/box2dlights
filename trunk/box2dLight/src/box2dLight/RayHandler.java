@@ -37,7 +37,7 @@ public class RayHandler implements Disposable {
 	boolean blur = true;
 
 	int blurNum = 1;
-	Color ambientLight = new Color();
+	Color ambientLight = new Color(0,0,0,0);
 
 	int MAX_RAYS;
 
