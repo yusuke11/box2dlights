@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.Body;
  */
 public abstract class Light {
 
+	static final Color DefaultColor = new Color(0.75f, 0.75f, 0.5f, 0.75f);
 	private boolean active = true;
 	protected boolean soft = true;
 	protected boolean xray = false;
@@ -23,7 +24,8 @@ public abstract class Light {
 	protected int vertexNum;
 	protected float distance;
 	protected float direction;
-	protected Color color = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+
+	protected Color color = new Color();
 	protected Mesh lightMesh;
 	protected Mesh softShadowMesh;
 
@@ -35,7 +37,8 @@ public abstract class Light {
 		this.rayHandler = rayHandler;
 		setRayNum(rays);
 		this.direction = directionDegree;
-		this.distance = distance;
+		distance *= RayHandler.gammaCorrectionParameter;
+		this.distance = distance < 0.01f ? 0.01f : distance;
 		setColor(color);
 	}
 
@@ -47,12 +50,14 @@ public abstract class Light {
 	 */
 	public void setColor(Color newColor) {
 		if (color != null) {
-			this.color.set(newColor);
+			color.set(newColor);
 			colorF = color.toFloatBits();
 		} else {
 			color = Color.RED;
 			colorF = Color.RED.toFloatBits();
 		}
+		if (staticLight)
+			staticUpdate();
 	}
 
 	/**
@@ -70,8 +75,10 @@ public abstract class Light {
 	 *            intesity
 	 */
 	public void setColor(float r, float g, float b, float a) {
-		this.color.set(r, g, b, a);
+		color.set(r, g, b, a);
 		colorF = color.toFloatBits();
+		if (staticLight)
+			staticUpdate();
 	}
 
 	/**
@@ -80,7 +87,6 @@ public abstract class Light {
 	 * @param dist
 	 */
 	public void setDistance(float dist) {
-		this.distance = dist < 0.01f ? 0.01f : dist;
 	}
 
 	abstract void update();
@@ -306,7 +312,8 @@ public abstract class Light {
 	 * @return light rays distance.
 	 */
 	public float getDistance() {
-		return distance;
+		float dist = distance / RayHandler.gammaCorrectionParameter;
+		return dist;
 	}
 
 }

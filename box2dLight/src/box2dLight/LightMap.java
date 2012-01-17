@@ -6,6 +6,7 @@ import shaders.ShadowShader;
 import shaders.WithoutShadowShader;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -45,7 +46,9 @@ class LightMap {
 		if (rayHandler.shadows) {
 			Gdx.gl20.glBlendFunc(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA);
 			shadowShader.begin();
-			shadowShader.setUniformf("ambient", 1 - rayHandler.ambientLight);
+			final Color c = rayHandler.ambientLight;
+			shadowShader.setUniformf("ambient", c.r * c.a, c.g * c.a,
+					c.b * c.a, 1 - c.a);
 			lightMapMesh.render(shadowShader, GL20.GL_TRIANGLE_FAN);
 			shadowShader.end();
 		} else if (needed) {

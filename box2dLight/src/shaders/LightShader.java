@@ -7,6 +7,10 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 public final class LightShader {
 	static final public ShaderProgram createLightShader() {
+		String gamma = ""; 
+		if (RayHandler.getGammaCorrection())
+			gamma = "sqrt";
+		
 		final String vertexShader = "#ifdef GL_ES\n" //				
 				+ "#define MED "+ RayHandler.getColorPrecision() + "\n"
 				+ "precision "+RayHandler.getColorPrecision()+" float;\n" //
@@ -19,14 +23,12 @@ public final class LightShader {
 				+ "attribute MED vec4 quad_colors;\n" //
 				+ "attribute float s;\n"
 				+ "uniform PRES mat4 u_projTrans;\n" //
-				+ "varying MED vec4 v_color;\n" //
-				+ "const MED vec4 gamma = vec4(0.454545455,0.454545455,0.454545455,0.454545455);\n"
+				+ "varying MED vec4 v_color;\n" //				
 				+ "void main()\n" //
 				+ "{\n" //
-				+ "   v_color = (s * quad_colors);\n" //				
+				+ "   v_color = s * quad_colors;\n" //				
 				+ "   gl_Position =  u_projTrans * vertex_positions;\n" //
 				+ "}\n";
-		//log2(1.0+s)
 		final String fragmentShader = "#ifdef GL_ES\n" //
 				+ "#define MED "+ RayHandler.getColorPrecision() + "\n"
 				+ "precision "+RayHandler.getColorPrecision()+" float;\n" //
@@ -36,7 +38,7 @@ public final class LightShader {
 				+ "varying MED vec4 v_color;\n" //
 				+ "void main()\n"//
 				+ "{\n" //
-				+ "  gl_FragColor = v_color;\n" //
+				+ "  gl_FragColor = "+gamma+"(v_color);\n" //
 				+ "}";
 
 		ShaderProgram.pedantic = false;

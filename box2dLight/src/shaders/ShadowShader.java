@@ -23,12 +23,12 @@ public final class ShadowShader {
 				+ "#endif\n" //
 				+ "varying vec2 v_texCoords;\n" //
 				+ "uniform MED sampler2D u_texture;\n" //
-				+ "uniform MED float ambient;\n"				
+				+ "uniform MED vec4 ambient;\n"				
 				+ "void main()\n"//
 				+ "{\n" //
 				+ "vec4 v_c = texture2D(u_texture, v_texCoords);\n"
-				+ "v_c.rgb = v_c.rgb * v_c.a;\n"//
-				+ "v_c.a = ambient - v_c.a;\n"//
+				+ "v_c.rgb = ambient.rgb + v_c.rgb* v_c.a;\n"//
+				+ "v_c.a = ambient.a - v_c.a;\n"//
 				+ "gl_FragColor = v_c;\n"//
 				+ "}\n";
 		ShaderProgram.pedantic = false;
