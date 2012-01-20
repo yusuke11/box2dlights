@@ -103,7 +103,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		//rayHandler.setAmbientLight(0.0f);
 		rayHandler.setCulling(true);
 		//rayHandler.setBlur(false);
-		//rayHandler.setBlurNum(1);
+		rayHandler.setBlurNum(1);
 		//rayHandler.setShadows(false);
 		camera.update(true);
 //		rayHandler.setCombinedMatrix(camera.combined, camera.position.x,
@@ -113,7 +113,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 //			final Color c = new Color(MathUtils.random()*0.4f, MathUtils.random()*0.4f,
 //					MathUtils.random()*0.4f, 1f);
 			Light light = new PointLight(rayHandler, RAYS_PER_BALL);
-			light.setStaticLight(true);
+			//light.setStaticLight(true);
 			light.attachToBody(balls.get(i), 0, 0);
 			
 
