@@ -1,7 +1,6 @@
 package box2dLight;
 
-import shaders.GaussianHorizontal;
-import shaders.GaussianVertical;
+import shaders.Gaussian;
 import shaders.ShadowShader;
 import shaders.WithoutShadowShader;
 
@@ -18,17 +17,17 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 class LightMap {
-	public ShaderProgram shadowShader;
+	private ShaderProgram shadowShader;
 	FrameBuffer frameBuffer;
 	private Texture lightMapTex;
 	private Mesh lightMapMesh;
 
 	private FrameBuffer pingPongBuffer;
 	private Texture pingPongTex;
-	private ShaderProgram blurShaderHorizontal;
-	private ShaderProgram blurShaderVertical;
+
 	private RayHandler rayHandler;
 	private ShaderProgram withoutShadowShader;
+	private ShaderProgram blurShader;
 
 	public void render() {
 		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
@@ -58,6 +57,7 @@ class LightMap {
 			lightMapMesh.render(withoutShadowShader, GL20.GL_TRIANGLE_FAN);
 			withoutShadowShader.end();
 		}
+
 		Gdx.gl20.glDisable(GL20.GL_BLEND);
 		Gdx.gl.glDisable(GL10.GL_TEXTURE_2D);
 	}
@@ -69,22 +69,20 @@ class LightMap {
 			// horizontal
 			pingPongBuffer.begin();
 			{
-				blurShaderHorizontal.begin();
-				lightMapMesh.render(blurShaderHorizontal, GL20.GL_TRIANGLE_FAN,
-						0, 4);
-				blurShaderHorizontal.end();
+				blurShader.begin();
+				blurShader.setUniformi("u_texture", 0);
+				blurShader.setUniformf("dir", 1, 0);
+				lightMapMesh.render(blurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
 			}
 			pingPongBuffer.end();
 
 			// vertical
 			frameBuffer.begin();
 			{
-				blurShaderVertical.begin();
-				blurShaderVertical.setUniformi("u_texture", 1);
-
-				lightMapMesh.render(blurShaderVertical, GL20.GL_TRIANGLE_FAN,
-						0, 4);
-				blurShaderVertical.end();
+				blurShader.setUniformi("u_texture", 1);
+				blurShader.setUniformf("dir", 0, 1);
+				lightMapMesh.render(blurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
+				blurShader.end();
 
 			}
 			frameBuffer.end();
@@ -115,17 +113,13 @@ class LightMap {
 
 		withoutShadowShader = WithoutShadowShader.createShadowShader();
 
-		blurShaderHorizontal = GaussianHorizontal.createBlurShader(fboWidth,
-				fboHeight);
-		blurShaderVertical = GaussianVertical.createBlurShader(fboWidth,
-				fboHeight);
+		blurShader = Gaussian.createBlurShader(fboWidth, fboHeight);
 
 	}
 
 	void dispose() {
 		shadowShader.dispose();
-		blurShaderVertical.dispose();
-		blurShaderHorizontal.dispose();
+		blurShader.dispose();
 		lightMapMesh.dispose();
 		frameBuffer.dispose();
 		pingPongBuffer.dispose();
