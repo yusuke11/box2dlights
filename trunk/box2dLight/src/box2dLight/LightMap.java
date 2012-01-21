@@ -68,16 +68,18 @@ class LightMap {
 			{
 				blurShader.begin();
 				blurShader.setUniformi("u_texture", 0);
-				blurShader.setUniformf("dir", 1, 0);
+				blurShader.setUniformf("dir", 1f, 0f);
 				lightMapMesh.render(blurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
+				blurShader.end();
 			}
 			pingPongBuffer.end();
 
 			// vertical
 			frameBuffer.begin();
 			{
+				blurShader.begin();
 				blurShader.setUniformi("u_texture", 1);
-				blurShader.setUniformf("dir", 0, 1);
+				blurShader.setUniformf("dir", 0f, 1f);
 				lightMapMesh.render(blurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
 				blurShader.end();
 

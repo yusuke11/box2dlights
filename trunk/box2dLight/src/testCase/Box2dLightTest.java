@@ -44,10 +44,10 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	 * a spritebatch and a font for text rendering and a Texture to draw our
 	 * boxes
 	 **/
-	private static final int RAYS_PER_BALL = 64;
-	private static final int BALLSNUM = 16;
+	private static final int RAYS_PER_BALL = 32;
+	private static final int BALLSNUM = 30;
 
-	private static final float LIGHT_DISTANCE = 15f;
+	private static final float LIGHT_DISTANCE = 10f;
 	private static final float radius = 1f;
 	private SpriteBatch batch;
 	private BitmapFont font;
@@ -97,10 +97,10 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 				Gdx.graphics.getHeight());
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		RayHandler.setColorPrecisionMediump();
-		RayHandler.setGammaCorrection(true);
+		//RayHandler.setColorPrecisionMediump();
+		//RayHandler.setGammaCorrection(true);
 		rayHandler = new RayHandler(world);
-		//rayHandler.setAmbientLight(0.0f);
+		rayHandler.setAmbientLight(0.1f,0,0,0.1f);
 		rayHandler.setCulling(true);
 		//rayHandler.setBlur(false);
 		rayHandler.setBlurNum(1);
@@ -115,12 +115,14 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 			Light light = new PointLight(rayHandler, RAYS_PER_BALL);
 			//light.setStaticLight(true);
 			light.attachToBody(balls.get(i), 0, 0);
+			//light.setColor(0.1f,0.1f,0.1f,0.1f);
 			
 
 
 		}		
 	//	new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
 		/** BOX2D LIGHT STUFF END */
+
 
 	}
 
@@ -134,14 +136,15 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		boolean stepped = fixedStep(Gdx.graphics.getDeltaTime());
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
+		
 		batch.setProjectionMatrix(camera.combined);
-
 		batch.disableBlending();
 		batch.begin();
 
 		batch.draw(bg, -24, 0, 48, 32);
-
+		
 		batch.enableBlending();
+		
 
 		for (int i = 0; i < BALLSNUM; i++) {
 
@@ -165,8 +168,10 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		
 		//rayHandler.setCombinedMatrix(camera.combined);
 		rayHandler.render();
-
+		
 		/** BOX2D LIGHT STUFF END */
+		
+		
 
 		/** FONT */
 		batch.setProjectionMatrix(normalProjection);
