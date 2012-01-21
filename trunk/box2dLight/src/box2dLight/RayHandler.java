@@ -15,7 +15,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
@@ -38,7 +37,7 @@ public class RayHandler implements Disposable {
 	boolean blur = true;
 
 	int blurNum = 1;
-	Color ambientLight = new Color(0,0,0,0);
+	Color ambientLight = new Color();
 
 	int MAX_RAYS;
 

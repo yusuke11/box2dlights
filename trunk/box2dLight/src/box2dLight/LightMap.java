@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -19,11 +18,9 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 class LightMap {
 	private ShaderProgram shadowShader;
 	FrameBuffer frameBuffer;
-	private Texture lightMapTex;
 	private Mesh lightMapMesh;
 
 	private FrameBuffer pingPongBuffer;
-	private Texture pingPongTex;
 
 	private RayHandler rayHandler;
 	private ShaderProgram withoutShadowShader;
@@ -35,9 +32,9 @@ class LightMap {
 		boolean needed = rayHandler.lightRenderedLastFrame > 0;
 		// this way lot less binding
 		if (needed && rayHandler.blur)
-			pingPongTex.bind(1);
+			pingPongBuffer.getColorBufferTexture().bind(1);
 
-		lightMapTex.bind(0);
+		frameBuffer.getColorBufferTexture().bind(0);
 		if (needed && rayHandler.blur)
 			gaussianBlur();
 
@@ -103,9 +100,6 @@ class LightMap {
 				fboHeight, false);
 		pingPongBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, fboWidth,
 				fboHeight, false);
-
-		this.lightMapTex = frameBuffer.getColorBufferTexture();
-		this.pingPongTex = pingPongBuffer.getColorBufferTexture();
 
 		lightMapMesh = createLightMapMesh();
 

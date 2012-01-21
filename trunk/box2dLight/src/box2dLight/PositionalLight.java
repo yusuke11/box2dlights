@@ -94,7 +94,7 @@ public abstract class PositionalLight extends Light {
 		}
 
 		if (rayHandler.culling) {
-			culled = ((!rayHandler.intersect(start.x, start.y, distance)));
+			culled = ((!rayHandler.intersect(start.x, start.y, distance+softShadowLenght)));
 			if (culled)
 				return;
 		}
