@@ -11,8 +11,7 @@ public class Gaussian {
 		final String FBO_W = Integer.toString(width);
 		final String FBO_H = Integer.toString(heigth);
 		final String vertexShader = "attribute vec4 a_position;\n" //
-				+ "uniform vec2  dir;\n" //
-				+ "uniform vec2 size;\n" //
+				+ "uniform vec2  dir;\n" //				
 				+ "attribute vec2 a_texCoord;\n" //
 				+ "varying vec2 v_texCoords0;\n" //
 				+ "varying vec2 v_texCoords1;\n" //
@@ -31,7 +30,6 @@ public class Gaussian {
 				+ "{\n" //
 				+ "vec2 f = futher * dir;\n" //
 				+ "vec2 c = closer * dir;\n" //
-
 				+ "v_texCoords0 = a_texCoord - f;\n" //
 				+ "v_texCoords1 = a_texCoord - c;\n" //
 				+ "v_texCoords2 = a_texCoord;\n" //
