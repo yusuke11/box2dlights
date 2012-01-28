@@ -32,11 +32,9 @@ class LightMap {
 		boolean needed = rayHandler.lightRenderedLastFrame > 0;
 		// this way lot less binding
 		if (needed && rayHandler.blur)
-			pingPongBuffer.getColorBufferTexture().bind(1);
-
-		frameBuffer.getColorBufferTexture().bind(0);
-		if (needed && rayHandler.blur)
 			gaussianBlur();
+		
+		frameBuffer.getColorBufferTexture().bind(0);
 
 		// at last lights are rendered over scene
 		if (rayHandler.shadows) {
@@ -45,12 +43,14 @@ class LightMap {
 			final Color c = rayHandler.ambientLight;
 			shadowShader.setUniformf("ambient", c.r * c.a, c.g * c.a,
 					c.b * c.a, 1f - c.a);
+			shadowShader.setUniformi("u_texture", 0);
 			lightMapMesh.render(shadowShader, GL20.GL_TRIANGLE_FAN);
 			shadowShader.end();
 		} else if (needed) {
 
 			Gdx.gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 			withoutShadowShader.begin();
+			withoutShadowShader.setUniformi("u_texture", 0);
 			lightMapMesh.render(withoutShadowShader, GL20.GL_TRIANGLE_FAN);
 			withoutShadowShader.end();
 		}
@@ -63,7 +63,8 @@ class LightMap {
 
 		Gdx.gl20.glDisable(GL20.GL_BLEND);
 		for (int i = 0; i < rayHandler.blurNum; i++) {
-			// horizontal
+			frameBuffer.getColorBufferTexture().bind(0);
+			// horizontal			
 			pingPongBuffer.begin();
 			{
 				blurShader.begin();
@@ -74,11 +75,12 @@ class LightMap {
 			}
 			pingPongBuffer.end();
 
+			pingPongBuffer.getColorBufferTexture().bind(0);
 			// vertical
 			frameBuffer.begin();
 			{
 				blurShader.begin();
-				blurShader.setUniformi("u_texture", 1);
+				blurShader.setUniformi("u_texture", 0);
 				blurShader.setUniformf("dir", 0f, 1f);
 				lightMapMesh.render(blurShader, GL20.GL_TRIANGLE_FAN, 0, 4);
 				blurShader.end();

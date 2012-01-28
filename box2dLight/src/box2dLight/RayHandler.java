@@ -243,7 +243,6 @@ public class RayHandler implements Disposable {
 		}
 
 	}
-	
 
 	/**
 	 * Manual rendering method for all lights.
@@ -262,19 +261,18 @@ public class RayHandler implements Disposable {
 		lightRenderedLastFrame = 0;
 
 		Gdx.gl.glDepthMask(false);
+		Gdx.gl.glEnable(GL10.GL_BLEND);
+		Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE);
 
 		if (isGL20) {
 			renderWithShaders();
 		} else {
 			Gdx.gl10.glMatrixMode(GL10.GL_PROJECTION);
 			Gdx.gl10.glLoadMatrixf(combined.val, 0);
-			Gdx.gl.glEnable(GL10.GL_BLEND);
 
 			if (shadows) {
 				alphaChannelClear();
 			}
-
-			Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE);
 
 			final Light[] list = lightList.items;
 			for (int i = 0, size = lightList.size; i < size; i++) {
@@ -297,30 +295,27 @@ public class RayHandler implements Disposable {
 
 	void renderWithShaders() {
 
+		if (shadows || blur) {
+			lightMap.frameBuffer.begin();
+			Gdx.gl20.glClearColor(0f, 0f, 0f, 0f);
+			Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		}
+
 		lightShader.begin();
 		{
 			lightShader.setUniformMatrix("u_projTrans", combined);
-
-			if (shadows || blur) {
-				lightMap.frameBuffer.begin();
-
-				Gdx.gl20.glClearColor(0f, 0f, 0f, 0f);
-				Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
-			}
-			Gdx.gl20.glEnable(GL20.GL_BLEND);
-			Gdx.gl20.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
 
 			final Light[] list = lightList.items;
 			for (int i = 0, size = lightList.size; i < size; i++) {
 				list[i].render();
 			}
-			if (shadows || blur)
-				lightMap.frameBuffer.end();
 		}
 		lightShader.end();
 
-		if (shadows || blur)
+		if (shadows || blur) {
+			lightMap.frameBuffer.end();
 			lightMap.render();
+		}
 
 	}
 
@@ -366,7 +361,8 @@ public class RayHandler implements Disposable {
 
 			if ((filterA != null) && !contactFilter(fixture))
 				return -1;
-
+			// if (fixture.isSensor())
+			// return -1;
 			m_x[m_index] = point.x;
 			m_y[m_index] = point.y;
 			m_f[m_index] = fraction;
@@ -416,6 +412,10 @@ public class RayHandler implements Disposable {
 
 		while (lightList.size > 0)
 			lightList.pop().remove();
+
+		while (disabledLights.size > 0)
+			disabledLights.pop().remove();
+
 	}
 
 	private void setShadowBox() {

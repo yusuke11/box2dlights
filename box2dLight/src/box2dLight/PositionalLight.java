@@ -206,24 +206,22 @@ public abstract class PositionalLight extends Light {
 		if (rayHandler.culling && culled)
 			return;
 
+		
+		rayHandler.lightRenderedLastFrame++;
 		if (rayHandler.isGL20) {
 			lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN, 0,
-					vertexNum);
-			rayHandler.lightRenderedLastFrame++;
+					vertexNum);			
 			if (soft && !xray) {
 				softShadowMesh.render(rayHandler.lightShader,
 						GL20.GL_TRIANGLE_STRIP, 0, (vertexNum - 1) * 2);
-
 			}
 		} else {
-			lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);
-			rayHandler.lightRenderedLastFrame++;
+			lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);			
 			if (soft && !xray) {
 				softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0,
 						(vertexNum - 1) * 2);
 			}
 		}
-
 	}
 
 	PositionalLight(RayHandler rayHandler, int rays, Color color,
