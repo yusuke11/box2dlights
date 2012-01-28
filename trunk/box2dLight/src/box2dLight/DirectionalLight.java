@@ -77,7 +77,7 @@ public class DirectionalLight extends Light {
 		float xAxelOffSet = sizeOfScreen * cos;
 		float yAxelOffSet = sizeOfScreen * sin;
 
-		//preventing length <0 assertion error on box2d.
+		// preventing length <0 assertion error on box2d.
 		if ((xAxelOffSet * xAxelOffSet < 0.1f)
 				&& (yAxelOffSet * yAxelOffSet < 0.1f)) {
 			xAxelOffSet = 1;
@@ -152,18 +152,16 @@ public class DirectionalLight extends Light {
 
 	@Override
 	void render() {
-
+		rayHandler.lightRenderedLastFrame++;
 		if (rayHandler.isGL20) {
 			lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_STRIP, 0,
 					vertexNum);
-			rayHandler.lightRenderedLastFrame++;
 			if (soft && !xray) {
 				softShadowMesh.render(rayHandler.lightShader,
 						GL20.GL_TRIANGLE_STRIP, 0, vertexNum);
 			}
 		} else {
 			lightMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
-			rayHandler.lightRenderedLastFrame++;
 			if (soft && !xray) {
 				softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0, vertexNum);
 			}

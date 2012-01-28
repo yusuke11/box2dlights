@@ -18,14 +18,11 @@ public final class WithoutShadowShader {
 				+ "}\n";
 		
 		//this is allways perfect precision
-		final String fragmentShader = "#ifdef GL_ES\n" //
-				+ "#define LOWP lowp\n"
-				+ "precision lowp float;\n" //
-				+ "#else\n"
-				+ "#define LOWP \n"
+		final String fragmentShader = "#ifdef GL_ES\n" //				
+				+ "precision mediump float;\n" //
 				+ "#endif\n" //
 				+ "varying vec2 v_texCoords;\n" //
-				+ "uniform LOWP sampler2D u_texture;\n" //
+				+ "uniform sampler2D u_texture;\n" //
 				+ "void main()\n"//
 				+ "{\n" //
 				+ "gl_FragColor = texture2D(u_texture, v_texCoords);\n"				
