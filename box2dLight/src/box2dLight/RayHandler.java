@@ -573,6 +573,7 @@ public class RayHandler implements Disposable {
 
 	static boolean gammaCorrection = false;
 	static float gammaCorrectionParameter = 1f;
+	static boolean isDiffuse = false;
 	final static float GAMMA_COR = 0.625f;
 
 	/**
@@ -598,5 +599,14 @@ public class RayHandler implements Disposable {
 			gammaCorrectionParameter = GAMMA_COR;
 		else
 			gammaCorrectionParameter = 1f;
+	}
+
+	/** If this is set to true and shadow are on lights are blended with diffuse algoritm.
+	 *  this preserve colors but might look bit darker. This is more realistic model than normally used
+	 *  This might improve perfromance slightly 
+	 * @param useDiffuse
+	 */
+	public static void useDiffuseLight(boolean useDiffuse) {
+		isDiffuse = useDiffuse;		
 	}
 }
