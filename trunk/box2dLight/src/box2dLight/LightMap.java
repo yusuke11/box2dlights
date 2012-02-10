@@ -163,7 +163,7 @@ class LightMap {
 		verts[U4] = 0f;
 		verts[V4] = 1f;
 
-		Mesh tmpMesh = new Mesh(false, 4, 0, new VertexAttribute(
+		Mesh tmpMesh = new Mesh(true, 4, 0, new VertexAttribute(
 				Usage.Position, 2, "a_position"), new VertexAttribute(
 				Usage.TextureCoordinates, 2, "a_texCoord"));
 
