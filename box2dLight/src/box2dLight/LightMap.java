@@ -7,7 +7,6 @@ import shaders.WithoutShadowShader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -67,7 +66,6 @@ class LightMap {
 		}
 
 		Gdx.gl20.glDisable(GL20.GL_BLEND);
-		Gdx.gl.glDisable(GL10.GL_TEXTURE_2D);
 	}
 
 	public void gaussianBlur() {
@@ -192,3 +190,4 @@ class LightMap {
 	static public final int V4 = 15;
 
 }
+

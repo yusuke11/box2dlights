@@ -34,7 +34,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
-import com.badlogic.gdx.utils.Array;
+
 
 public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	/** the camera **/
@@ -45,7 +45,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	 * boxes
 	 **/
 	private static final int RAYS_PER_BALL = 32;
-	private static final int BALLSNUM = 30;
+	private static final int BALLSNUM = 16;
 
 	private static final float LIGHT_DISTANCE = 10f;
 	private static final float radius = 1f;
@@ -79,6 +79,10 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 	@Override
 	public void create() {
+		
+		MathUtils.random.setSeed(Long.MIN_VALUE);
+		
+		
 		camera = new OrthographicCamera(48, 32);
 		camera.position.set(0, 16, 0);
 		camera.update();
@@ -98,14 +102,16 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 		/** BOX2D LIGHT STUFF BEGIN */
 		//RayHandler.setColorPrecisionMediump();
-		//RayHandler.setGammaCorrection(true);
+	//	RayHandler.setGammaCorrection(true);		
+		RayHandler.useDiffuseLight(true);
 		rayHandler = new RayHandler(world);
-		rayHandler.setAmbientLight(0.1f,0,0,0.1f);
+		rayHandler.setAmbientLight(0.5f,0.1f,0.1f,0.6f);
 		rayHandler.setCulling(true);
 		//rayHandler.setBlur(false);
 		rayHandler.setBlurNum(1);
 		//rayHandler.setShadows(false);
 		camera.update(true);
+	
 //		rayHandler.setCombinedMatrix(camera.combined, camera.position.x,
 //				camera.position.y, camera.viewportWidth * camera.zoom,
 //				camera.viewportHeight * camera.zoom);
@@ -115,6 +121,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 			Light light = new PointLight(rayHandler, RAYS_PER_BALL);
 			//light.setStaticLight(true);
 			light.attachToBody(balls.get(i), 0, 0);
+			light.setColor(MathUtils.random(),MathUtils.random(),MathUtils.random(),1f);
 			//light.setColor(0.1f,0.1f,0.1f,0.1f);
 			
 
@@ -160,15 +167,14 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		/** BOX2D LIGHT STUFF BEGIN */
 
 		
+
 		rayHandler.setCombinedMatrix(camera.combined, camera.position.x,
 				camera.position.y, camera.viewportWidth * camera.zoom,
 				camera.viewportHeight * camera.zoom);
 		
 		//rayHandler.setCombinedMatrix(camera.combined);
-      
-    if (stepped)
-			rayHandler.update();  
-     
+		if (stepped)
+			rayHandler.update();
 		rayHandler.render();
 		
 		/** BOX2D LIGHT STUFF END */
