@@ -10,9 +10,9 @@ public class DesktopLauncher {
 		config.title = "box2d lights test";
 		config.width = 800;
 		config.height = 480;
-		config.samples = 0;
+		config.samples = 4;
 		config.depth = 0;
-		config.vSyncEnabled = false;
+		config.vSyncEnabled = true;
 		config.useCPUSynch = false;
 		config.useGL20 = true;
 

@@ -150,8 +150,8 @@ public abstract class PositionalLight extends Light {
 				seg[size++] = colorF;
 				final float s = (1 - m_f[i]);
 				seg[size++] = s;
-				seg[size++] = m_x[i] + s * softShadowLenght * cos[i];
-				seg[size++] = m_y[i] + s * softShadowLenght * sin[i];
+				seg[size++] = m_x[i] + s * softShadowLenght * sin[i];
+				seg[size++] = m_y[i] + s * softShadowLenght * cos[i];
 				seg[size++] = zero;
 				seg[size++] = 0f;
 			}
@@ -176,7 +176,7 @@ public abstract class PositionalLight extends Light {
 				seg[size++] = m_y[i];
 				final float s = 1f - m_f[i];
 				// ugly inlining
-				m_f[i] = seg[size++] = Float
+				seg[size++] = Float
 						.intBitsToFloat(((int) (a * s) << 24)
 								| ((int) (b * s) << 16) | ((int) (g * s) << 8)
 								| ((int) (r * s)) & 0xfeffffff);
@@ -191,9 +191,15 @@ public abstract class PositionalLight extends Light {
 				seg[size++] = m_x[i];
 				seg[size++] = m_y[i];
 				// color value is cached.
-				seg[size++] = m_f[i];
-				seg[size++] = m_x[i] + softShadowLenght * cos[i];
-				seg[size++] = m_y[i] + softShadowLenght * sin[i];
+				final float s = 1f - m_f[i];
+				// ugly inlining
+				seg[size++] = Float
+						.intBitsToFloat(((int) (a * s) << 24)
+								| ((int) (b * s) << 16) | ((int) (g * s) << 8)
+								| ((int) (r * s)) & 0xfeffffff);
+				
+				seg[size++] = m_x[i] + s * softShadowLenght * sin[i];
+				seg[size++] = m_y[i] + s * softShadowLenght * cos[i];
 				seg[size++] = zero;
 			}
 			softShadowMesh.setVertices(seg, 0, size);
