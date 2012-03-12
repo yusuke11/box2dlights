@@ -16,7 +16,6 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Filter;
@@ -499,7 +498,11 @@ public class RayHandler implements Disposable {
 	 *            the ambientLight to set
 	 */
 	public final void setAmbientLight(float ambientLight) {
-		this.ambientLight.a = MathUtils.clamp(ambientLight, 0, 1);
+		if (ambientLight < 0)
+			ambientLight = 0;
+		if (ambientLight > 1)
+			ambientLight = 1;
+		this.ambientLight.a = ambientLight;
 	}
 
 	/**
@@ -601,12 +604,15 @@ public class RayHandler implements Disposable {
 			gammaCorrectionParameter = 1f;
 	}
 
-	/** If this is set to true and shadow are on lights are blended with diffuse algoritm.
-	 *  this preserve colors but might look bit darker. This is more realistic model than normally used
-	 *  This might improve perfromance slightly 
+	/**
+	 * If this is set to true and shadow are on lights are blended with diffuse
+	 * algoritm. this preserve colors but might look bit darker. This is more
+	 * realistic model than normally used This might improve perfromance
+	 * slightly
+	 * 
 	 * @param useDiffuse
 	 */
 	public static void useDiffuseLight(boolean useDiffuse) {
-		isDiffuse = useDiffuse;		
+		isDiffuse = useDiffuse;
 	}
 }

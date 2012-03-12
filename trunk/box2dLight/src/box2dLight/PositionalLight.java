@@ -91,10 +91,12 @@ public abstract class PositionalLight extends Light {
 			final float dY = bodyOffsetX * sin + bodyOffsetY * cos;
 			start.x = vec.x + dX;
 			start.y = vec.y + dY;
+			setDirection(angle*MathUtils.radiansToDegrees);
 		}
 
 		if (rayHandler.culling) {
-			culled = ((!rayHandler.intersect(start.x, start.y, distance+softShadowLenght)));
+			culled = ((!rayHandler.intersect(start.x, start.y, distance
+					+ softShadowLenght)));
 			if (culled)
 				return;
 		}
@@ -150,8 +152,8 @@ public abstract class PositionalLight extends Light {
 				seg[size++] = colorF;
 				final float s = (1 - m_f[i]);
 				seg[size++] = s;
-				seg[size++] = m_x[i] + s * softShadowLenght * sin[i];
-				seg[size++] = m_y[i] + s * softShadowLenght * cos[i];
+				seg[size++] = m_x[i] + s * softShadowLenght * cos[i];
+				seg[size++] = m_y[i] + s * softShadowLenght * sin[i];
 				seg[size++] = zero;
 				seg[size++] = 0f;
 			}
@@ -197,9 +199,9 @@ public abstract class PositionalLight extends Light {
 						.intBitsToFloat(((int) (a * s) << 24)
 								| ((int) (b * s) << 16) | ((int) (g * s) << 8)
 								| ((int) (r * s)) & 0xfeffffff);
-				
-				seg[size++] = m_x[i] + s * softShadowLenght * sin[i];
-				seg[size++] = m_y[i] + s * softShadowLenght * cos[i];
+
+				seg[size++] = m_x[i] + s * softShadowLenght * cos[i];
+				seg[size++] = m_y[i] + s * softShadowLenght * sin[i];
 				seg[size++] = zero;
 			}
 			softShadowMesh.setVertices(seg, 0, size);
@@ -212,17 +214,16 @@ public abstract class PositionalLight extends Light {
 		if (rayHandler.culling && culled)
 			return;
 
-		
 		rayHandler.lightRenderedLastFrame++;
 		if (rayHandler.isGL20) {
 			lightMesh.render(rayHandler.lightShader, GL20.GL_TRIANGLE_FAN, 0,
-					vertexNum);			
+					vertexNum);
 			if (soft && !xray) {
 				softShadowMesh.render(rayHandler.lightShader,
 						GL20.GL_TRIANGLE_STRIP, 0, (vertexNum - 1) * 2);
 			}
 		} else {
-			lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);			
+			lightMesh.render(GL10.GL_TRIANGLE_FAN, 0, vertexNum);
 			if (soft && !xray) {
 				softShadowMesh.render(GL10.GL_TRIANGLE_STRIP, 0,
 						(vertexNum - 1) * 2);

@@ -39,8 +39,8 @@ public class PointLight extends PositionalLight {
 			final float angle = angleNum * i;
 			sin[i] = MathUtils.sinDeg(angle);
 			cos[i] = MathUtils.cosDeg(angle);
-			endX[i] = distance * sin[i];
-			endY[i] = distance * cos[i];
+			endX[i] = distance * cos[i];
+			endY[i] = distance * sin[i];
 		}
 	}
 
