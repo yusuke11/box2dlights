@@ -49,12 +49,12 @@ public abstract class Light {
 	 * @param newColor
 	 */
 	public void setColor(Color newColor) {
-		if (color != null) {
+		if (newColor != null) {
 			color.set(newColor);
 			colorF = color.toFloatBits();
 		} else {
-			color = Color.RED;
-			colorF = Color.RED.toFloatBits();
+			color = DefaultColor;
+			colorF = DefaultColor.toFloatBits();
 		}
 		if (staticLight)
 			staticUpdate();

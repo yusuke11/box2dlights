@@ -105,7 +105,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	//	RayHandler.setGammaCorrection(true);		
 		RayHandler.useDiffuseLight(true);
 		rayHandler = new RayHandler(world);
-		rayHandler.setAmbientLight(0.5f,0.1f,0.1f,0.6f);
+		rayHandler.setAmbientLight(0.3f,0.3f,0.3f,0.6f);
 		rayHandler.setCulling(true);
 		//rayHandler.setBlur(false);
 		rayHandler.setBlurNum(1);
@@ -118,9 +118,10 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		for (int i = 0; i < BALLSNUM; i++) {
 //			final Color c = new Color(MathUtils.random()*0.4f, MathUtils.random()*0.4f,
 //					MathUtils.random()*0.4f, 1f);
-			Light light = new PointLight(rayHandler, RAYS_PER_BALL);
+			//Light light = new PointLight(rayHandler, RAYS_PER_BALL);
+			Light light = new ConeLight(rayHandler, RAYS_PER_BALL, null, LIGHT_DISTANCE, 0, 0, 0, 60);
 			//light.setStaticLight(true);
-			light.attachToBody(balls.get(i), 0, 0);
+			light.attachToBody(balls.get(i), 0, 0.5f);
 			light.setColor(MathUtils.random(),MathUtils.random(),MathUtils.random(),1f);
 			//light.setColor(0.1f,0.1f,0.1f,0.1f);
 			

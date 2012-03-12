@@ -55,13 +55,17 @@ public class ConeLight extends PositionalLight {
 	}
 
 	/**
-	 * How big is the arc of cone. Arc angle = coneDegree *2
+	 * How big is the arc of cone. Arc angle = coneDegree * 2
 	 * 
 	 * @param coneDegree
 	 *            the coneDegree to set
 	 */
 	public final void setConeDegree(float coneDegree) {
-		this.coneDegree = MathUtils.clamp(coneDegree, 0, 180);
+		if (coneDegree < 0)
+			coneDegree = 0;
+		if (coneDegree > 180)
+			coneDegree = 180;
+		this.coneDegree = coneDegree;
 		setDirection(direction);
 	}
 
