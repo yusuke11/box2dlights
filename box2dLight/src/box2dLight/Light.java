@@ -4,6 +4,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Filter;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.RayCastCallback;
 
 /**
  * @author kalle
@@ -31,8 +34,17 @@ public abstract class Light {
 
 	protected float colorF;
 
+	final static int MIN_RAYS = 3;
+
+	float segments[];
+	float[] mx;
+	float[] my;
+	float[] f;
+	int m_index = 0;
+
 	Light(RayHandler rayHandler, int rays, Color color, float directionDegree,
 			float distance) {
+
 		rayHandler.lightList.add(this);
 		this.rayHandler = rayHandler;
 		setRayNum(rays);
@@ -287,14 +299,17 @@ public abstract class Light {
 	}
 
 	private final void setRayNum(int rays) {
-		if (rays > rayHandler.MAX_RAYS) {
-			rays = rayHandler.MAX_RAYS;
-		}
-		if (rays < RayHandler.MIN_RAYS) {
-			rays = RayHandler.MIN_RAYS;
-		}
+
+		if (rays < MIN_RAYS)
+			rays = MIN_RAYS;
+
 		rayNum = rays;
 		vertexNum = rays + 1;
+
+		segments = new float[vertexNum * 8];
+		mx = new float[vertexNum];
+		my = new float[vertexNum];
+		f = new float[vertexNum];
 
 	}
 
@@ -317,6 +332,65 @@ public abstract class Light {
 	public float getDistance() {
 		float dist = distance / RayHandler.gammaCorrectionParameter;
 		return dist;
+	}
+
+	/** method for checking is given point inside of this light */
+	public boolean contains(float x, float y) {
+		return false;
+	}
+
+	final RayCastCallback ray = new RayCastCallback() {
+		@Override
+		final public float reportRayFixture(Fixture fixture, Vector2 point,
+				Vector2 normal, float fraction) {
+
+			if ((filterA != null) && !contactFilter(fixture))
+				return -1;
+			// if (fixture.isSensor())
+			// return -1;
+			mx[m_index] = point.x;
+			my[m_index] = point.y;
+			f[m_index] = fraction;
+			return fraction;
+		}
+	};
+
+	final boolean contactFilter(Fixture fixtureB) {
+		Filter filterB = fixtureB.getFilterData();
+
+		if (filterA.groupIndex == filterB.groupIndex && filterA.groupIndex != 0)
+			return filterA.groupIndex > 0;
+
+		return (filterA.maskBits & filterB.categoryBits) != 0
+				&& (filterA.categoryBits & filterB.maskBits) != 0;
+
+	}
+
+	/** light filter **/
+	private Filter filterA = null;
+
+	/**
+	 * set given contact filter for ALL LIGHTS
+	 * 
+	 * @param filter
+	 */
+	public void setContactFilter(Filter filter) {
+		filterA = filter;
+	}
+
+	/**
+	 * create new contact filter for ALL LIGHTS with give parameters
+	 * 
+	 * @param categoryBits
+	 * @param groupIndex
+	 * @param maskBits
+	 */
+	public void setContactFilter(short categoryBits, short groupIndex,
+			short maskBits) {
+		filterA = new Filter();
+		filterA.categoryBits = categoryBits;
+		filterA.groupIndex = groupIndex;
+		filterA.maskBits = maskBits;
 	}
 
 }

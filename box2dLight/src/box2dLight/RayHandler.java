@@ -17,18 +17,11 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Filter;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 
 public class RayHandler implements Disposable {
-
-	private static final int DEFAULT_MAX_RAYS = 1023;
-	final static int MIN_RAYS = 3;
 
 	boolean isGL20 = false;
 	boolean culling = true;
@@ -37,8 +30,6 @@ public class RayHandler implements Disposable {
 
 	int blurNum = 1;
 	Color ambientLight = new Color();
-
-	int MAX_RAYS;
 
 	World world;
 	ShaderProgram lightShader;
@@ -93,7 +84,7 @@ public class RayHandler implements Disposable {
 	 * @param camera
 	 */
 	public RayHandler(World world) {
-		this(world, DEFAULT_MAX_RAYS, Gdx.graphics.getWidth() / 4, Gdx.graphics
+		this(world, Gdx.graphics.getWidth() / 4, Gdx.graphics
 				.getHeight() / 4);
 	}
 
@@ -112,14 +103,8 @@ public class RayHandler implements Disposable {
 	 * @param fboWidth
 	 * @param fboHeigth
 	 */
-	public RayHandler(World world, int maxRayCount, int fboWidth, int fboHeigth) {
+	public RayHandler(World world, int fboWidth, int fboHeigth) {
 		this.world = world;
-		MAX_RAYS = maxRayCount < MIN_RAYS ? MIN_RAYS : maxRayCount;
-
-		m_segments = new float[maxRayCount * 8];
-		m_x = new float[maxRayCount];
-		m_y = new float[maxRayCount];
-		m_f = new float[maxRayCount];
 
 		isGL20 = Gdx.graphics.isGL20Available();
 		if (isGL20) {
@@ -139,7 +124,6 @@ public class RayHandler implements Disposable {
 			}
 
 		}
-
 	}
 
 	/**
@@ -318,6 +302,38 @@ public class RayHandler implements Disposable {
 
 	}
 
+	/**
+	 * Checks whether the given point is inside of any light volume.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return true if point intersect any light volume
+	 */
+	public boolean pointAtLight(float x, float y) {
+		final Light[] list = lightList.items;
+		for (int i = 0, size = lightList.size; i < size; i++) {
+			if (list[i].contains(x, y))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Checks whether the given point outside of all light volumes.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return true if point intersect any light volume
+	 */
+	public boolean pointAtShadow(float x, float y) {
+		final Light[] list = lightList.items;
+		for (int i = 0, size = lightList.size; i < size; i++) {
+			if (list[i].contains(x, y))
+				return false;
+		}
+		return true;
+	}
+
 	private void alphaChannelClear() {
 		Gdx.gl10.glClearColor(0f, 0f, 0f, ambientLight.a);
 		Gdx.gl10.glColorMask(false, false, false, true);
@@ -347,66 +363,6 @@ public class RayHandler implements Disposable {
 			lightShader.dispose();
 	}
 
-	float m_segments[];
-	float[] m_x;
-	float[] m_y;
-	float[] m_f;
-	int m_index = 0;
-
-	final RayCastCallback ray = new RayCastCallback() {
-		@Override
-		final public float reportRayFixture(Fixture fixture, Vector2 point,
-				Vector2 normal, float fraction) {
-
-			if ((filterA != null) && !contactFilter(fixture))
-				return -1;
-			// if (fixture.isSensor())
-			// return -1;
-			m_x[m_index] = point.x;
-			m_y[m_index] = point.y;
-			m_f[m_index] = fraction;
-			return fraction;
-		}
-	};
-
-	final boolean contactFilter(Fixture fixtureB) {
-		Filter filterB = fixtureB.getFilterData();
-
-		if (filterA.groupIndex == filterB.groupIndex && filterA.groupIndex != 0)
-			return filterA.groupIndex > 0;
-
-		return (filterA.maskBits & filterB.categoryBits) != 0
-				&& (filterA.categoryBits & filterB.maskBits) != 0;
-
-	}
-
-	/** light filter **/
-	private Filter filterA = null;
-
-	/**
-	 * set given contact filter for ALL LIGHTS
-	 * 
-	 * @param filter
-	 */
-	public void setContactFilter(Filter filter) {
-		filterA = filter;
-	}
-
-	/**
-	 * create new contact filter for ALL LIGHTS with give parameters
-	 * 
-	 * @param categoryBits
-	 * @param groupIndex
-	 * @param maskBits
-	 */
-	public void setContactFilter(short categoryBits, short groupIndex,
-			short maskBits) {
-		filterA = new Filter();
-		filterA.categoryBits = categoryBits;
-		filterA.groupIndex = groupIndex;
-		filterA.maskBits = maskBits;
-	}
-
 	public void removeAll() {
 
 		while (lightList.size > 0)
@@ -421,7 +377,7 @@ public class RayHandler implements Disposable {
 		int i = 0;
 		// This need some work, maybe camera matrix would needed
 		float c = Color.toFloatBits(0, 0, 0, 1);
-
+		float m_segments[] = new float[12];
 		m_segments[i++] = -1000000f;
 		m_segments[i++] = -1000000f;
 		m_segments[i++] = c;

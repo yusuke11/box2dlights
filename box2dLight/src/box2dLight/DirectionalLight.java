@@ -98,15 +98,15 @@ public class DirectionalLight extends Light {
 
 			final float steppedX = i * portionX + x;
 			final float steppedY = i * portionY + y;
-			rayHandler.m_index = i;
+			m_index = i;
 			start[i].x = steppedX - xAxelOffSet;
 			start[i].y = steppedY - yAxelOffSet;
 
-			rayHandler.m_x[i] = end[i].x = steppedX + xAxelOffSet;
-			rayHandler.m_y[i] = end[i].y = steppedY + yAxelOffSet;
+			mx[i] = end[i].x = steppedX + xAxelOffSet;
+			my[i] = end[i].y = steppedY + yAxelOffSet;
 
 			if (rayHandler.world != null && !xray) {
-				rayHandler.world.rayCast(rayHandler.ray, start[i], end[i]);
+				rayHandler.world.rayCast(ray, start[i], end[i]);
 			}
 		}
 
@@ -114,39 +114,36 @@ public class DirectionalLight extends Light {
 		// ray starting point
 		int size = 0;
 		final int arraySize = rayNum;
-		final float seg[] = rayHandler.m_segments;
-		final float m_x[] = rayHandler.m_x;
-		final float m_y[] = rayHandler.m_y;
 
 		for (int i = 0; i < arraySize; i++) {
-			seg[size++] = start[i].x;
-			seg[size++] = start[i].y;
-			seg[size++] = colorF;
-			seg[size++] = 1f;
-			seg[size++] = m_x[i];
-			seg[size++] = m_y[i];
-			seg[size++] = colorF;
-			seg[size++] = 1f;
+			segments[size++] = start[i].x;
+			segments[size++] = start[i].y;
+			segments[size++] = colorF;
+			segments[size++] = 1f;
+			segments[size++] = mx[i];
+			segments[size++] = my[i];
+			segments[size++] = colorF;
+			segments[size++] = 1f;
 		}
 
-		lightMesh.setVertices(seg, 0, size);
+		lightMesh.setVertices(segments, 0, size);
 
 		if (!soft || xray)
 			return;
 
 		size = 0;
 		for (int i = 0; i < arraySize; i++) {
-			seg[size++] = m_x[i];
-			seg[size++] = m_y[i];
-			seg[size++] = colorF;
-			seg[size++] = 1f;
+			segments[size++] = mx[i];
+			segments[size++] = my[i];
+			segments[size++] = colorF;
+			segments[size++] = 1f;
 
-			seg[size++] = m_x[i] + softShadowLenght * cos;
-			seg[size++] = m_y[i] + softShadowLenght * sin;
-			seg[size++] = zero;
-			seg[size++] = 1f;
+			segments[size++] = mx[i] + softShadowLenght * cos;
+			segments[size++] = my[i] + softShadowLenght * sin;
+			segments[size++] = zero;
+			segments[size++] = 1f;
 		}
-		softShadowMesh.setVertices(seg, 0, size);
+		softShadowMesh.setVertices(segments, 0, size);
 
 	}
 
