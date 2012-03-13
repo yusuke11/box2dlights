@@ -91,7 +91,7 @@ public abstract class PositionalLight extends Light {
 			final float dY = bodyOffsetX * sin + bodyOffsetY * cos;
 			start.x = vec.x + dX;
 			start.y = vec.y + dY;
-			setDirection(angle*MathUtils.radiansToDegrees);
+			setDirection(angle * MathUtils.radiansToDegrees);
 		}
 
 		if (rayHandler.culling) {
@@ -105,14 +105,14 @@ public abstract class PositionalLight extends Light {
 			return;
 
 		for (int i = 0; i < rayNum; i++) {
-			rayHandler.m_index = i;
-			rayHandler.m_f[i] = 1f;
+			m_index = i;
+			f[i] = 1f;
 			tmpEnd.x = endX[i] + start.x;
-			rayHandler.m_x[i] = tmpEnd.x;
+			mx[i] = tmpEnd.x;
 			tmpEnd.y = endY[i] + start.y;
-			rayHandler.m_y[i] = tmpEnd.y;
+			my[i] = tmpEnd.y;
 			if (rayHandler.world != null && !xray) {
-				rayHandler.world.rayCast(rayHandler.ray, start, tmpEnd);
+				rayHandler.world.rayCast(ray, start, tmpEnd);
 			}
 		}
 		setMesh();
@@ -122,23 +122,19 @@ public abstract class PositionalLight extends Light {
 		if (rayHandler.isGL20) {
 			// ray starting point
 			int size = 0;
-			final float seg[] = rayHandler.m_segments;
-			final float m_x[] = rayHandler.m_x;
-			final float m_y[] = rayHandler.m_y;
-			final float m_f[] = rayHandler.m_f;
 
-			seg[size++] = start.x;
-			seg[size++] = start.y;
-			seg[size++] = colorF;
-			seg[size++] = 1;
+			segments[size++] = start.x;
+			segments[size++] = start.y;
+			segments[size++] = colorF;
+			segments[size++] = 1;
 			// rays ending points.
 			for (int i = 0; i < rayNum; i++) {
-				seg[size++] = m_x[i];
-				seg[size++] = m_y[i];
-				seg[size++] = colorF;
-				seg[size++] = 1 - m_f[i];
+				segments[size++] = mx[i];
+				segments[size++] = my[i];
+				segments[size++] = colorF;
+				segments[size++] = 1 - f[i];
 			}
-			lightMesh.setVertices(seg, 0, size);
+			lightMesh.setVertices(segments, 0, size);
 
 			if (!soft || xray)
 				return;
@@ -147,64 +143,61 @@ public abstract class PositionalLight extends Light {
 			// rays ending points.
 
 			for (int i = 0; i < rayNum; i++) {
-				seg[size++] = m_x[i];
-				seg[size++] = m_y[i];
-				seg[size++] = colorF;
-				final float s = (1 - m_f[i]);
-				seg[size++] = s;
-				seg[size++] = m_x[i] + s * softShadowLenght * cos[i];
-				seg[size++] = m_y[i] + s * softShadowLenght * sin[i];
-				seg[size++] = zero;
-				seg[size++] = 0f;
+				segments[size++] = mx[i];
+				segments[size++] = my[i];
+				segments[size++] = colorF;
+				final float s = (1 - f[i]);
+				segments[size++] = s;
+				segments[size++] = mx[i] + s * softShadowLenght * cos[i];
+				segments[size++] = my[i] + s * softShadowLenght * sin[i];
+				segments[size++] = zero;
+				segments[size++] = 0f;
 			}
-			softShadowMesh.setVertices(seg, 0, size);
+			softShadowMesh.setVertices(segments, 0, size);
 		} else {
 			final float r = color.r * 255;
 			final float g = color.g * 255;
 			final float b = color.b * 255;
 			final float a = color.a * 255;
 			// ray starting point
-			final float seg[] = rayHandler.m_segments;
-			final float m_x[] = rayHandler.m_x;
-			final float m_y[] = rayHandler.m_y;
-			final float m_f[] = rayHandler.m_f;
+
 			int size = 0;
-			seg[size++] = start.x;
-			seg[size++] = start.y;
-			seg[size++] = colorF;
+			segments[size++] = start.x;
+			segments[size++] = start.y;
+			segments[size++] = colorF;
 			// rays ending points.
 			for (int i = 0; i < rayNum; i++) {
-				seg[size++] = m_x[i];
-				seg[size++] = m_y[i];
-				final float s = 1f - m_f[i];
+				segments[size++] = mx[i];
+				segments[size++] = my[i];
+				final float s = 1f - f[i];
 				// ugly inlining
-				seg[size++] = Float
+				segments[size++] = Float
 						.intBitsToFloat(((int) (a * s) << 24)
 								| ((int) (b * s) << 16) | ((int) (g * s) << 8)
 								| ((int) (r * s)) & 0xfeffffff);
 			}
-			lightMesh.setVertices(seg, 0, size);
+			lightMesh.setVertices(segments, 0, size);
 
 			if (!soft || xray)
 				return;
 
 			size = 0;
 			for (int i = 0; i < rayNum; i++) {
-				seg[size++] = m_x[i];
-				seg[size++] = m_y[i];
+				segments[size++] = mx[i];
+				segments[size++] = my[i];
 				// color value is cached.
-				final float s = 1f - m_f[i];
+				final float s = 1f - f[i];
 				// ugly inlining
-				seg[size++] = Float
+				segments[size++] = Float
 						.intBitsToFloat(((int) (a * s) << 24)
 								| ((int) (b * s) << 16) | ((int) (g * s) << 8)
 								| ((int) (r * s)) & 0xfeffffff);
 
-				seg[size++] = m_x[i] + s * softShadowLenght * cos[i];
-				seg[size++] = m_y[i] + s * softShadowLenght * sin[i];
-				seg[size++] = zero;
+				segments[size++] = mx[i] + s * softShadowLenght * cos[i];
+				segments[size++] = my[i] + s * softShadowLenght * sin[i];
+				segments[size++] = zero;
 			}
-			softShadowMesh.setVertices(seg, 0, size);
+			softShadowMesh.setVertices(segments, 0, size);
 		}
 
 	}
@@ -262,4 +255,29 @@ public abstract class PositionalLight extends Light {
 		setMesh();
 	}
 
+	@Override
+	public boolean contains(float x, float y) {
+
+		// fast fail
+		final float x_d = start.x - x;
+		final float y_d = start.y - y;
+		final float dst2 = x_d * x_d + y_d * y_d;
+		if (distance * distance <= dst2)
+			return false;
+
+		// actual check
+		boolean oddNodes = false;
+		mx[rayNum] = start.x;
+		my[rayNum] = start.y;
+		final int max = rayNum + 1;
+		for (int i = 0, j = rayNum; i < max; j = i++) {
+			if (((my[i] < y) && (my[j] >= y))
+						|| (my[i] >= y) && (my[j] < y)) {
+				if ((y - my[i]) / (my[j] - my[i])
+							* (mx[j] - mx[i]) < (x - mx[i]))
+					oddNodes = !oddNodes;
+			}
+		}
+		return oddNodes;
+	}
 }

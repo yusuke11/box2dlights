@@ -35,7 +35,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.joints.MouseJoint;
 import com.badlogic.gdx.physics.box2d.joints.MouseJointDef;
 
-
 public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	/** the camera **/
 	private com.badlogic.gdx.graphics.OrthographicCamera camera;
@@ -44,10 +43,10 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	 * a spritebatch and a font for text rendering and a Texture to draw our
 	 * boxes
 	 **/
-	private static final int RAYS_PER_BALL = 32;
-	private static final int BALLSNUM = 16;
+	private static final int RAYS_PER_BALL = 64;
+	private static final int BALLSNUM = 8;
 
-	private static final float LIGHT_DISTANCE = 10f;
+	private static final float LIGHT_DISTANCE = 6f;
 	private static final float radius = 1f;
 	private SpriteBatch batch;
 	private BitmapFont font;
@@ -79,10 +78,9 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 	@Override
 	public void create() {
-		
+
 		MathUtils.random.setSeed(Long.MIN_VALUE);
-		
-		
+
 		camera = new OrthographicCamera(48, 32);
 		camera.position.set(0, 16, 0);
 		camera.update();
@@ -101,42 +99,42 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 				Gdx.graphics.getHeight());
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		//RayHandler.setColorPrecisionMediump();
-	//	RayHandler.setGammaCorrection(true);		
+		// RayHandler.setColorPrecisionMediump();
+		// RayHandler.setGammaCorrection(true);
 		RayHandler.useDiffuseLight(true);
 		rayHandler = new RayHandler(world);
-		rayHandler.setAmbientLight(0.3f,0.3f,0.3f,0.6f);
+		rayHandler.setAmbientLight(0.2f, 0.2f, 0.15f, 0.6f);
 		rayHandler.setCulling(true);
-		//rayHandler.setBlur(false);
+		// rayHandler.setBlur(false);
 		rayHandler.setBlurNum(1);
-		//rayHandler.setShadows(false);
+		// rayHandler.setShadows(false);
 		camera.update(true);
-	
-//		rayHandler.setCombinedMatrix(camera.combined, camera.position.x,
-//				camera.position.y, camera.viewportWidth * camera.zoom,
-//				camera.viewportHeight * camera.zoom);
+
+		// rayHandler.setCombinedMatrix(camera.combined, camera.position.x,
+		// camera.position.y, camera.viewportWidth * camera.zoom,
+		// camera.viewportHeight * camera.zoom);
 		for (int i = 0; i < BALLSNUM; i++) {
-//			final Color c = new Color(MathUtils.random()*0.4f, MathUtils.random()*0.4f,
-//					MathUtils.random()*0.4f, 1f);
-			//Light light = new PointLight(rayHandler, RAYS_PER_BALL);
-			Light light = new ConeLight(rayHandler, RAYS_PER_BALL, null, LIGHT_DISTANCE, 0, 0, 0, 60);
-			//light.setStaticLight(true);
+			// final Color c = new Color(MathUtils.random()*0.4f,
+			// MathUtils.random()*0.4f,
+			// MathUtils.random()*0.4f, 1f);
+			Light light = new PointLight(rayHandler, RAYS_PER_BALL);
+			// Light light = new ConeLight(rayHandler, RAYS_PER_BALL, null,
+			// LIGHT_DISTANCE, 0, 0, 0, 60);
+			// light.setStaticLight(true);
 			light.attachToBody(balls.get(i), 0, 0.5f);
-			light.setColor(MathUtils.random(),MathUtils.random(),MathUtils.random(),1f);
-			//light.setColor(0.1f,0.1f,0.1f,0.1f);
-			
+			light.setColor(MathUtils.random(), MathUtils.random(),
+					MathUtils.random(), 1f);
+			// light.setColor(0.1f,0.1f,0.1f,0.1f);
 
-
-		}		
-	//	new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
+		}
+		// new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
 		/** BOX2D LIGHT STUFF END */
-
 
 	}
 
 	@Override
 	public void render() {
-		
+
 		camera.update();
 
 		// should use fixed step
@@ -144,15 +142,13 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		boolean stepped = fixedStep(Gdx.graphics.getDeltaTime());
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
-		
 		batch.setProjectionMatrix(camera.combined);
 		batch.disableBlending();
 		batch.begin();
 
 		batch.draw(bg, -24, 0, 48, 32);
-		
+
 		batch.enableBlending();
-		
 
 		for (int i = 0; i < BALLSNUM; i++) {
 
@@ -167,20 +163,22 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 		/** BOX2D LIGHT STUFF BEGIN */
 
-		
-
 		rayHandler.setCombinedMatrix(camera.combined, camera.position.x,
 				camera.position.y, camera.viewportWidth * camera.zoom,
 				camera.viewportHeight * camera.zoom);
-		
-		//rayHandler.setCombinedMatrix(camera.combined);
+
+		// rayHandler.setCombinedMatrix(camera.combined);
 		if (stepped)
 			rayHandler.update();
 		rayHandler.render();
-		
+
 		/** BOX2D LIGHT STUFF END */
-		
-		
+
+		long time = System.nanoTime();
+		aika += System.nanoTime() - time;
+
+		boolean atShadow = rayHandler.pointAtShadow(testPoint.x,
+				testPoint.y);
 
 		/** FONT */
 		batch.setProjectionMatrix(normalProjection);
@@ -188,8 +186,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 		font.draw(batch, Integer.toString(Gdx.graphics.getFramesPerSecond())
 				+ "      - GL es 2.0:" + Gdx.graphics.isGL20Available()
-				+ " - light Rendered Last Frame: "
-				+ rayHandler.lightRenderedLastFrame, 0, 20);
+				+ "mouse at shadows: " + atShadow + "time used for shadow calculation:" +aika / ++times + "ns" , 0, 20);
 
 		batch.end();
 
@@ -204,6 +201,8 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	private final static int POSITION_ITERS = 2;
 
 	float physicsTimeLeft;
+	long aika;
+	int times;
 
 	private boolean fixedStep(float delta) {
 		physicsTimeLeft += delta;
@@ -226,7 +225,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		ChainShape chainShape = new ChainShape();
 		chainShape.createLoop(new Vector2[] { new Vector2(-22, 1),
 				new Vector2(22, 1), new Vector2(22, 31), new Vector2(0, 20),
-				new Vector2(-22, 31),new Vector2(-22, 1) });
+				new Vector2(-22, 31), new Vector2(-22, 1) });
 		BodyDef chainBodyDef = new BodyDef();
 		chainBodyDef.type = BodyType.StaticBody;
 		groundBody = world.createBody(chainBodyDef);
@@ -365,6 +364,8 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean touchMoved(int x, int y) {
+		testPoint.set(x, y, 0);
+		camera.unproject(testPoint);
 		return false;
 	}
 
