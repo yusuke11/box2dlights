@@ -127,7 +127,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 			// light.setColor(0.1f,0.1f,0.1f,0.1f);
 
 		}
-		// new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
+	//	 new DirectionalLight(rayHandler, 24, new Color(0,0.4f,0,1f), -45);
 		/** BOX2D LIGHT STUFF END */
 
 	}
@@ -186,7 +186,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 
 		font.draw(batch, Integer.toString(Gdx.graphics.getFramesPerSecond())
 				+ "      - GL es 2.0:" + Gdx.graphics.isGL20Available()
-				+ "mouse at shadows: " + atShadow + "time used for shadow calculation:" +aika / ++times + "ns" , 0, 20);
+				+ "mouse at shadows: " + atShadow + " time used for shadow calculation:" +aika / ++times + "ns" , 0, 20);
 
 		batch.end();
 
