@@ -266,18 +266,22 @@ public abstract class PositionalLight extends Light {
 			return false;
 
 		// actual check
+
 		boolean oddNodes = false;
-		mx[rayNum] = start.x;
-		my[rayNum] = start.y;
-		final int max = rayNum + 1;
-		for (int i = 0, j = rayNum; i < max; j = i++) {
-			if (((my[i] < y) && (my[j] >= y))
-						|| (my[i] >= y) && (my[j] < y)) {
-				if ((y - my[i]) / (my[j] - my[i])
-							* (mx[j] - mx[i]) < (x - mx[i]))
+		float x2 = mx[rayNum] = start.x;
+		float y2 = my[rayNum] = start.y;
+		float x1, y1;
+		for (int i = 0; i <= rayNum; x2 = x1, y2 = y1, ++i) {
+			x1 = mx[i];
+			y1 = my[i];
+			if (((y1 < y) && (y2 >= y))
+					|| (y1 >= y) && (y2 < y)) {
+				if ((y - y1) / (y2 - y1)
+						* (x2 - x1) < (x - x1))
 					oddNodes = !oddNodes;
 			}
 		}
 		return oddNodes;
+
 	}
 }
