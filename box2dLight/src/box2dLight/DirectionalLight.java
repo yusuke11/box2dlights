@@ -192,4 +192,35 @@ public class DirectionalLight extends Light {
 	public void setPosition(Vector2 position) {
 	}
 
+	@Override
+	public boolean contains(float x, float y) {
+
+		boolean oddNodes = false;
+		float x2 = mx[rayNum] = start[0].x;
+		float y2 = my[rayNum] = start[0].y;
+		float x1, y1;
+		for (int i = 0; i <= rayNum; x2 = x1, y2 = y1, ++i) {
+			x1 = mx[i];
+			y1 = my[i];
+			if (((y1 < y) && (y2 >= y))
+					|| (y1 >= y) && (y2 < y)) {
+				if ((y - y1) / (y2 - y1)
+						* (x2 - x1) < (x - x1))
+					oddNodes = !oddNodes;
+			}
+		}
+		for (int i = 0; i < rayNum; x2 = x1, y2 = y1, ++i) {
+			x1 = start[i].x;
+			y1 = start[i].y;
+			if (((y1 < y) && (y2 >= y))
+					|| (y1 >= y) && (y2 < y)) {
+				if ((y - y1) / (y2 - y1)
+						* (x2 - x1) < (x - x1))
+					oddNodes = !oddNodes;
+			}
+		}
+		return oddNodes;
+
+	}
+
 }
