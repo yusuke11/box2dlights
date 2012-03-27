@@ -13,8 +13,10 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.physics.box2d.World;
@@ -265,9 +267,7 @@ public class RayHandler implements Disposable {
 			if (shadows) {
 				if (box != null) {
 					Gdx.gl.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
-					box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
-					Gdx.gl.glBlendFunc(GL10.GL_SRC_ALPHA,
-							GL10.GL_ONE_MINUS_SRC_ALPHA);
+					box.render(GL10.GL_TRIANGLE_FAN, 0, 4);					
 				}
 			}
 
@@ -571,4 +571,37 @@ public class RayHandler implements Disposable {
 	public static void useDiffuseLight(boolean useDiffuse) {
 		isDiffuse = useDiffuse;
 	}
+
+	/**
+	 * enable/disable lightMap automatic rendering. Default is true If set to
+	 * false user need use getLightMapTexture() and render that or use it as a
+	 * light map when rendering. Example shader for spriteBatch is given. This
+	 * is faster way to do if there is not that much overdrawing or if just
+	 * couple object need light/shadows.
+	 * 
+	 * @param isAutomatic
+	 */
+	public void setLightMapRendering(boolean isAutomatic) {
+		lightMap.lightMapDrawingDisabled = !isAutomatic;
+	}
+
+	/**
+	 * Expert functionality
+	 * 
+	 * @return Texture that contain lightmap texture that can be used as light
+	 *         texture in your shaders
+	 */
+	public Texture getLightMapTexture() {
+		return lightMap.frameBuffer.getColorBufferTexture();
+	}
+
+	/**
+	 * Expert functionality, no support given
+	 * 
+	 * @return FrameBuffer that contains lightMap
+	 */
+	public FrameBuffer getLightMapBuffer() {
+		return lightMap.frameBuffer;
+	}
+
 }
