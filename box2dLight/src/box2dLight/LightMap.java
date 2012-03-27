@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -26,15 +27,19 @@ class LightMap {
 	private ShaderProgram withoutShadowShader;
 	private ShaderProgram blurShader;
 	private ShaderProgram diffuseShader;
+	
 
+	boolean lightMapDrawingDisabled;
+	
 	public void render() {
-		Gdx.gl.glEnable(GL20.GL_TEXTURE_2D);
 
 		boolean needed = rayHandler.lightRenderedLastFrame > 0;
 		// this way lot less binding
 		if (needed && rayHandler.blur)
 			gaussianBlur();
 
+		if (lightMapDrawingDisabled)
+			return;
 		frameBuffer.getColorBufferTexture().bind(0);
 
 		// at last lights are rendered over scene
@@ -135,6 +140,7 @@ class LightMap {
 	}
 
 	private Mesh createLightMapMesh() {
+		float[] verts = new float[VERT_SIZE];
 		// vertex coord
 		verts[X1] = -1;
 		verts[Y1] = -1;
@@ -170,7 +176,6 @@ class LightMap {
 
 	}
 
-	private float[] verts = new float[VERT_SIZE];
 	static public final int VERT_SIZE = 16;
 	static public final int X1 = 0;
 	static public final int Y1 = 1;
@@ -190,4 +195,3 @@ class LightMap {
 	static public final int V4 = 15;
 
 }
-
