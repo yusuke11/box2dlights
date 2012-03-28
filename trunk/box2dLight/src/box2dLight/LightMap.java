@@ -9,8 +9,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -27,10 +26,9 @@ class LightMap {
 	private ShaderProgram withoutShadowShader;
 	private ShaderProgram blurShader;
 	private ShaderProgram diffuseShader;
-	
 
 	boolean lightMapDrawingDisabled;
-	
+
 	public void render() {
 
 		boolean needed = rayHandler.lightRenderedLastFrame > 0;
@@ -114,9 +112,9 @@ class LightMap {
 			fboWidth = 1;
 		if (fboHeight <= 0)
 			fboHeight = 1;
-		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, fboWidth,
+		frameBuffer = new FrameBuffer(Format.RGBA8888, fboWidth,
 				fboHeight, false);
-		pingPongBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, fboWidth,
+		pingPongBuffer = new FrameBuffer(Format.RGBA8888, fboWidth,
 				fboHeight, false);
 
 		lightMapMesh = createLightMapMesh();
