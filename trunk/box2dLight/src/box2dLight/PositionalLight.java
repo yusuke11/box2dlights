@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.utils.NumberUtils;
 
 public abstract class PositionalLight extends Light {
 
@@ -171,10 +172,10 @@ public abstract class PositionalLight extends Light {
 				segments[size++] = my[i];
 				final float s = 1f - f[i];
 				// ugly inlining
-				segments[size++] = Float
-						.intBitsToFloat(((int) (a * s) << 24)
+				segments[size++] = NumberUtils
+						.intToFloatColor(((int) (a * s) << 24)
 								| ((int) (b * s) << 16) | ((int) (g * s) << 8)
-								| ((int) (r * s)) & 0xfeffffff);
+								| ((int) (r * s)));
 			}
 			lightMesh.setVertices(segments, 0, size);
 
@@ -188,10 +189,10 @@ public abstract class PositionalLight extends Light {
 				// color value is cached.
 				final float s = 1f - f[i];
 				// ugly inlining
-				segments[size++] = Float
-						.intBitsToFloat(((int) (a * s) << 24)
+				segments[size++] = NumberUtils
+						.intToFloatColor(((int) (a * s) << 24)
 								| ((int) (b * s) << 16) | ((int) (g * s) << 8)
-								| ((int) (r * s)) & 0xfeffffff);
+								| ((int) (r * s)));
 
 				segments[size++] = mx[i] + s * softShadowLenght * cos[i];
 				segments[size++] = my[i] + s * softShadowLenght * sin[i];
