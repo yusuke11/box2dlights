@@ -55,15 +55,13 @@ public class RayHandler implements Disposable {
 	 * 
 	 * NOTE: DO NOT MODIFY THIS LIST
 	 */
-	final public Array<Light> lightList = new Array<Light>(false, 16,
-			Light.class);
+	final public Array<Light> lightList = new Array<Light>(false, 16);
 	/**
 	 * This Array contain all the disabled lights.
 	 * 
 	 * NOTE: DO NOT MODIFY THIS LIST
 	 */
-	final public Array<Light> disabledLights = new Array<Light>(false, 16,
-			Light.class);
+	final public Array<Light> disabledLights = new Array<Light>(false, 16);
 
 	/** how many lights passed culling and rendered to scene */
 	public int lightRenderedLastFrame = 0;
@@ -224,7 +222,7 @@ public class RayHandler implements Disposable {
 	public final void update() {
 		final int size = lightList.size;
 		for (int j = 0; j < size; j++) {
-			lightList.items[j].update();
+			lightList.get(j).update();
 		}
 
 	}
@@ -259,15 +257,14 @@ public class RayHandler implements Disposable {
 				alphaChannelClear();
 			}
 
-			final Light[] list = lightList.items;
 			for (int i = 0, size = lightList.size; i < size; i++) {
-				list[i].render();
+				lightList.get(i).render();
 			}
 
 			if (shadows) {
 				if (box != null) {
 					Gdx.gl.glBlendFunc(GL10.GL_ONE, GL10.GL_DST_ALPHA);
-					box.render(GL10.GL_TRIANGLE_FAN, 0, 4);					
+					box.render(GL10.GL_TRIANGLE_FAN, 0, 4);
 				}
 			}
 
@@ -287,10 +284,8 @@ public class RayHandler implements Disposable {
 		lightShader.begin();
 		{
 			lightShader.setUniformMatrix("u_projTrans", combined);
-
-			final Light[] list = lightList.items;
 			for (int i = 0, size = lightList.size; i < size; i++) {
-				list[i].render();
+				lightList.get(i).render();
 			}
 		}
 		lightShader.end();
@@ -310,9 +305,8 @@ public class RayHandler implements Disposable {
 	 * @return true if point intersect any light volume
 	 */
 	public boolean pointAtLight(float x, float y) {
-		final Light[] list = lightList.items;
 		for (int i = 0, size = lightList.size; i < size; i++) {
-			if (list[i].contains(x, y))
+			if (lightList.get(i).contains(x, y))
 				return true;
 		}
 		return false;
@@ -326,9 +320,8 @@ public class RayHandler implements Disposable {
 	 * @return true if point intersect any light volume
 	 */
 	public boolean pointAtShadow(float x, float y) {
-		final Light[] list = lightList.items;
 		for (int i = 0, size = lightList.size; i < size; i++) {
-			if (list[i].contains(x, y))
+			if (lightList.get(i).contains(x, y))
 				return false;
 		}
 		return true;
@@ -346,14 +339,14 @@ public class RayHandler implements Disposable {
 	public void dispose() {
 
 		for (int i = 0; i < lightList.size; i++) {
-			lightList.items[i].lightMesh.dispose();
-			lightList.items[i].softShadowMesh.dispose();
+			lightList.get(i).lightMesh.dispose();
+			lightList.get(i).softShadowMesh.dispose();
 		}
 		lightList.clear();
 
 		for (int i = 0; i < disabledLights.size; i++) {
-			disabledLights.items[i].lightMesh.dispose();
-			disabledLights.items[i].softShadowMesh.dispose();
+			disabledLights.get(i).lightMesh.dispose();
+			disabledLights.get(i).softShadowMesh.dispose();
 		}
 		disabledLights.clear();
 
