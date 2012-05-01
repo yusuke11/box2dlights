@@ -99,14 +99,14 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 				Gdx.graphics.getHeight());
 
 		/** BOX2D LIGHT STUFF BEGIN */
-		// RayHandler.setGammaCorrection(true);
+		 RayHandler.setGammaCorrection(true);
 		RayHandler.useDiffuseLight(true);
 		rayHandler = new RayHandler(world);
-		rayHandler.setAmbientLight(0.2f, 0.2f, 0.15f, 0.6f);
+		rayHandler.setAmbientLight(0.2f, 0.2f, 0.2f, 0.1f);
 		rayHandler.setCulling(true);		
 		// rayHandler.setBlur(false);
 		rayHandler.setBlurNum(1);
-		// rayHandler.setShadows(false);
+		//rayHandler.setShadows(true);
 		camera.update(true);
 
 		// rayHandler.setCombinedMatrix(camera.combined, camera.position.x,
