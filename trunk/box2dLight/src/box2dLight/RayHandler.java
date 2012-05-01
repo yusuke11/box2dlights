@@ -484,45 +484,6 @@ public class RayHandler implements Disposable {
 		this.world = world;
 	}
 
-	final static String HIGH = "highp";
-	final static String MED = "mediump";
-	final static String LOW = "lowp";
-	static String colorPrecision = MED;
-
-	/**
-	 * set color precision to highp. Overkill quality. NOTE: this must be set
-	 * before rayHandler is constructed
-	 * */
-	public static void setColorPrecisionHighp() {
-		colorPrecision = HIGH;
-	}
-
-	/**
-	 * set color precision to mediump. Good quality and performance. NOTE: this
-	 * must be set before rayHandler is constructed
-	 * */
-	public static void setColorPrecisionMediump() {
-		colorPrecision = MED;
-	}
-
-	/**
-	 * set color precision to lowp. Worst quality, best performance. NOTE: this
-	 * must be set before rayHandler is constructed
-	 * */
-	public static void setColorPrecisionLowp() {
-		colorPrecision = LOW;
-	}
-
-	/**
-	 * return current color precision Note: if changed after RayHandler is
-	 * initialized, returned String is not what rayHandler is using
-	 * 
-	 * @return colorPrecision
-	 */
-	public static String getColorPrecision() {
-		return colorPrecision;
-	}
-
 	static boolean gammaCorrection = false;
 	static float gammaCorrectionParameter = 1f;
 	static boolean isDiffuse = false;

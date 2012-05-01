@@ -1,7 +1,5 @@
 package shaders;
 
-import box2dLight.RayHandler;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
@@ -17,19 +15,19 @@ public final class ShadowShader {
 				+ "   gl_Position = a_position;\n" //
 				+ "}\n";
 		final String fragmentShader = "#ifdef GL_ES\n" //
-				+ "#define MED "+ RayHandler.getColorPrecision() + "\n"
-				+ "precision "+RayHandler.getColorPrecision()+" float;\n" //
-				+ "#else\n" + "#define MED \n"
-				+ "#endif\n" //
-				+ "varying vec2 v_texCoords;\n" //
-				+ "uniform MED sampler2D u_texture;\n" //
-				+ "uniform MED vec4 ambient;\n"				
+			+ "precision lowp float;\n" //
+			+ "#define MED mediump\n"
+			+ "#else\n"
+			+ "#define MED \n"
+			+ "#endif\n" //
+				+ "varying MED vec2 v_texCoords;\n" //
+				+ "uniform sampler2D u_texture;\n" //
+				+ "uniform vec4 ambient;\n"				
 				+ "void main()\n"//
 				+ "{\n" //
-				+ "vec4 v_c = texture2D(u_texture, v_texCoords);\n"
-				+ "v_c.rgb = ambient.rgb + v_c.rgb* v_c.a;\n"//
-				+ "v_c.a = ambient.a - v_c.a;\n"//
-				+ "gl_FragColor = v_c;\n"//
+				+ "vec4 c = texture2D(u_texture, v_texCoords);\n"//
+				+ "gl_FragColor.rgb = c.rgb * c.a + ambient.rgb;\n"//
+				+ "gl_FragColor.a = ambient.a - c.a;\n"//				
 				+ "}\n";
 		ShaderProgram.pedantic = false;
 		ShaderProgram shadowShader = new ShaderProgram(vertexShader,
