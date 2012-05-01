@@ -17,9 +17,12 @@ public class DiffuseShader {
 
 		// this is allways perfect precision
 		final String fragmentShader = "#ifdef GL_ES\n" //
-				+ "precision mediump float;\n" //
+				+ "precision lowp float;\n" //
+				+ "#define MED mediump\n"				
+				+ "#else\n"				
+				+ "#define MED \n"
 				+ "#endif\n" //
-				+ "varying vec2 v_texCoords;\n" //
+				+ "varying MED vec2 v_texCoords;\n" //
 				+ "uniform sampler2D u_texture;\n" //
 				+ "uniform  vec4 ambient;\n"
 					+ "void main()\n"//

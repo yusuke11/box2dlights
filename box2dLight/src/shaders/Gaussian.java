@@ -1,7 +1,5 @@
 package shaders;
 
-import box2dLight.RayHandler;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
@@ -11,7 +9,7 @@ public class Gaussian {
 		final String FBO_W = Integer.toString(width);
 		final String FBO_H = Integer.toString(heigth);
 		final String vertexShader = "attribute vec4 a_position;\n" //
-				+ "uniform vec2  dir;\n" //				
+				+ "uniform vec2  dir;\n" //
 				+ "attribute vec2 a_texCoord;\n" //
 				+ "varying vec2 v_texCoords0;\n" //
 				+ "varying vec2 v_texCoords1;\n" //
@@ -38,18 +36,17 @@ public class Gaussian {
 				+ "gl_Position = a_position;\n" //
 				+ "}\n";
 		final String fragmentShader = "#ifdef GL_ES\n" //
-				+ "#define MED " + RayHandler.getColorPrecision() + "\n"
-				+ "precision " + RayHandler.getColorPrecision()
-				+ " float;\n" //
-				+ "#else\n"//
-				+ "#define MED \n"//
+				+ "precision lowp float;\n" //
+				+ "#define MED mediump\n"
+				+ "#else\n"
+				+ "#define MED \n"
 				+ "#endif\n" //
-				+ "uniform MED sampler2D u_texture;\n" //
-				+ "varying vec2 v_texCoords0;\n" //
-				+ "varying vec2 v_texCoords1;\n" //
-				+ "varying vec2 v_texCoords2;\n" //
-				+ "varying vec2 v_texCoords3;\n" //
-				+ "varying vec2 v_texCoords4;\n" //
+				+ "uniform sampler2D u_texture;\n" //
+				+ "varying MED vec2 v_texCoords0;\n" //
+				+ "varying MED vec2 v_texCoords1;\n" //
+				+ "varying MED vec2 v_texCoords2;\n" //
+				+ "varying MED vec2 v_texCoords3;\n" //
+				+ "varying MED vec2 v_texCoords4;\n" //
 				+ "const float center = 0.2270270270;\n" //
 				+ "const float close  = 0.3162162162;\n" //
 				+ "const float far    = 0.0702702703;\n" //

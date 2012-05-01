@@ -43,10 +43,10 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 	 * a spritebatch and a font for text rendering and a Texture to draw our
 	 * boxes
 	 **/
-	private static final int RAYS_PER_BALL = 64;
-	private static final int BALLSNUM = 8;
+	private static final int RAYS_PER_BALL = 128;
+	private static final int BALLSNUM = 3;
 
-	private static final float LIGHT_DISTANCE = 6f;
+	private static final float LIGHT_DISTANCE = 16f;
 	private static final float radius = 1f;
 	private SpriteBatch batch;
 	private BitmapFont font;
@@ -118,6 +118,7 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 			// MathUtils.random()*0.4f,
 			// MathUtils.random()*0.4f, 1f);
 			Light light = new PointLight(rayHandler, RAYS_PER_BALL);
+			light.setDistance(LIGHT_DISTANCE);
 			// Light light = new ConeLight(rayHandler, RAYS_PER_BALL, null,
 			// LIGHT_DISTANCE, 0, 0, 0, 60);
 			// light.setStaticLight(true);
