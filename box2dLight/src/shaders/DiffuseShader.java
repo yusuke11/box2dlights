@@ -27,7 +27,7 @@ public class DiffuseShader {
 				+ "uniform  vec4 ambient;\n"
 					+ "void main()\n"//
 				+ "{\n" //
-				+ "gl_FragColor = ambient + texture2D(u_texture, v_texCoords);\n"
+				+ "gl_FragColor.rgb = (ambient.rgb + texture2D(u_texture, v_texCoords).rgb);\n"
 					+ "}\n";
 		ShaderProgram.pedantic = false;
 		ShaderProgram shadowShader = new ShaderProgram(vertexShader,
