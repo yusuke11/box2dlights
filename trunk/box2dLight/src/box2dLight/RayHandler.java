@@ -486,7 +486,7 @@ public class RayHandler implements Disposable {
 
 	static boolean gammaCorrection = false;
 	static float gammaCorrectionParameter = 1f;
-	static boolean isDiffuse = false;
+	static public boolean isDiffuse = false;
 	final static float GAMMA_COR = 0.625f;
 
 	/**
