@@ -226,7 +226,7 @@ public abstract class PositionalLight extends Light {
 		}
 	}
 
-	PositionalLight(RayHandler rayHandler, int rays, Color color,
+	public PositionalLight(RayHandler rayHandler, int rays, Color color,
 			float distance, float x, float y, float directionDegree) {
 		super(rayHandler, rays, color, directionDegree, distance);
 		start.x = x;
