@@ -42,7 +42,7 @@ public abstract class Light {
 	float[] f;
 	int m_index = 0;
 
-	Light(RayHandler rayHandler, int rays, Color color, float directionDegree,
+	public Light(RayHandler rayHandler, int rays, Color color, float directionDegree,
 			float distance) {
 
 		rayHandler.lightList.add(this);
