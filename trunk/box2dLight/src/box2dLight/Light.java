@@ -367,14 +367,14 @@ public abstract class Light {
 	}
 
 	/** light filter **/
-	private Filter filterA = null;
+	static private Filter filterA = null;
 
 	/**
 	 * set given contact filter for ALL LIGHTS
 	 * 
 	 * @param filter
 	 */
-	public void setContactFilter(Filter filter) {
+	static public void setContactFilter(Filter filter) {
 		filterA = filter;
 	}
 
@@ -385,7 +385,7 @@ public abstract class Light {
 	 * @param groupIndex
 	 * @param maskBits
 	 */
-	public void setContactFilter(short categoryBits, short groupIndex,
+	static public void setContactFilter(short categoryBits, short groupIndex,
 			short maskBits) {
 		filterA = new Filter();
 		filterA.categoryBits = categoryBits;
