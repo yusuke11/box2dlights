@@ -87,7 +87,10 @@ public abstract class Light {
 	 *            intesity
 	 */
 	public void setColor(float r, float g, float b, float a) {
-		color.set(r, g, b, a);
+		color.r = r;
+    color.g = g;
+    color.b = b;
+    color.a = a;
 		colorF = color.toFloatBits();
 		if (staticLight)
 			staticUpdate();
