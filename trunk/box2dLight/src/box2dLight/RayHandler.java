@@ -462,7 +462,10 @@ public class RayHandler implements Disposable {
 	 *            the ambientLight to set
 	 */
 	public final void setAmbientLight(float r, float g, float b, float a) {
-		this.ambientLight.set(r, g, b, a);
+		this.ambientLight.r = r;
+    this.ambientLight.g = g;
+    this.ambientLight.b = b;
+    this.ambientLight.a = a;   
 	}
 
 	/**
