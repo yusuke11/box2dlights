@@ -175,11 +175,11 @@ public class Box2dLightTest implements ApplicationListener, InputProcessor {
 		/** BOX2D LIGHT STUFF END */
 
 		long time = System.nanoTime();
-		aika += System.nanoTime() - time;
 
 		boolean atShadow = rayHandler.pointAtShadow(testPoint.x,
 				testPoint.y);
-
+		aika += System.nanoTime() - time;
+      
 		/** FONT */
 		batch.setProjectionMatrix(normalProjection);
 		batch.begin();
